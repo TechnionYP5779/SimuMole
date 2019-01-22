@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/TechnionYP5779/SimuMole.svg?branch=master)](https://travis-ci.org/TechnionYP5779/SimuMole)
 # Molecular dynamics
 
 ### Abstract
@@ -16,3 +17,4 @@ as a part of her research she needs to simulate the movement of molecules in bio
 we are investigating the use of several technologies to create our application including:
 - Electron: creating the desktop app using electron will enable a faster development process
 - Unity: using the Unity graphics engine API to create the animation  
+
