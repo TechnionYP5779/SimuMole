@@ -1,0 +1,7 @@
+to run the server:
+    python manage.py runserver
+
+defult port is 8000. to use a different port run:
+    python manage.py runserver <new port>
+
+to turn DEBUG mode off change the boolean in SimuMole/settings.py to FALSE
