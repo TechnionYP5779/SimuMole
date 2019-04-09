@@ -32,6 +32,7 @@ def pdb_operations(local_path_a=None, local_path_b=None, id_a=None, id_b=None):
         cmd.load("https://files.rcsb.org/download/" + id_b)
 
     cmd.zoom()  # defaults to zoom = all
+    cmd.save("all.pdb")
 
 
 #  pdb_operations("BSAP_one_chain.pdb", "model1asn.pdb")
