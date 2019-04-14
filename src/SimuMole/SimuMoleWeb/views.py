@@ -1,6 +1,8 @@
 from django.shortcuts import render
 from django.http import HttpResponse
-# Create your views here.
+from django.http import Http404
 
-def index(request):
-    return HttpResponse("hello this is Eyal")
+
+def home(request):
+    some_dict = {}
+    return render(request, 'home.html', some_dict)
