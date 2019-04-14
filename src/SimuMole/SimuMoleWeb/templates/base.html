@@ -1,0 +1,58 @@
+<html lang="en-US">
+    <head>
+        <meta charset="UTF-8">
+        <title>Home - SimuMole</title>
+        {% load static %}
+        <link rel="stylesheet" id="ample-style-css" href="{% static 'SimuMoleWeb/style.css' %}" type="text/css" media="all">
+    </head>
+    <body class="wide">
+        <div id="page" class="hfeed site">
+            <header>
+                <div class="header">
+                    <div class="main-head-wrap inner-wrap clearfix">
+                        <div id="header-logo-image">
+                            <a href="/">
+                              {% load static %}
+                              <img src="{% static "SimuMoleWeb/sm_logo.png" %}" alt="logo">
+                            </a>
+                        </div>
+                        <div id="header-text" class="">
+                            <h1 id="site-title">
+                                <a href="/" title="Simu Mole" rel="home">SimuMole</a>
+                            </h1>
+                            <p>Molecular dynamic simulation and visualization.</p>
+                        </div>
+                    </div>
+                    <!-- {% load static %}
+                    <img src="{% static "SimuMoleWeb/simumole_landing.png" %}" alt="cocaine" > -->
+                </div>
+                <div class="main-navigation" >
+                  <ul >
+                    <li><a href=''>Home</a></li>
+                    <li><a href=''>News</a></li>
+                    <li><a href=''>Contact</a></li>
+                    <li><a href=''>About</a></li>
+                  </ul>
+                  </div>
+            </header>
+
+            <div class="main-wrapper">
+                <div class="single-page clearfix">
+                    <div class="inner-wrap">
+                        <hr>
+                        <div>
+                        {% block content %}
+                        {% endblock %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <footer id="colophon">
+                <div class="inner-wrap">
+                    SimuMol was created at the Technion – Israel Institute of Technology as a project under the supervision of Boaz Rozenan as apart of the yearly project course 234312. spring 2019
+
+                </div>
+            </footer>
+        </div>
+    </body>
+</html>
