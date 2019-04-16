@@ -45,7 +45,7 @@ class Simulation:
         translate_pdb(temp + filename_2 + pdb, temp + filename_2_movement + pdb, self.x2, self.y2, self.z2)
 
         # STEP 3: merge to single pdb file
-        # todo: complete
+        self.save_pdbs_in_one_pdb(filename_1_movement, filename_2_movement)
 
         # STEP 4: use OpenMM
         # todo: complete
@@ -60,6 +60,15 @@ class Simulation:
         self.cmd.reinitialize()
         sleep(0.5)
 
-        self.cmd.load("https://files.rcsb.org/download/" + pdb_id + '.pdb')
+        self.cmd.load("https://files.rcsb.org/download/" + pdb_id + pdb)
         self.cmd.zoom()
         self.cmd.save(temp + name_of_file)
+
+    def save_pdbs_in_one_pdb(self, filename_1, filename_2):
+        self.cmd.reinitialize()
+        sleep(0.5)
+
+        self.cmd.load(temp + filename_1 + pdb)
+        self.cmd.load(temp + filename_2 + pdb)
+        self.cmd.zoom()
+        self.cmd.save(temp + "both__" + self.first_pdb_id + '_' + self.second_pdb_id + pdb)
