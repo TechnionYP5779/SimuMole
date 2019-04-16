@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+
+    <div>
+        <h3>Create Your Simulation</h3>
+
+        <form action="/create_simulation_result/" method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <input type="submit" value="Submit"/>
+        </form>
+
+    </div>
+
+{% endblock %}

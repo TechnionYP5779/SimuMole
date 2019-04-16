@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+
+    <div>
+        <h3>Create Your Simulation - Response Entered by you:</h3>
+
+        <form method="post">
+            <ul>
+                <li>First pdb: <strong>{{ first_pdb }}</strong></li>
+                <li>Second pdb: <strong>{{ second_pdb }}</strong></li>
+                <li>x1: <strong>{{ x1 }}</strong></li>
+                <li>y1: <strong>{{ y1 }}</strong></li>
+                <li>z1: <strong>{{ z1 }}</strong></li>
+                <li>Temperature: <strong>{{ temperature }}</strong></li>
+            </ul>
+        </form>
+
+    </div>
+
+{% endblock %}
