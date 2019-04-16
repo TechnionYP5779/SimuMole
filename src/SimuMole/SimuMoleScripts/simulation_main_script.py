@@ -2,6 +2,11 @@ from time import sleep
 import pymol
 import os
 
+from .transformations import translate_pdb
+
+temp = 'SimuMoleWeb/temp/'  # path to temp folder
+pdb = '.pdb'  # pdb suffix
+
 
 class Simulation:
 
@@ -10,26 +15,34 @@ class Simulation:
 
         self.first_pdb_id = first_pdb_id
         self.second_pdb_id = second_pdb_id
-        self.x1 = x1
-        self.y1 = y1
-        self.z1 = z1
-        self.temperature = temperature
+        self.x1 = float(x1)
+        self.y1 = float(y1)
+        self.z1 = float(z1)
+        # self.x2 = float(x2)
+        # self.y2 = float(y2)
+        # self.z2 = float(z2)
+        self.temperature = float(temperature)
 
-        # for debugging:
-        self.first_pdb_id = '1GK7'
-        self.second_pdb_id = '6CTH'
+        # for debugging: # todo: delete when complete
+        self.first_pdb_id, self.second_pdb_id = '1GK7', '6CTH'
+        self.x1, self.y1, self.z1 = float(50), float(50), float(50)
+        self.x2, self.y2, self.z2 = float(0), float(0), float(0)
 
     def create_simulation(self):
         pymol.finish_launching(['pymol', '-q'])  # pymol: -q quiet launch, -c no gui, -e fullscreen
         self.cmd = pymol.cmd
 
         # STEP 1: load input pdb
-        self.save_pdb_by_id(self.first_pdb_id, 'first_pdb__' + str(self.first_pdb_id) + '.pdb')
-        self.save_pdb_by_id(self.second_pdb_id, 'second_pdb__' + str(self.second_pdb_id) + '.pdb')
+        filename_1 = 'pdb_1__' + str(self.first_pdb_id)
+        filename_2 = 'pdb_2__' + str(self.second_pdb_id)
+        self.save_pdb_by_id(self.first_pdb_id, filename_1 + pdb)
+        self.save_pdb_by_id(self.second_pdb_id, filename_2 + pdb)
 
         # STEP 2: fix positions
-        # (for now, only move the first protein. we also need to move the second)
-        # todo: complete
+        filename_1_movement = filename_1 + '__movement'
+        filename_2_movement = filename_2 + '__movement'
+        translate_pdb(temp + filename_1 + pdb, temp + filename_1_movement + pdb, self.x1, self.y1, self.z1)
+        translate_pdb(temp + filename_2 + pdb, temp + filename_2_movement + pdb, self.x2, self.y2, self.z2)
 
         # STEP 3: merge to single pdb file
         # todo: complete
@@ -49,4 +62,4 @@ class Simulation:
 
         self.cmd.load("https://files.rcsb.org/download/" + pdb_id + '.pdb')
         self.cmd.zoom()
-        self.cmd.save('SimuMoleWeb/temp/' + name_of_file)
+        self.cmd.save(temp + name_of_file)
