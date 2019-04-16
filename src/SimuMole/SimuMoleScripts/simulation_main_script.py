@@ -3,6 +3,7 @@ import pymol
 import os
 
 from .transformations import translate_pdb
+from .OpenMM_scriptBuilder import create_openmm_script
 
 temp = 'SimuMoleWeb/temp/'  # path to temp folder
 pdb = '.pdb'  # pdb suffix
@@ -47,8 +48,8 @@ class Simulation:
         # STEP 3: merge to single pdb file
         self.save_pdbs_in_one_pdb(filename_1_movement, filename_2_movement)
 
-        # STEP 4: use OpenMM
-        # todo: complete
+        # STEP 4: use OpenMM # todo: complete
+        # create_openmm_script(self.first_pdb_id, self.second_pdb_id)
 
         # self.cmd.quit() # todo: need to close PyMol window
 
