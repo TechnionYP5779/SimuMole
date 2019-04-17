@@ -2,6 +2,10 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.http import Http404
 from django.template import loader
+from django.shortcuts import render
+from .models import UploadForm, Upload
+from django.http import HttpResponseRedirect
+from django.urls import reverse
 
 from .forms import CreateSimulationForm
 from SimuMoleScripts.simulation_main_script import Simulation
@@ -45,3 +49,15 @@ def create_simulation(request):
         form = CreateSimulationForm()
 
     return render(request, 'create_simulation.html', {'form': form})
+
+def file_upload(request):
+    if request.method=="POST":
+        file = UploadForm(request.POST, request.FILES)
+        if file.is_valid():
+            file.save()
+            return HttpResponseRedirect(reverse('file_upload'))
+# TODO: what if its not a pdb file
+    else:
+        file=UploadForm()
+    files=Upload.objects.all().order_by('-upload_date')
+    return render(request,'file_upload.html',{'form':file,'files':files})

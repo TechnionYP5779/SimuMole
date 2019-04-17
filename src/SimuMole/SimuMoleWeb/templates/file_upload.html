@@ -1,0 +1,7 @@
+<div style="padding:40px;margin:40px;border:1px solid #ccc">
+    <h1>File Upload</h1>
+    <form action="#" method="post" enctype="multipart/form-data">
+        {% csrf_token %} {{form}}
+        <input type="submit" value="Upload" />
+    </form>
+</div>
