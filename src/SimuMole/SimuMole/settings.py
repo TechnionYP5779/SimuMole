@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'SimuMoleWeb',
+    'formtools',  # To install django-formtools: "pip install django-formtools"
 ]
 
 MIDDLEWARE = [

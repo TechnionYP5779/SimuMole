@@ -1,15 +1,68 @@
 {% extends "base.html" %}
+
+{% load i18n %}
+
+{% block head %}
+    {{ wizard.form.media }}
+{% endblock %}
+
 {% block content %}
 
-    <div>
-        <h3>Create Your Simulation</h3>
+    <h1><strong>Create Your Simulation</strong></h1><br>
 
-        <form action="/create_simulation_result/" method="post">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <input type="submit" value="Submit"/>
-        </form>
+    <!-- "Step x of y" -->
+    <p>Step {{ wizard.steps.step1 }} of {{ wizard.steps.count }}</p>
 
-    </div>
+    <!-- Step description -->
+    {% if  wizard.steps.step1  == 1 %}
+        <h3>Upload PDB files</h3>
+    {% elif  wizard.steps.step1 == 2 %}
+        <h3>Determine the relative position between the proteins</h3>
+    {% elif  wizard.steps.step1 == 3 %}
+        <h3>Set the parameters for the simulation</h3>
+    {% endif %}
+    <br>
+
+    {% for field in form %}
+        {{ field.error }}
+    {% endfor %}
+
+    <form action="" method="post">{% csrf_token %}
+
+        <!-- The forms: -->
+        <table>
+            {{ wizard.management_form }}
+            {% if wizard.form.forms %}
+                {{ wizard.form.management_form }}
+                {% for form in wizard.form.forms %}
+                    {{ form }}
+                {% endfor %}
+            {% else %}
+                {{ wizard.form }}
+            {% endif %}
+        </table>
+
+        <!-- "Next" and "Submit" buttons -->
+        {% if wizard.steps.current == wizard.steps.last %}
+            <input style="background-color: #5e88e7; color: black;"
+                   type="submit" value="Submit" class="btn btn-primary"/>
+        {% else %}
+            <input style="background-color: #5e88e7; color: black;"
+                   type="submit" value="Next" class="btn btn-primary"/>
+        {% endif %}
+
+        <!-- "Return To Start" and "Previous" buttons -->
+        {% if wizard.steps.prev %}
+            <button style="background-color: #e7e7e7; color: black;"
+                    name="wizard_goto_step" type="submit" value="{{ wizard.steps.prev }}" class="btn">
+                {% trans "Previous" %}
+            </button>
+            <button style="background-color: #e7e7e7; color: black;"
+                    name="wizard_goto_step" type="submit" value="{{ wizard.steps.first }}" class="btn">
+                {% trans "Return To Start" %}
+            </button>
+        {% endif %}
+
+    </form>
 
 {% endblock %}
