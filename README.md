@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/TechnionYP5779/SimuMole.svg?branch=master)](https://travis-ci.org/TechnionYP5779/SimuMole)
+[![Total alerts](https://img.shields.io/lgtm/alerts/g/TechnionYP5779/SimuMole.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/TechnionYP5779/SimuMole/alerts/)
 # Molecular dynamics
 
 ### Abstract
