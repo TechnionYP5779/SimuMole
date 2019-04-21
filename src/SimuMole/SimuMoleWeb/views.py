@@ -66,7 +66,7 @@ def file_upload(request):
                 return HttpResponseRedirect(reverse('file_upload'))
             else:
                 messages.error(request, 'Upload failed: file extension has to be \'pdb\'.')
-# TODO: what if its not a pdb file
+
     else:
         file=UploadForm()
     return render(request,'file_upload.html',{'form':file})
