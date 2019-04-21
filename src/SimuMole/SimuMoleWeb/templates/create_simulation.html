@@ -14,11 +14,13 @@
     <p>Step {{ wizard.steps.step1 }} of {{ wizard.steps.count }}</p>
 
     <!-- Step description -->
-    {% if  wizard.steps.step1  == 1 %}
+    {% if  wizard.steps.current  == '0' %}
+        <h3>Determine the number of proteins</h3>
+    {% elif  wizard.steps.current  == '1' %}
         <h3>Upload PDB files</h3>
-    {% elif  wizard.steps.step1 == 2 %}
+    {% elif  wizard.steps.current == '2' %}
         <h3>Determine the relative position between the proteins</h3>
-    {% elif  wizard.steps.step1 == 3 %}
+    {% elif  wizard.steps.current == '3' %}
         <h3>Set the parameters for the simulation</h3>
     {% endif %}
     <br>
@@ -30,17 +32,16 @@
     <form action="" method="post">{% csrf_token %}
 
         <!-- The forms: -->
-        <table>
-            {{ wizard.management_form }}
-            {% if wizard.form.forms %}
-                {{ wizard.form.management_form }}
-                {% for form in wizard.form.forms %}
-                    {{ form }}
-                {% endfor %}
-            {% else %}
-                {{ wizard.form }}
-            {% endif %}
-        </table>
+        {{ wizard.management_form }}
+        {% if wizard.form.forms %}
+            {{ wizard.form.management_form }}
+            {% for form in wizard.form.forms %}
+                {{ form }}
+            {% endfor %}
+        {% else %}
+            {{ wizard.form }}
+        {% endif %}
+        <br>
 
         <!-- "Next" and "Submit" buttons -->
         {% if wizard.steps.current == wizard.steps.last %}
