@@ -8,6 +8,24 @@
 
 {% block content %}
 
+    <style>
+        .error input, .error select, .errorlist {
+            color: red;
+        }
+
+        #gray-button {
+            background-color: #e7e7e7;
+            color: black;
+        }
+
+        #blue-button {
+            background-color: #5e88e7;
+            color: black;
+        }
+
+    </style>
+
+
     <h1><strong>Create Your Simulation</strong></h1><br>
 
     <!-- "Step x of y" -->
@@ -45,21 +63,17 @@
 
         <!-- "Next" and "Submit" buttons -->
         {% if wizard.steps.current == wizard.steps.last %}
-            <input style="background-color: #5e88e7; color: black;"
-                   type="submit" value="Submit" class="btn btn-primary"/>
+            <input id="blue-button" type="submit" value="Submit" class="btn btn-primary"/>
         {% else %}
-            <input style="background-color: #5e88e7; color: black;"
-                   type="submit" value="Next" class="btn btn-primary"/>
+            <input id="blue-button" type="submit" value="Next" class="btn btn-primary"/>
         {% endif %}
 
         <!-- "Return To Start" and "Previous" buttons -->
         {% if wizard.steps.prev %}
-            <button style="background-color: #e7e7e7; color: black;"
-                    name="wizard_goto_step" type="submit" value="{{ wizard.steps.prev }}" class="btn">
+            <button id="gray-button" name="wizard_goto_step" type="submit" value="{{ wizard.steps.prev }}" class="btn">
                 {% trans "Previous" %}
             </button>
-            <button style="background-color: #e7e7e7; color: black;"
-                    name="wizard_goto_step" type="submit" value="{{ wizard.steps.first }}" class="btn">
+            <button id="gray-button" name="wizard_goto_step" type="submit" value="{{ wizard.steps.first }}" class="btn">
                 {% trans "Return To Start" %}
             </button>
         {% endif %}
@@ -67,3 +81,4 @@
     </form>
 
 {% endblock %}
+

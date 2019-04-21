@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from formtools.wizard.views import CookieWizardView  # todo: check if need to replace with "SessionWizardView"
+from formtools.wizard.views import CookieWizardView
 
 from SimuMoleScripts.simulation_main_script import Simulation
 
