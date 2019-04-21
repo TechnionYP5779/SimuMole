@@ -10,7 +10,18 @@ from SimuMoleScripts.simulation_main_script import Simulation
 def home(request):
     some_dict = {}
     return render(request, 'home.html', some_dict)
+	
+def news(request):
+    some_dict = {}
+    return render(request, 'news.html', some_dict)
 
+def contact(request):
+    some_dict = {}
+    return render(request, 'contact.html', some_dict)
+
+def about(request):
+    some_dict = {}
+    return render(request, 'about.html', some_dict)
 
 def create_simulation(request):
     if request.method == 'POST':
