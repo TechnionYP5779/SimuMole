@@ -4,5 +4,6 @@ python:
 # command to install dependencies
 install:
   - pip install pytest
+  - pip install pymol
 # command to run tests
 script: pytest
