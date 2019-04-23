@@ -68,10 +68,12 @@
 
         <!-- "Return To Start" and "Previous" buttons -->
         {% if wizard.steps.prev %}
-            <button id="gray-button" name="wizard_goto_step" type="submit" value="{{ wizard.steps.prev }}" class="btn">
+            <button formnovalidate="formnovalidate" id="gray-button" name="wizard_goto_step" type="submit"
+                    value="{{ wizard.steps.prev }}" class="btn">
                 {% trans "Previous" %}
             </button>
-            <button id="gray-button" name="wizard_goto_step" type="submit" value="{{ wizard.steps.first }}" class="btn">
+            <button formnovalidate="formnovalidate" id="gray-button" name="wizard_goto_step" type="submit"
+                    value="{{ wizard.steps.first }}" class="btn">
                 {% trans "Return To Start" %}
             </button>
         {% endif %}
