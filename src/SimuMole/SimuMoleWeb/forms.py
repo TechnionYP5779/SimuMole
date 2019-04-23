@@ -117,29 +117,21 @@ class SimulationForm0_LoadPdb(forms.Form):
 
     @staticmethod
     def pdb_id_exists(pdb_id):
-        if pdb_id == '1':
-            return False
         # todo 2: check that the ID is exist
         return True
 
     @staticmethod
     def pdb_id_valid_by_openmm(pdb_id):
-        if pdb_id == '2':
-            return False
         # todo 3: check that the force field of OpenMM accept this PDB
         return True
 
     @staticmethod
     def pdb_file_valid(pdb_file):
-        if pdb_file == '3':
-            return False
         # todo 4: check that the file is valid
         return True
 
     @staticmethod
     def pdb_file_valid_by_openmm(pdb_file):
-        if pdb_file == '4':
-            return False
         # todo 5: check that the force field of OpenMM accept this PDB
         return True
 
