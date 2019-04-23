@@ -9,6 +9,7 @@ before_install:
   - git clone https://github.com/schrodinger/pymol-open-source.git
   - cd pymol-open-source
   - python setup.py build install
+  - cd ..
 install:
   - pip install pytest
 # command to run tests
