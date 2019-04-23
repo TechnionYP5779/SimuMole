@@ -64,7 +64,7 @@ def file_upload(request):
                 messages.success(request, 'File Uploaded Successfully')
                 file.save()
                 return HttpResponseRedirect(reverse('file_upload'))
-            else:
+            else:  # Should never be called, since we added FileExtensionValidator on the Upload model.
                 messages.error(request, 'Upload failed: file extension has to be \'pdb\'.')
 
     else:
