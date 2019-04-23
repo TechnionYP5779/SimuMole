@@ -11,20 +11,21 @@ pdb = '.pdb'  # pdb suffix
 
 class Simulation:
 
-    def __init__(self, first_pdb_id, second_pdb_id, x1, y1, z1, temperature):
+    def __init__(self, num_of_proteins, first_pdb_id, second_pdb_id, x1, y1, z1, x2, y2, z2, temperature):
         self.cmd = None
 
+        self.num_of_proteins = num_of_proteins
         self.first_pdb_id = first_pdb_id
         self.second_pdb_id = second_pdb_id
         self.x1 = float(x1)
         self.y1 = float(y1)
         self.z1 = float(z1)
-        # self.x2 = float(x2)
-        # self.y2 = float(y2)
-        # self.z2 = float(z2)
+        self.x2 = float(x2)
+        self.y2 = float(y2)
+        self.z2 = float(z2)
         self.temperature = float(temperature)
 
-        # for debugging: # todo: delete when complete
+        # for debugging: # todo: delete when complete with debugging
         self.first_pdb_id, self.second_pdb_id = '1GK7', '6CTH'
         self.x1, self.y1, self.z1 = float(50), float(50), float(50)
         self.x2, self.y2, self.z2 = float(0), float(0), float(0)

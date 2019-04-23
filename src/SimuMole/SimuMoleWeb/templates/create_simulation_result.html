@@ -1,20 +1,15 @@
 {% extends "base.html" %}
+
 {% block content %}
 
-    <div>
-        <h3>Create Your Simulation - Response Entered by you:</h3>
+    <h1><strong>Create Your Simulation</strong></h1><br>
 
-        <form method="post">
-            <ul>
-                <li>First pdb: <strong>{{ first_pdb }}</strong></li>
-                <li>Second pdb: <strong>{{ second_pdb }}</strong></li>
-                <li>x1: <strong>{{ x1 }}</strong></li>
-                <li>y1: <strong>{{ y1 }}</strong></li>
-                <li>z1: <strong>{{ z1 }}</strong></li>
-                <li>Temperature: <strong>{{ temperature }}</strong></li>
-            </ul>
-        </form>
+    <h3>Response entered by you:</h3>
 
-    </div>
+    <ul>
+        {% for key, value in form_data.items %}
+            <li><strong>{{ key }}</strong> - {{ value }}</li>
+        {% endfor %}
+    </ul>
 
 {% endblock %}
