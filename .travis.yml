@@ -13,4 +13,4 @@ install:
   - pip install pytest
 # command to run tests
 # script: pytest # TODO: enable after addind tests
-script:
+script: test.py
