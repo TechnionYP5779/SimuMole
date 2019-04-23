@@ -16,9 +16,9 @@ as a part of her research she needs to simulate the movement of molecules in bio
 - The user should be able to display an existing simulation that was created by our app
 
 ### Technologies
-OpenMM: A high performance toolkit for molecular simulation. We use it for running the simulation to get the non-visualize results.
+- OpenMM: A high performance toolkit for molecular simulation. We use it for running the simulation to get the non-visualize results.
 
-PyMOL: A powerful and comprehensive molecular visualization product for rendering and animating 3D molecular structures. We use it for fetching two PDB files to one containing those two and for displaying the simulations.
+- PyMOL: A powerful and comprehensive molecular visualization product for rendering and animating 3D molecular structures. We use it for fetching two PDB files to one containing those two and for displaying the simulations.
 
-Django: An open source web framework written in Python. We use it for developing our web.
+- Django: An open source web framework written in Python. We use it for developing our web.
 
