@@ -1,9 +1,9 @@
 
 from time import sleep
-import pymol
-pymol.finish_launching(['pymol', '-q'])  # pymol: -q quiet launch, -c no gui, -e fullscreen
+import pymol_plugin_dynamics
+pymol_plugin_dynamics.finish_launching(['pymol', '-q'])  # pymol: -q quiet launch, -c no gui, -e fullscreen
 
-cmd = pymol.cmd
+cmd = pymol_plugin_dynamics.cmd
 
 for index in [1, 2, 3]:
     #  If using a single script to produce multiple figures,
