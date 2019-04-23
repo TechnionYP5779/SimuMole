@@ -2,8 +2,9 @@ language: python
 python:
   - "3.6"
 # command to install dependencies
+before_install:
+  - apt-get install pymol
 install:
   - pip install pytest
-  - pip install pymol_launcher
 # command to run tests
 script: pytest
