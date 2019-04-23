@@ -3,7 +3,7 @@ python:
   - "3.6"
 # command to install dependencies
 before_install:
-  - apt-get install pymol
+  - sudo apt-get install pymol
 install:
   - pip install pytest
 # command to run tests
