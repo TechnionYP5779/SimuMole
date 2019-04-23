@@ -3,7 +3,6 @@ python:
   - "3.6"
 # command to install dependencies
 before_install:
-  - sudo apt-get install build-essential python-dev python-pmw libglew-dev freeglut3-dev libpng-dev libfreetype6-dev libxml2-dev libmsgpack-dev python-pyqt5.qtopengl libglm-dev
   - git clone https://github.com/schrodinger/pymol-open-source.git
   - cd pymol-open-source
   - python setup.py build install
