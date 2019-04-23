@@ -5,6 +5,7 @@ python:
 before_install:
   - sudo apt-get install pymol
 install:
+  - pip install pymol
   - pip install pytest
 # command to run tests
 script: pytest
