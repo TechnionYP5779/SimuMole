@@ -1,7 +1,18 @@
 from django.shortcuts import render
 from formtools.wizard.views import CookieWizardView
+from django.http import HttpResponse
+from django.http import Http404
+from django.template import loader
+from django.shortcuts import render
 
 from SimuMoleScripts.simulation_main_script import Simulation
+from .models import UploadForm, Upload
+from django.http import HttpResponseRedirect
+from django.urls import reverse
+from django.contrib import messages
+import os
+
+from .forms import CreateSimulationForm
 
 
 ################################
@@ -125,3 +136,25 @@ def show_form1(wizard: CookieWizardView):
     """
     cleaned_data = wizard.get_cleaned_data_for_step('0') or {}
     return cleaned_data.get('num_of_proteins') == '2'
+
+################################
+#   File Upload
+################################
+
+def file_upload(request):
+    if request.method=="POST":
+        file = UploadForm(request.POST, request.FILES)
+        if file.is_valid():
+            file_name, file_extension = os.path.splitext(request.FILES['file'].name)
+            file_extension = file_extension.lower()
+            # allowing only pdb files
+            if file_extension == '.pdb':
+                messages.success(request, 'File Uploaded Successfully')
+                file.save()
+                return HttpResponseRedirect(reverse('file_upload'))
+            else:  # Should never be called, since we added FileExtensionValidator on the Upload model.
+                messages.error(request, 'Upload failed: file extension has to be \'pdb\'.')
+
+    else:
+        file=UploadForm()
+    return render(request,'file_upload.html',{'form':file})

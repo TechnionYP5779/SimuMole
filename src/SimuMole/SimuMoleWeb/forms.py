@@ -137,12 +137,12 @@ class SimulationForm0_LoadPdb(forms.Form):
 
 
 class SimulationForm1_DetermineRelativePosition(forms.Form):
-    x1 = forms.CharField(required=True, label='Enter delta x of first pdb', max_length=10)
-    y1 = forms.CharField(required=True, label='Enter delta y of first pdb', max_length=10)
-    z1 = forms.CharField(required=True, label='Enter delta z of first pdb', max_length=10)
-    x2 = forms.CharField(required=True, label='Enter delta x of second pdb', max_length=10)
-    y2 = forms.CharField(required=True, label='Enter delta y of second pdb', max_length=10)
-    z2 = forms.CharField(required=True, label='Enter delta z of second pdb', max_length=10)
+    x1 = forms.FloatField(required=True, label='Enter delta x of first pdb')
+    y1 = forms.FloatField(required=True, label='Enter delta y of first pdb')
+    z1 = forms.FloatField(required=True, label='Enter delta z of first pdb')
+    x2 = forms.FloatField(required=True, label='Enter delta x of second pdb')
+    y2 = forms.FloatField(required=True, label='Enter delta y of second pdb')
+    z2 = forms.FloatField(required=True, label='Enter delta z of second pdb')
 
     def clean(self):
         cleaned_data = super(SimulationForm1_DetermineRelativePosition, self).clean()
@@ -160,7 +160,7 @@ class SimulationForm1_DetermineRelativePosition(forms.Form):
 
 
 class SimulationForm2_SimulationParameters(forms.Form):
-    temperature = forms.CharField(required=True, label='Enter temperature', max_length=10)
+    temperature = forms.FloatField(required=True, label='Enter temperature')
 
     # todo 7: add field of number of time steps (and also: size of every time step)
 
@@ -168,3 +168,4 @@ class SimulationForm2_SimulationParameters(forms.Form):
         cleaned_data = super(SimulationForm2_SimulationParameters, self).clean()
         data = {**self.initial, **cleaned_data}  # self.initial->from previous steps, cleaned_data->from current step
         return cleaned_data
+
