@@ -34,6 +34,7 @@
                     <li><a href=''>Contact</a></li>         <!-- todo: need to complete!-->
                     <li><a href=''>About</a></li>           <!-- todo: need to complete!-->
                     <li><a href='/create_simulation'>Create Simulation</a></li>
+                      <li><a href='/upload'>Upload PDB</a></li>
                   </ul>
                   </div>
             </header>
@@ -43,6 +44,13 @@
                     <div class="inner-wrap">
                         <hr>
                         <div>
+                        {% if messages %}
+                            <ul class="messages">
+                             {% for message in messages %}
+                                  <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                              {% endfor %}
+                            </ul>
+                        {% endif %}
                         {% block content %}
                         {% endblock %}
                         </div>

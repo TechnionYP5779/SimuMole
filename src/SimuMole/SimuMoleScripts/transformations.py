@@ -1,4 +1,4 @@
-import pymol
+#import pymol
 import numpy as np
 
 
