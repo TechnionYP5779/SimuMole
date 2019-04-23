@@ -33,12 +33,10 @@
 
     <!-- Step description -->
     {% if  wizard.steps.current  == '0' %}
-        <h3>Determine the number of proteins</h3>
-    {% elif  wizard.steps.current  == '1' %}
-        <h3>Upload PDB files</h3>
-    {% elif  wizard.steps.current == '2' %}
+        <h3>Determine the number of proteins and upload PDB files</h3>
+    {% elif  wizard.steps.current == '1' %}
         <h3>Determine the relative position between the proteins</h3>
-    {% elif  wizard.steps.current == '3' %}
+    {% elif  wizard.steps.current == '2' %}
         <h3>Set the parameters for the simulation</h3>
     {% endif %}
     <br>
@@ -81,4 +79,70 @@
     </form>
 
 {% endblock %}
+
+{% block extra_js %}
+    <script type="text/javascript">
+
+        // form0 - show/hide the fields "first pdb" and "second pdb":
+        let num_of_proteins = document.getElementById('id_0-num_of_proteins');
+        let num_of_proteins_1 = document.getElementById('id_0-num_of_proteins_0');
+        let num_of_proteins_2 = document.getElementById('id_0-num_of_proteins_1');
+        if (num_of_proteins) { // the user is currently filling form 0
+            num_of_proteins.style.paddingBottom = '20px';
+            num_of_proteins.onchange = show_or_hide_on_change;
+            show_or_hide(num_of_proteins_1, num_of_proteins_2);
+        }
+
+        function show_or_hide(num_of_proteins_1, num_of_proteins_2) {
+            if (num_of_proteins_1.checked) {
+                // in case the user choose to load only one pdb - then show only "first_pdb"
+                show_element('id_0-first_pdb');
+                hide_element('id_0-second_pdb');
+            } else if (num_of_proteins_2.checked) {
+                // in case the user choose to load 2 pdbs - then show "first_pdb" and "second_pdb"
+                show_element('id_0-first_pdb');
+                show_element('id_0-second_pdb');
+            }
+        }
+
+        function show_or_hide_on_change() {
+            let num_of_proteins_1 = document.getElementById('id_0-num_of_proteins_0');
+            let num_of_proteins_2 = document.getElementById('id_0-num_of_proteins_1');
+            show_or_hide(num_of_proteins_1, num_of_proteins_2);
+            hide_errorlist()
+        }
+
+        function hide_errorlist() {
+            let errors = document.getElementsByClassName("errorlist")
+            for (let l = 0; l < errors.length; l++) {
+                errors[l].style.display = 'none';
+            }
+        }
+
+        function hide_element(element_id) {
+            change_visibility_of_element(element_id, 'hidden')
+        }
+
+        function show_element(element_id) {
+            change_visibility_of_element(element_id, '')
+        }
+
+        function change_visibility_of_element(element_id, status) {//status = 'hidden' or ''
+            let element = document.getElementById(element_id);
+            element.style.visibility = status;
+            change_visibility_of_label(element_id, status);
+        }
+
+        function change_visibility_of_label(for_input, status) {
+            let totalLabel = document.getElementsByTagName('label');
+            for (let l = 0; l < totalLabel.length; l++) {
+                let lbb = totalLabel[l].getAttribute('for');
+                if (lbb === for_input) {
+                    totalLabel[l].style.visibility = status;
+                }
+            }
+        }
+
+    </script>
+{% endblock extra_js %}
 

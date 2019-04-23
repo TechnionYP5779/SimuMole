@@ -20,7 +20,6 @@ def home(request):
 class SimulationWizard(CookieWizardView):
     template_name = 'create_simulation.html'
 
-    # override "done": this function is called when the form is submitted
     def done(self, form_list, **kwargs):
         """
         override "done": this function is called when the form is submitted
@@ -47,37 +46,33 @@ class SimulationWizard(CookieWizardView):
         """
         initial_data = self.initial_dict.get(step, {})  # initial data of current step
 
-        # SimulationForm0_NumberOfProteins
+        # SimulationForm0_LoadPdb
         step_0_prev_data = self.storage.get_step_data('0')
         step_0_prev_data = {} if step_0_prev_data is None \
-            else {'num_of_proteins': step_0_prev_data.get('0-num_of_proteins')}
+            else {'num_of_proteins': step_0_prev_data.get('0-num_of_proteins'),
+                  'first_pdb': step_0_prev_data.get('0-first_pdb'),
+                  'second_pdb': step_0_prev_data.get('0-second_pdb')}
 
-        # SimulationForm1_LoadPdb
+        # SimulationForm1_DetermineRelativePosition
         step_1_prev_data = self.storage.get_step_data('1')
         step_1_prev_data = {} if step_1_prev_data is None \
-            else {'first_pdb': step_1_prev_data.get('1-first_pdb'),
-                  'second_pdb': step_1_prev_data.get('1-second_pdb')}
+            else {'x1': step_1_prev_data.get('1-x1'), 'x2': step_1_prev_data.get('1-x2'),
+                  'y1': step_1_prev_data.get('1-y1'), 'y2': step_1_prev_data.get('1-y2'),
+                  'z1': step_1_prev_data.get('1-z1'), 'z2': step_1_prev_data.get('1-z2')}
 
-        # SimulationForm2_DetermineRelativePosition
+        # SimulationForm2_SimulationParameters
         step_2_prev_data = self.storage.get_step_data('2')
         step_2_prev_data = {} if step_2_prev_data is None \
-            else {'x1': step_2_prev_data.get('2-x1'), 'x2': step_2_prev_data.get('2-x2'),
-                  'y1': step_2_prev_data.get('2-y1'), 'y2': step_2_prev_data.get('2-y2'),
-                  'z1': step_2_prev_data.get('2-z1'), 'z2': step_2_prev_data.get('2-z2')}
+            else {'temperature': step_2_prev_data.get('2-temperature')}
 
-        # SimulationForm3_SimulationParameters
-        step_3_prev_data = self.storage.get_step_data('3')
-        step_3_prev_data = {} if step_3_prev_data is None \
-            else {'temperature': step_3_prev_data.get('3-temperature')}
-
-        update_data = {**step_0_prev_data, **step_1_prev_data, **step_2_prev_data, **step_3_prev_data, **initial_data}
+        update_data = {**step_0_prev_data, **step_1_prev_data, **step_2_prev_data, **initial_data}
         return self.initial_dict.get(step, update_data)
 
 
-def show_form2(wizard: CookieWizardView):
+def show_form1(wizard: CookieWizardView):
     """
-    if 'num_of_proteins'==1: return FALSE, and then navigate to step 3 (simulation parameters)
-    else, if 'num_of_proteins'==2: return TRUE, and then navigate to step 2 (determine relative position)
+    if 'num_of_proteins'==1: return FALSE, and then navigate to step 2 (simulation parameters)
+    else, if 'num_of_proteins'==2: return TRUE, and then navigate to step 1 (determine relative position)
     """
     cleaned_data = wizard.get_cleaned_data_for_step('0') or {}
     return cleaned_data.get('num_of_proteins') == '2'
