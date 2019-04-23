@@ -1,28 +1,18 @@
-language: objective-c
-osx_image: xcode9.2
-rvm:
-- 2.2         #see before_install for getting RVM stable.
-
-env:
-- TRAVIS_TAG="Deploy-2017.2.0f3" PROJECT_NAME="New Project" UNITY_PROJECT_PATH="New Project" DEPLOY_UNITYPACKAGE="path set in deploy script"
-
-
-cache:
-  directories:
-    - $UNITY_DOWNLOAD_CACHE
-
-    
+language: python
+python:
+  - "3.6"
+# command to install dependencies
 before_install:
-- chmod a+x ./travis-build/*.sh
-
+  - sudo apt-get install build-essential python-dev python-pmw libglew-dev 
+  - sudo apt-get install freeglut3-dev libpng-dev libfreetype6-dev libxml2-dev 
+  - sudo apt-get install libmsgpack-dev libglm-dev
+  - git clone https://github.com/schrodinger/pymol-open-source.git
+  - cd pymol-open-source
+  - python setup.py build install
+  - cd ..
 install:
-- cat /etc/hosts
-- ./travis-build/install-unity.sh
-
-script:
-- ./travis-build/build.sh
-- ./travis-build/run-tests.sh
-
-after_success:
-- ./travis-build/export-unity-package.sh
-
+  - pip install pytest
+# command to run tests
+# script: pytest # TODO: enable after addind tests
+script: 
+  - python test.py

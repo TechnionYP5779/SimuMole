@@ -8,6 +8,10 @@
 
 {% block content %}
 
+<title>Create Simulation</title>
+
+
+
     <style>
         .error input, .error select, .errorlist {
             color: red;
@@ -47,6 +51,7 @@
     {% endfor %}
 
     <form action="" method="post">{% csrf_token %}
+
 
         <!-- The forms: -->
         {{ wizard.management_form }}
