@@ -85,6 +85,7 @@
                     <!-- {% load static %}
                     <img src="{% static "SimuMoleWeb/simumole_landing.png" %}" alt="cocaine" > -->
                 </div>
+
 				  
 					<!-- Top navigation -->
 					<div class="topnav">
@@ -96,6 +97,7 @@
 						<a href='/contact'>Contact</a>
 						<a href='/about'>About</a>
 						<a href='/create_simulation'>Create Simulation</a>
+            <a href='/upload'>Upload PDB</a>
 					  </div>
 					  <!-- Left-aligned links (default) -->
 					  <a> </a>	<!-- leave it here-->
@@ -113,6 +115,13 @@
                     <div class="inner-wrap">
                         <hr>
                         <div>
+                        {% if messages %}
+                            <ul class="messages">
+                             {% for message in messages %}
+                                  <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                              {% endfor %}
+                            </ul>
+                        {% endif %}
                         {% block content %}
                         {% endblock %}
                         </div>
