@@ -20,24 +20,69 @@ def home(request):
 class SimulationWizard(CookieWizardView):
     template_name = 'create_simulation.html'
 
+    @staticmethod
+    def clean_form_dict(dict_):
+        """
+        get dictionary that represent the form data, and return clean dictionary data (without contradictions)
+        """
+        clean_dict = {}
+        first_pdb_type, first_pdb_id, first_pdb_file, second_pdb_type, second_pdb_id, second_pdb_file = '', '', '', '', '', ''
+        x1, y1, z1, x2, y2, z2 = '', '', '', '', '', ''
+
+        num_of_proteins = dict_.get('num_of_proteins')
+
+        first_pdb_type = dict_.get('first_pdb_type')
+        if first_pdb_type == 'by_id':
+            first_pdb_id = dict_.get('first_pdb_id')
+            first_pdb_file = ''
+        elif first_pdb_type == 'by_file':
+            first_pdb_id = ''
+            first_pdb_file = dict_.get('first_pdb_file')
+
+        if num_of_proteins == '2':
+            second_pdb_type = dict_.get('second_pdb_type')
+            if second_pdb_type == 'by_id':
+                second_pdb_id = dict_.get('second_pdb_id')
+                second_pdb_file = ''
+            elif first_pdb_type == 'by_file':
+                second_pdb_id = ''
+                second_pdb_file = dict_.get('second_pdb_file')
+            x1, y1, z1 = dict_.get('x1', 0), dict_.get('y1', 0), dict_.get('z1', 0)
+            x2, y2, z2 = dict_.get('x2', 0), dict_.get('y2', 0), dict_.get('z2', 0)
+
+        temperature = dict_.get('temperature', '')
+
+        clean_dict['num_of_proteins'] = num_of_proteins
+        clean_dict['first_pdb_type'] = first_pdb_type
+        clean_dict['first_pdb_id'] = first_pdb_id
+        clean_dict['first_pdb_file'] = first_pdb_file
+        clean_dict['second_pdb_type'] = second_pdb_type
+        clean_dict['second_pdb_id'] = second_pdb_id
+        clean_dict['second_pdb_file'] = second_pdb_file
+        clean_dict['x1'] = x1
+        clean_dict['y1'] = y1
+        clean_dict['z1'] = z1
+        clean_dict['x2'] = x2
+        clean_dict['y2'] = y2
+        clean_dict['z2'] = z2
+        clean_dict['temperature'] = temperature
+
+        return clean_dict
+
     def done(self, form_list, **kwargs):
         """
         override "done": this function is called when the form is submitted
         """
         form_data = [form.cleaned_data for form in form_list]
         form_dict = {k: v for d in form_data for k, v in d.items()}  # convert list of dictionaries to one dictionary
+        form_dict = self.clean_form_dict(form_dict)
 
-        num_of_proteins = form_dict.get('num_of_proteins', '')
-        first_pdb, second_pdb = form_dict.get('first_pdb', ''), form_dict.get('first_pdb', '')
-        x1, y1, z1 = form_dict.get('x1', 0), form_dict.get('y1', 0), form_dict.get('z1', 0)
-        x2, y2, z2 = form_dict.get('x2', 0), form_dict.get('y2', 0), form_dict.get('z2', 0)
-        temperature = form_dict.get('temperature', '')
-
-        s = Simulation(num_of_proteins, first_pdb, second_pdb, x1, y1, z1, x2, y2, z2, temperature)
-        s.create_simulation()
+        # todo 8: change parameter list
+        # s = Simulation(num_of_proteins, first_pdb, second_pdb, x1, y1, z1, x2, y2, z2, temperature)
+        # s.create_simulation()
 
         return render(self.request, 'create_simulation_result.html', {
-            'form_data': form_data,
+            'form_data': form_dict,
         })
 
     def get_form_initial(self, step):
@@ -50,8 +95,12 @@ class SimulationWizard(CookieWizardView):
         step_0_prev_data = self.storage.get_step_data('0')
         step_0_prev_data = {} if step_0_prev_data is None \
             else {'num_of_proteins': step_0_prev_data.get('0-num_of_proteins'),
-                  'first_pdb': step_0_prev_data.get('0-first_pdb'),
-                  'second_pdb': step_0_prev_data.get('0-second_pdb')}
+                  'first_pdb_type': step_0_prev_data.get('0-first_pdb_type'),
+                  'first_pdb_id': step_0_prev_data.get('0-first_pdb_id'),
+                  'first_pdb_file': step_0_prev_data.get('0-first_pdb_file'),
+                  'second_pdb_type': step_0_prev_data.get('0-second_pdb_type'),
+                  'second_pdb_id': step_0_prev_data.get('0-second_pdb_id'),
+                  'second_pdb_file': step_0_prev_data.get('0-second_pdb_file'), }
 
         # SimulationForm1_DetermineRelativePosition
         step_1_prev_data = self.storage.get_step_data('1')

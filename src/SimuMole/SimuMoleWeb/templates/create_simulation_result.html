@@ -6,9 +6,10 @@
 
     <h3>Response entered by you:</h3>
 
-    {% for form in form_data %}
-        {{ form }}
-    {% endfor %}
-
+    <ul>
+        {% for key, value in form_data.items %}
+            <li><strong>{{ key }}</strong> - {{ value }}</li>
+        {% endfor %}
+    </ul>
 
 {% endblock %}

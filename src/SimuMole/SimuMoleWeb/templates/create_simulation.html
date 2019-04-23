@@ -11,6 +11,7 @@
     <style>
         .error input, .error select, .errorlist {
             color: red;
+            padding-bottom: 30px;
         }
 
         #gray-button {
@@ -86,31 +87,132 @@
     <script type="text/javascript">
 
         // form0 - show/hide the fields "first pdb" and "second pdb":
+
         let num_of_proteins = document.getElementById('id_0-num_of_proteins');
-        let num_of_proteins_1 = document.getElementById('id_0-num_of_proteins_0');
-        let num_of_proteins_2 = document.getElementById('id_0-num_of_proteins_1');
         if (num_of_proteins) { // the user is currently filling form 0
-            num_of_proteins.style.paddingBottom = '20px';
-            num_of_proteins.onchange = show_or_hide_on_change;
-            show_or_hide(num_of_proteins_1, num_of_proteins_2);
+            show_or_hide_outer();
+
+            // outer
+            num_of_proteins.onchange = show_or_hide_on_change_outer;
+            change_padding_of_element('id_0-num_of_proteins');
+
+            // first inner
+            let first_pdb_type = document.getElementById('id_0-first_pdb_type');
+            first_pdb_type.onchange = show_or_hide_on_change_inner;
+            change_padding_of_element('id_0-first_pdb_type');
+
+            // second inner
+            let second_pdb_type = document.getElementById('id_0-second_pdb_type');
+            second_pdb_type.onchange = show_or_hide_on_change_inner;
+            change_padding_of_element('id_0-second_pdb_type');
         }
 
-        function show_or_hide(num_of_proteins_1, num_of_proteins_2) {
+        function change_padding_of_element(element_id) {
+            let element = document.getElementById(element_id);
+            element.style.paddingBottom = '15px';
+        }
+
+        function show_or_hide_outer() {
+            let num_of_proteins_1 = document.getElementById('id_0-num_of_proteins_0');
+            let num_of_proteins_2 = document.getElementById('id_0-num_of_proteins_1');
+
+            document.getElementById('id_0-first_pdb_type_0').checked = false;
+            document.getElementById('id_0-first_pdb_type_1').checked = false;
+            document.getElementById('id_0-second_pdb_type_0').checked = false;
+            document.getElementById('id_0-second_pdb_type_1').checked = false;
+
             if (num_of_proteins_1.checked) {
                 // in case the user choose to load only one pdb - then show only "first_pdb"
-                show_element('id_0-first_pdb');
-                hide_element('id_0-second_pdb');
+
+                num_of_proteins_2.checked = false;
+
+                show_element('id_0-first_pdb_type');
+                show_element('id_0-first_pdb_type_0');
+                show_element('id_0-first_pdb_type_1');
+
+                hide_element('id_0-first_pdb_id', 'none')
+                hide_element('id_0-first_pdb_file', 'none');
+
+                hide_element('id_0-second_pdb_type');
+                hide_element('id_0-second_pdb_type_0');
+                hide_element('id_0-second_pdb_type_1');
+
+                hide_element('id_0-second_pdb_id', 'none');
+                hide_element('id_0-second_pdb_file', 'none');
             } else if (num_of_proteins_2.checked) {
                 // in case the user choose to load 2 pdbs - then show "first_pdb" and "second_pdb"
-                show_element('id_0-first_pdb');
-                show_element('id_0-second_pdb');
+
+                num_of_proteins_1.checked = false;
+
+                show_element('id_0-first_pdb_type');
+                show_element('id_0-first_pdb_type_0');
+                show_element('id_0-first_pdb_type_1');
+
+                hide_element('id_0-first_pdb_id', 'none');
+                hide_element('id_0-first_pdb_file', 'none');
+
+                show_element('id_0-second_pdb_type');
+                show_element('id_0-second_pdb_type_0');
+                show_element('id_0-second_pdb_type_1');
+
+                hide_element('id_0-second_pdb_id', 'none');
+                hide_element('id_0-second_pdb_file', 'none');
+            } else {
+                num_of_proteins_1.checked = false;
+                num_of_proteins_2.checked = false;
+
+                hide_element('id_0-first_pdb_type');
+                hide_element('id_0-first_pdb_type_0');
+                hide_element('id_0-first_pdb_type_1');
+
+                hide_element('id_0-first_pdb_id', 'none');
+                hide_element('id_0-first_pdb_file', 'none');
+
+                hide_element('id_0-second_pdb_type');
+                hide_element('id_0-second_pdb_type_0');
+                hide_element('id_0-second_pdb_type_1');
+
+                hide_element('id_0-second_pdb_id', 'none');
+                hide_element('id_0-second_pdb_file', 'none');
+            }
+            show_or_hide_inner();
+        }
+
+        function show_or_hide_on_change_outer() {
+            show_or_hide_outer();
+            hide_errorlist()
+        }
+
+        function show_or_hide_inner() {
+            let first_pdb_type_0 = document.getElementById('id_0-first_pdb_type_0');
+            let first_pdb_type_1 = document.getElementById('id_0-first_pdb_type_1');
+            if (first_pdb_type_0.checked) {
+                show_element('id_0-first_pdb_id');
+                hide_element('id_0-first_pdb_file', 'none');
+            } else if (first_pdb_type_1.checked) {
+                hide_element('id_0-first_pdb_id', 'none');
+                show_element('id_0-first_pdb_file');
+            } else {
+                hide_element('id_0-first_pdb_id', 'none');
+                hide_element('id_0-first_pdb_file', 'none');
+            }
+
+            let second_pdb_type_0 = document.getElementById('id_0-second_pdb_type_0');
+            let second_pdb_type_1 = document.getElementById('id_0-second_pdb_type_1');
+            if (second_pdb_type_0.checked) {
+                show_element('id_0-second_pdb_id');
+                hide_element('id_0-second_pdb_file', 'none');
+            } else if (second_pdb_type_1.checked) {
+                hide_element('id_0-second_pdb_id', 'none');
+                show_element('id_0-second_pdb_file');
+            } else {
+                hide_element('id_0-second_pdb_id', 'none');
+                hide_element('id_0-second_pdb_file', 'none');
             }
         }
 
-        function show_or_hide_on_change() {
-            let num_of_proteins_1 = document.getElementById('id_0-num_of_proteins_0');
-            let num_of_proteins_2 = document.getElementById('id_0-num_of_proteins_1');
-            show_or_hide(num_of_proteins_1, num_of_proteins_2);
+        function show_or_hide_on_change_inner() {
+            show_or_hide_inner();
             hide_errorlist()
         }
 
@@ -121,26 +223,28 @@
             }
         }
 
-        function hide_element(element_id) {
-            change_visibility_of_element(element_id, 'hidden')
+        function hide_element(element_id, display = 'none') {
+            change_visibility_of_element(element_id, 'hidden', display)
         }
 
         function show_element(element_id) {
-            change_visibility_of_element(element_id, '')
+            change_visibility_of_element(element_id)
         }
 
-        function change_visibility_of_element(element_id, status) {//status = 'hidden' or ''
+        function change_visibility_of_element(element_id, visibility = '', display = '') {
             let element = document.getElementById(element_id);
-            element.style.visibility = status;
-            change_visibility_of_label(element_id, status);
+            element.style.visibility = visibility;      // visibility = 'hidden' or ''
+            element.style.display = display;            // display = 'none' or ''
+            change_visibility_of_label(element_id, visibility, display);
         }
 
-        function change_visibility_of_label(for_input, status) {
+        function change_visibility_of_label(for_input, visibility, display = '') {
             let totalLabel = document.getElementsByTagName('label');
             for (let l = 0; l < totalLabel.length; l++) {
                 let lbb = totalLabel[l].getAttribute('for');
                 if (lbb === for_input) {
-                    totalLabel[l].style.visibility = status;
+                    totalLabel[l].style.visibility = visibility;
+                    totalLabel[l].style.display = display;
                 }
             }
         }
