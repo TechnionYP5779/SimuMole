@@ -23,7 +23,7 @@ def openMMbuilder(output_path='', input_coor='input.pdb', force_field='amber99sb
                   max_minimize_steps=-1,
                   state_data_options=[True, False, True, True, True, False, False, True, False, False]):
     # for option A put True in optionAB, for option B put False
-    optionAB = True
+    optionAB = False
 
     code = ''
 
@@ -162,18 +162,22 @@ def openMMbuilder(output_path='', input_coor='input.pdb', force_field='amber99sb
 
     # option 1: create a file name 'openmm.py' with the generated script
     if optionAB == True:
-        f = open(output_path + 'openmm.py', 'w')
+        f = open(output_path + 'openmm.py', 'w+')
         f.write(code)
+        f.close()
 
         # option 2: execute the code generated
-        if optionAB == False:
-            exec(code)
+    if optionAB == False:
+        f = open(output_path + 'openmm.py', 'w+')
+        f.write(code)
+        f.close()
+        exec(code)
 
 
 def create_openmm_script(first_pdb_id, second_pdb_id):
     input_coor_name = '' + "both__" + first_pdb_id + '_' + second_pdb_id + '.pdb'
 
-    openMMbuilder('../SimuMoleWeb/temp/', input_coor=input_coor_name, state_dataT=True, pdbT=True, dcdT=False,
+    openMMbuilder('../media/files/', input_coor=input_coor_name, state_dataT=True, pdbT=True, dcdT=False,
                   report_interval=11, equilibration_steps=10001, production_steps=5000, minimize=True,
                   max_minimize_steps=3)
 

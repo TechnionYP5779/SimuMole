@@ -2,10 +2,11 @@ from time import sleep
 import pymol
 import os
 
+from SimuMoleScripts.fix_pdb import fix_pdb
 from .transformations import translate_pdb
-from .OpenMM_scriptBuilder import create_openmm_script
+from .OpenMM_scriptBuilder import create_openmm_script, openMMbuilder
 
-temp = 'SimuMoleWeb/temp/'  # path to temp folder
+temp = 'media/files/'  # path to temp folder
 pdb = '.pdb'  # pdb suffix
 
 
@@ -25,10 +26,10 @@ class Simulation:
         self.z2 = float(z2)
         self.temperature = float(temperature)
 
-        # for debugging: # todo: delete when complete with debugging
-        self.first_pdb_id, self.second_pdb_id = '1GK7', '6CTH'
-        self.x1, self.y1, self.z1 = float(50), float(50), float(50)
-        self.x2, self.y2, self.z2 = float(0), float(0), float(0)
+     #   # for debugging: # todo: delete when complete with debugging
+     #   self.first_pdb_id, self.second_pdb_id = '1GK7', '6CTH'
+     #   self.x1, self.y1, self.z1 = float(50), float(50), float(50)
+     #   self.x2, self.y2, self.z2 = float(0), float(0), float(0)
 
     def create_simulation(self):
         pymol.finish_launching(['pymol', '-q'])  # pymol: -q quiet launch, -c no gui, -e fullscreen
@@ -49,8 +50,14 @@ class Simulation:
         # STEP 3: merge to single pdb file
         self.save_pdbs_in_one_pdb(filename_1_movement, filename_2_movement)
 
+        # STEP 3.5: fix pdb
+        fix_pdb(temp + "both__" + filename_1_movement + '_' + filename_2_movement + pdb)
+
         # STEP 4: use OpenMM # todo: complete
-        # create_openmm_script(self.first_pdb_id, self.second_pdb_id)
+        input_coor_name = "both__" + filename_1_movement + '_' + filename_2_movement + pdb
+        openMMbuilder('media/files/', input_coor=("media/files/"+input_coor_name), state_dataT=True, pdbT=True,
+                      dcdT=False, report_interval=11, equilibration_steps=10001, production_steps=5000, minimize=True,
+                      max_minimize_steps=3, temperature=self.temperature)
 
         # self.cmd.quit() # todo: need to close PyMol window
 
@@ -73,4 +80,4 @@ class Simulation:
         self.cmd.load(temp + filename_1 + pdb)
         self.cmd.load(temp + filename_2 + pdb)
         self.cmd.zoom()
-        self.cmd.save(temp + "both__" + self.first_pdb_id + '_' + self.second_pdb_id + pdb)
+        self.cmd.save(temp + "both__" + filename_1 + '_' + filename_2 + pdb)
