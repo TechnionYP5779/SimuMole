@@ -1,39 +1,37 @@
-from django.shortcuts import render
 from formtools.wizard.views import CookieWizardView
-from django.http import HttpResponse
-from django.http import Http404
-from django.template import loader
 from django.shortcuts import render
 
 from SimuMoleScripts.simulation_main_script import Simulation
-from .models import UploadForm, Upload
+from .models import UploadForm
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.contrib import messages
 import os
 
-from .forms import CreateSimulationForm
-
 
 ################################
-#   Home
+#   Home, News, Contact, About
 ################################
 
 def home(request):
     some_dict = {}
     return render(request, 'home.html', some_dict)
-	
+
+
 def news(request):
     some_dict = {}
     return render(request, 'news.html', some_dict)
+
 
 def contact(request):
     some_dict = {}
     return render(request, 'contact.html', some_dict)
 
+
 def about(request):
     some_dict = {}
     return render(request, 'about.html', some_dict)
+
 
 ################################
 #   Create Simulation
@@ -148,12 +146,13 @@ def show_form1(wizard: CookieWizardView):
     cleaned_data = wizard.get_cleaned_data_for_step('0') or {}
     return cleaned_data.get('num_of_proteins') == '2'
 
+
 ################################
 #   File Upload
 ################################
 
 def file_upload(request):
-    if request.method=="POST":
+    if request.method == "POST":
         file = UploadForm(request.POST, request.FILES)
         if file.is_valid():
             file_name, file_extension = os.path.splitext(request.FILES['file'].name)
@@ -167,5 +166,5 @@ def file_upload(request):
                 messages.error(request, 'Upload failed: file extension has to be \'pdb\'.')
 
     else:
-        file=UploadForm()
-    return render(request,'file_upload.html',{'form':file})
+        file = UploadForm()
+    return render(request, 'file_upload.html', {'form': file})
