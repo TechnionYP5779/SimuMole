@@ -1,14 +1,14 @@
 from django import forms
 
 
-# todo 1: change types of fields
-
 class SimulationForm0_LoadPdb(forms.Form):
     num_of_proteins = forms.ChoiceField(
         required=True,
         label='Choose whether to load one or two proteins',
         choices=[('1', 'one protein'), ('2', 'two proteins')],
         widget=forms.RadioSelect)
+
+    # todo 1: change types of fields "first_pdb_file" and "second_pdb_file"
 
     # first pdb
     first_pdb_type = forms.ChoiceField(
@@ -168,4 +168,3 @@ class SimulationForm2_SimulationParameters(forms.Form):
         cleaned_data = super(SimulationForm2_SimulationParameters, self).clean()
         data = {**self.initial, **cleaned_data}  # self.initial->from previous steps, cleaned_data->from current step
         return cleaned_data
-

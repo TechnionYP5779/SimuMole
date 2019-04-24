@@ -8,9 +8,7 @@
 
 {% block content %}
 
-<title>Create Simulation</title>
-
-
+    <title>Create Simulation - SimuMole</title>
 
     <style>
         .error input, .error select, .errorlist {
@@ -27,7 +25,6 @@
             background-color: #5e88e7;
             color: black;
         }
-
     </style>
 
 
@@ -58,10 +55,10 @@
         {% if wizard.form.forms %}
             {{ wizard.form.management_form }}
             {% for form in wizard.form.forms %}
-                {{ form }}
+                {{ form.as_p }}
             {% endfor %}
         {% else %}
-            {{ wizard.form }}
+            {{ wizard.form.as_p }}
         {% endif %}
         <br>
 
