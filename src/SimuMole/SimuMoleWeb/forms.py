@@ -1,5 +1,5 @@
 from django import forms
-
+import requests
 
 class SimulationForm0_LoadPdb(forms.Form):
     num_of_proteins = forms.ChoiceField(
@@ -117,7 +117,9 @@ class SimulationForm0_LoadPdb(forms.Form):
 
     @staticmethod
     def pdb_id_exists(pdb_id):
-        # todo 2: check that the ID is exist
+        r = requests.get("https://files.rcsb.org/download/" + pdb_id + ".pdb").status_code
+        if r == 404:
+            return False
         return True
 
     @staticmethod
