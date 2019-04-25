@@ -1,6 +1,11 @@
 from django import forms
 
 
+class LastForm(forms.Form):
+    first_pdb_file = forms.FileField(required=False)
+    second_pdb_file = forms.FileField(required=False)
+
+
 class SimulationForm0_LoadPdb(forms.Form):
     num_of_proteins = forms.ChoiceField(
         required=True,

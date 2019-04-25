@@ -6,7 +6,8 @@ from SimuMoleWeb import views
 
 from SimuMoleWeb.forms import SimulationForm0_LoadPdb, \
     SimulationForm1_DetermineRelativePosition, \
-    SimulationForm2_SimulationParameters
+    SimulationForm2_SimulationParameters, \
+    LastForm
 from SimuMoleWeb.views import SimulationWizard, show_form1
 
 urlpatterns = [
@@ -18,7 +19,7 @@ urlpatterns = [
                   path('create_simulation/',
                        SimulationWizard.as_view([SimulationForm0_LoadPdb,
                                                  SimulationForm1_DetermineRelativePosition,
-                                                 SimulationForm2_SimulationParameters],
+                                                 SimulationForm2_SimulationParameters, LastForm],
                                                 condition_dict={'1': show_form1})),
                   path('upload/', views.file_upload, name='file_upload'),
               ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
