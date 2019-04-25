@@ -80,7 +80,7 @@ class Simulation:
             scr(input_coor_name, 40000, self.temperature) 
 
         self.cmd.reinitialize()
-        self.cmd.load("media/files/"+input_coor_name)
+        self.cmd.load(input_coor_name)
         self.cmd.load('trajectory.dcd')
         # self.cmd.quit() # todo: need to close PyMol window
 
