@@ -11,9 +11,9 @@ You can choose between the two options in the beginning of the function
 
 
 def openMMbuilder(output_path='', input_coor='input.pdb', force_field='amber99sbildn', water_model='tip3p',
-                  platform='CUDA',
+                  platform='OpenCL',
                   precision='mixed', device_index=-1,
-                  OpenCL_platform_index=-1, nonbonded_method='PME', ewald_error_tolerance=0.0005, constraints='HBonds',
+                  OpenCL_platform_index=-1, nonbonded_method='NoCutoff', ewald_error_tolerance=0.0005, constraints='HBonds',
                   constraint_error_tol=0.00001,
                   rigid_water=True, nonbonded_cutoff=1.0, random_init_vels=True, generation_temp=300,
                   integrator='Langevin', time_step=2.0, error_tolerance=0.0001, collision_rate=1.0, temperature=300,
