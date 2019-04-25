@@ -48,15 +48,15 @@ class Simulation:
             translate_pdb(temp + filename_2 + pdb, temp + filename_2_movement + pdb, self.x2, self.y2, self.z2)
 
             # STEP 3: fix pdb
-            fix_pdb(filename_1_movement + pdb)
-            fix_pdb(filename_2_movement + pdb)
+            fix_pdb(temp + filename_1_movement + pdb)
+            fix_pdb(temp + filename_2_movement + pdb)
 
             # STEP 3.5: merge to single pdb file
             self.save_pdbs_in_one_pdb(filename_1_movement, filename_2_movement)
 
 
             # STEP 4: use OpenMM # todo: complete
-            input_coor_name = "both__" + filename_1_movement + '_' + filename_2_movement + pdb
+            input_coor_name = temp + "both__" + filename_1_movement + '_' + filename_2_movement + pdb
             openMMbuilder('media/files/', input_coor=input_coor_name, state_dataT=True, pdbT=True, dcdT=False,
                   report_interval=1000, equilibration_steps=100, production_steps=1000, minimize=True,
                   max_minimize_steps=3, temperature=self.temperature, platform='OpenCL')
@@ -72,10 +72,9 @@ class Simulation:
             fix_pdb(temp + filename_1_movement + pdb)
 
             # STEP 3: use OpenMM # todo: complete
-            input_coor_name = filename_1_movement + pdb
-            openMMbuilder('media/files/', input_coor=("media/files/" + input_coor_name), state_dataT=True, pdbT=True,
-                          dcdT=False, report_interval=11, equilibration_steps=10001, production_steps=5000,
-                          minimize=True,
+            input_coor_name = temp + filename_1_movement + pdb
+            openMMbuilder('media/files/', input_coor=input_coor_name, state_dataT=True, pdbT=True, dcdT=False,
+                          report_interval=1000, equilibration_steps=100, production_steps=1000, minimize=True,
                           max_minimize_steps=3, temperature=self.temperature, platform='OpenCL')
         self.cmd.reinitialize()
         self.cmd.load("media/files/"+input_coor_name)
