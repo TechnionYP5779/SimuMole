@@ -4,7 +4,7 @@ import os
 
 from SimuMoleScripts.fix_pdb import fix_pdb
 
-from src.SimuMole.SimuMoleScripts.basicTrajectoryBuilder import scr
+from SimuMoleScripts.basicTrajectoryBuilder import scr
 from .transformations import translate_pdb
 from .OpenMM_scriptBuilder import create_openmm_script, openMMbuilder
 
