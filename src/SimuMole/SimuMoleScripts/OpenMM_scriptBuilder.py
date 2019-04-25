@@ -178,7 +178,7 @@ def create_openmm_script(first_pdb_id, second_pdb_id):
     input_coor_name = '' + "both__" + first_pdb_id + '_' + second_pdb_id + '.pdb'
 
     openMMbuilder('../media/files/', input_coor=input_coor_name, state_dataT=True, pdbT=True, dcdT=False,
-                  report_interval=11, equilibration_steps=10001, production_steps=5000, minimize=True,
+                  report_interval=1000, equilibration_steps=100, production_steps=1000, minimize=True,
                   max_minimize_steps=3)
 
 # first_pdb_id, second_pdb_id = '1GK7', '6CTH'

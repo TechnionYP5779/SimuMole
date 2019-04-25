@@ -57,9 +57,9 @@ class Simulation:
 
             # STEP 4: use OpenMM # todo: complete
             input_coor_name = "both__" + filename_1_movement + '_' + filename_2_movement + pdb
-            openMMbuilder('media/files/', input_coor=("media/files/"+input_coor_name), state_dataT=True, pdbT=True,
-                          dcdT=False, report_interval=11, equilibration_steps=10001, production_steps=5000, minimize=True,
-                          max_minimize_steps=3, temperature=self.temperature, platform='OpenCL')
+            openMMbuilder('media/files/', input_coor=input_coor_name, state_dataT=True, pdbT=True, dcdT=False,
+                  report_interval=1000, equilibration_steps=100, production_steps=1000, minimize=True,
+                  max_minimize_steps=3, temperature=self.temperature, platform='OpenCL')
         else:
             filename_1 = 'pdb_1__' + str(self.first_pdb_id)
             self.save_pdb_by_id(self.first_pdb_id, filename_1 + pdb)
