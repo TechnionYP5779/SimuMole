@@ -47,11 +47,13 @@ class Simulation:
             translate_pdb(temp + filename_1 + pdb, temp + filename_1_movement + pdb, self.x1, self.y1, self.z1)
             translate_pdb(temp + filename_2 + pdb, temp + filename_2_movement + pdb, self.x2, self.y2, self.z2)
 
-            # STEP 3: merge to single pdb file
+            # STEP 3: fix pdb
+            fix_pdb(filename_1_movement + pdb)
+            fix_pdb(filename_2_movement + pdb)
+
+            # STEP 3.5: merge to single pdb file
             self.save_pdbs_in_one_pdb(filename_1_movement, filename_2_movement)
 
-            # STEP 3.5: fix pdb
-            fix_pdb(temp + "both__" + filename_1_movement + '_' + filename_2_movement + pdb)
 
             # STEP 4: use OpenMM # todo: complete
             input_coor_name = "both__" + filename_1_movement + '_' + filename_2_movement + pdb
