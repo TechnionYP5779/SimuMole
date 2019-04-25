@@ -3,6 +3,8 @@ import pymol
 import os
 
 from SimuMoleScripts.fix_pdb import fix_pdb
+
+from src.SimuMole.SimuMoleScripts.basicTrajectoryBuilder import scr
 from .transformations import translate_pdb
 from .OpenMM_scriptBuilder import create_openmm_script, openMMbuilder
 
@@ -51,13 +53,14 @@ class Simulation:
             self.save_pdbs_in_one_pdb(filename_1_movement, filename_2_movement)
 
             # STEP 3.5: fix pdb
-            fix_pdb(temp + "both__" + filename_1 + '_' + filename_2 + pdb)
+            fix_pdb(temp + "both__" + filename_1_movement + '_' + filename_2_movement + pdb)
 
             # STEP 4: use OpenMM # todo: complete
             input_coor_name = temp + "both__" + filename_1_movement + '_' + filename_2_movement + pdb
-            openMMbuilder('media/files/', input_coor=input_coor_name, state_dataT=True, pdbT=True, dcdT=False,
-                  report_interval=1000, equilibration_steps=100, production_steps=1000, minimize=True,
-                  max_minimize_steps=3, temperature=self.temperature, platform='OpenCL')
+           # openMMbuilder('media/files/', input_coor=input_coor_name, state_dataT=True, pdbT=True, dcdT=False,
+           #       report_interval=1000, equilibration_steps=100, production_steps=1000, minimize=True,
+           #       max_minimize_steps=3, temperature=self.temperature, platform='OpenCL')
+            scr(input_coor_name,40000,self.temperature)
         else:
             filename_1 = 'pdb_1__' + str(self.first_pdb_id)
             self.save_pdb_by_id(self.first_pdb_id, filename_1 + pdb)
@@ -71,9 +74,11 @@ class Simulation:
 
             # STEP 3: use OpenMM # todo: complete
             input_coor_name = temp + filename_1_movement + pdb
-            openMMbuilder('media/files/', input_coor=input_coor_name, state_dataT=True, pdbT=True, dcdT=False,
-                          report_interval=1000, equilibration_steps=100, production_steps=1000, minimize=True,
-                          max_minimize_steps=1, temperature=self.temperature, platform='OpenCL')
+            #openMMbuilder('media/files/', input_coor=input_coor_name, state_dataT=True, pdbT=True, dcdT=False,
+            #              report_interval=1000, equilibration_steps=100, production_steps=1000, minimize=True,
+            #              max_minimize_steps=1, temperature=self.temperature, platform='OpenCL')
+            scr(input_coor_name, 40000, self.temperature) 
+
         self.cmd.reinitialize()
         self.cmd.load("media/files/"+input_coor_name)
         self.cmd.load('trajectory.dcd')
