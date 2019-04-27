@@ -59,14 +59,14 @@ class SimulationWizard(CookieWizardView):
         form_dict = self.clean_form_dict(form_dict)
 
         # todo 8: change parameter list
-        # s = Simulation(num_of_proteins, first_pdb, second_pdb, x1, y1, z1, x2, y2, z2, temperature)
-        # s.create_simulation()
+        s = Simulation(form_dict['num_of_proteins'], form_dict['first_pdb_id'], form_dict['second_pdb_id'],
+                       form_dict['x1'], form_dict['y1'], form_dict['z1'], form_dict['x2'], form_dict['y2'],
+                       form_dict['z2'], form_dict['temperature'])
+        s.create_simulation()
 
         # self.delete_temp_files() # todo: fix this line
 
-        return render(self.request, 'create_simulation_result.html', {
-            'form_data': form_dict,
-        })
+        return render(self.request, 'create_simulation_result.html', {'form_data': form_dict})
 
     def clean_form_dict(self, dict_):
         """
@@ -74,7 +74,7 @@ class SimulationWizard(CookieWizardView):
         """
         clean_dict = {}
         first_pdb_type, first_pdb_id, first_pdb_file, second_pdb_type, second_pdb_id, second_pdb_file = '', '', '', '', '', ''
-        x1, y1, z1, x2, y2, z2 = '', '', '', '', '', ''
+        x1, y1, z1, x2, y2, z2 = '0', '0', '0', '0', '0', '0'
 
         num_of_proteins = dict_.get('num_of_proteins')
 
@@ -94,9 +94,9 @@ class SimulationWizard(CookieWizardView):
             elif first_pdb_type == 'by_file':
                 second_pdb_id = ''
                 second_pdb_file = dict_.get('second_pdb_file')
-            x1, y1, z1 = dict_.get('x1', 0), dict_.get('y1', 0), dict_.get('z1', 0)
             x2, y2, z2 = dict_.get('x2', 0), dict_.get('y2', 0), dict_.get('z2', 0)
 
+        x1, y1, z1 = dict_.get('x1', 0), dict_.get('y1', 0), dict_.get('z1', 0)
         temperature = dict_.get('temperature', '')
 
         clean_dict['num_of_proteins'] = num_of_proteins

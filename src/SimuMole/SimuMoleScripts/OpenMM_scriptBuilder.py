@@ -11,9 +11,9 @@ You can choose between the two options in the beginning of the function
 
 
 def openMMbuilder(output_path='', input_coor='input.pdb', force_field='amber99sbildn', water_model='tip3p',
-                  platform='CUDA',
+                  platform='OpenCL',
                   precision='mixed', device_index=-1,
-                  OpenCL_platform_index=-1, nonbonded_method='PME', ewald_error_tolerance=0.0005, constraints='HBonds',
+                  OpenCL_platform_index=-1, nonbonded_method='NoCutoff', ewald_error_tolerance=0.0005, constraints='HBonds',
                   constraint_error_tol=0.00001,
                   rigid_water=True, nonbonded_cutoff=1.0, random_init_vels=True, generation_temp=300,
                   integrator='Langevin', time_step=2.0, error_tolerance=0.0001, collision_rate=1.0, temperature=300,
@@ -23,7 +23,7 @@ def openMMbuilder(output_path='', input_coor='input.pdb', force_field='amber99sb
                   max_minimize_steps=-1,
                   state_data_options=[True, False, True, True, True, False, False, True, False, False]):
     # for option A put True in optionAB, for option B put False
-    optionAB = True
+    optionAB = False
 
     code = ''
 
@@ -162,19 +162,23 @@ def openMMbuilder(output_path='', input_coor='input.pdb', force_field='amber99sb
 
     # option 1: create a file name 'openmm.py' with the generated script
     if optionAB == True:
-        f = open(output_path + 'openmm.py', 'w')
+        f = open(output_path + 'openmm.py', 'w+')
         f.write(code)
+        f.close()
 
         # option 2: execute the code generated
-        if optionAB == False:
-            exec(code)
+    if optionAB == False:
+        f = open(output_path + 'openmm.py', 'w+')
+        f.write(code)
+        f.close()
+        exec(code)
 
 
 def create_openmm_script(first_pdb_id, second_pdb_id):
     input_coor_name = '' + "both__" + first_pdb_id + '_' + second_pdb_id + '.pdb'
 
-    openMMbuilder('../SimuMoleWeb/temp/', input_coor=input_coor_name, state_dataT=True, pdbT=True, dcdT=False,
-                  report_interval=11, equilibration_steps=10001, production_steps=5000, minimize=True,
+    openMMbuilder('../media/files/', input_coor=input_coor_name, state_dataT=True, pdbT=True, dcdT=False,
+                  report_interval=1000, equilibration_steps=100, production_steps=1000, minimize=True,
                   max_minimize_steps=3)
 
 # first_pdb_id, second_pdb_id = '1GK7', '6CTH'
