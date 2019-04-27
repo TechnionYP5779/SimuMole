@@ -5,7 +5,6 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.contrib import messages
 from django.shortcuts import render
-from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.core.files.storage import FileSystemStorage
 from django.conf import settings
 import os
@@ -43,7 +42,13 @@ class SimulationWizard(CookieWizardView):
     template_name = 'create_simulation.html'
 
     # file_storage:
-    file_storage = FileSystemStorage(location=os.path.join(settings.BASE_DIR + '/SimuMoleWeb/temp'))
+    file_storage = FileSystemStorage(location=os.path.join(settings.MEDIA_ROOT, 'files'))
+
+    def delete_temp_files(self):
+        path_to_temp_dir = self.file_storage.base_location
+        listdir = os.listdir(path_to_temp_dir)
+        for file in listdir:
+            os.remove(os.path.join(path_to_temp_dir, file))
 
     def done(self, form_list, **kwargs):
         """
@@ -53,19 +58,11 @@ class SimulationWizard(CookieWizardView):
         form_dict = {k: v for d in form_data for k, v in d.items()}  # convert list of dictionaries to one dictionary
         form_dict = self.clean_form_dict(form_dict)
 
-        # save files
-        first_pdb_file: InMemoryUploadedFile = self.request.FILES['3-first_pdb_file']
-        self.file_storage.save("first.pdb", first_pdb_file)
-        second_pdb_file: InMemoryUploadedFile = self.request.FILES['3-second_pdb_file']
-        self.file_storage.save("second.pdb", second_pdb_file)
-
-        # delete files: # comment this files in order to see "first.pdb" and "second.pdb"
-        # self.file_storage.delete("first.pdb")
-        # self.file_storage.delete("second.pdb")
-
         # todo 8: change parameter list
         # s = Simulation(num_of_proteins, first_pdb, second_pdb, x1, y1, z1, x2, y2, z2, temperature)
         # s.create_simulation()
+
+        # self.delete_temp_files() # todo: fix this line
 
         return render(self.request, 'create_simulation_result.html', {
             'form_data': form_dict,
