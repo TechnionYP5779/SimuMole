@@ -73,7 +73,7 @@ class SimulationForm0_LoadPdb(forms.Form):
                     raise forms.ValidationError("This field is required.")
                 else:
                     self.pdb_file_validation(first_pdb_file)
-                self.save_file(first_pdb_file, "first_pdb_file.pdb")
+                self.save_file(first_pdb_file, "_1_.pdb")
             return first_pdb_file
 
     # second pdb validation:
@@ -108,7 +108,7 @@ class SimulationForm0_LoadPdb(forms.Form):
                     raise forms.ValidationError("This field is required.")
                 else:
                     self.pdb_file_validation(second_pdb_file)
-                self.save_file(second_pdb_file, "second_pdb_file.pdb")
+                self.save_file(second_pdb_file, "_2_.pdb")
             return second_pdb_file
 
     # pdb validation checks:

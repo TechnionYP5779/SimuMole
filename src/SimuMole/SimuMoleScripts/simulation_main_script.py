@@ -13,11 +13,16 @@ pdb = '.pdb'  # pdb suffix
 
 class Simulation:
 
-    def __init__(self, num_of_proteins, first_pdb_id, second_pdb_id, x1, y1, z1, x2, y2, z2, temperature):
+    def __init__(self, num_of_proteins, first_pdb_type, first_pdb_id, second_pdb_type, second_pdb_id,
+                 x1, y1, z1, x2, y2, z2, temperature):
         self.cmd = None
 
         self.num_of_proteins = num_of_proteins
+
+        self.first_pdb_type = first_pdb_type
         self.first_pdb_id = first_pdb_id
+
+        self.second_pdb_type = second_pdb_type
         self.second_pdb_id = second_pdb_id
         self.x1 = float(x1)
         self.y1 = float(y1)
@@ -36,18 +41,25 @@ class Simulation:
         pymol.finish_launching(['pymol', '-q'])  # pymol: -q quiet launch, -c no gui, -e fullscreen
         self.cmd = pymol.cmd
 
+        filename_1 = '_1_'
+        filename_2 = '_2_'
+
         if self.num_of_proteins == '2':
             # STEP 1: load input pdb
-            filename_1 = 'pdb_1__' + str(self.first_pdb_id)
-            filename_2 = 'pdb_2__' + str(self.second_pdb_id)
-            self.save_pdb_by_id(self.first_pdb_id, filename_1 + pdb)
-            self.save_pdb_by_id(self.second_pdb_id, filename_2 + pdb)
+            if self.first_pdb_type == 'by_id':
+                self.save_pdb_by_id(self.first_pdb_id, filename_1 + pdb)
+            if self.second_pdb_type == 'by_id':
+                self.save_pdb_by_id(self.second_pdb_id, filename_2 + pdb)
 
             # STEP 2: fix positions
             filename_1_movement = filename_1 + '__movement'
             filename_2_movement = filename_2 + '__movement'
             translate_pdb(temp + filename_1 + pdb, temp + filename_1_movement + pdb, self.x1, self.y1, self.z1)
             translate_pdb(temp + filename_2 + pdb, temp + filename_2_movement + pdb, self.x2, self.y2, self.z2)
+
+            # STEP 2.5: fix pdb
+            fix_pdb(temp + filename_1_movement + pdb)
+            fix_pdb(temp + filename_2_movement + pdb)
 
             # STEP 3: merge to single pdb file
             self.save_pdbs_in_one_pdb(filename_1_movement, filename_2_movement)
@@ -63,8 +75,9 @@ class Simulation:
             scr(input_coor_name, 40000, self.temperature)
 
         else:
-            filename_1 = 'pdb_1__' + str(self.first_pdb_id)
-            self.save_pdb_by_id(self.first_pdb_id, filename_1 + pdb)
+            # STEP 1: load input pdb
+            if self.first_pdb_type == 'by_id':
+                self.save_pdb_by_id(self.first_pdb_id, filename_1 + pdb)
 
             # STEP 2: fix positions
             filename_1_movement = filename_1 + '__movement'

@@ -59,9 +59,12 @@ class SimulationWizard(CookieWizardView):
         form_dict = self.clean_form_dict(form_dict)
 
         # todo 8: change parameter list
-        s = Simulation(form_dict['num_of_proteins'], form_dict['first_pdb_id'], form_dict['second_pdb_id'],
-                       form_dict['x1'], form_dict['y1'], form_dict['z1'], form_dict['x2'], form_dict['y2'],
-                       form_dict['z2'], form_dict['temperature'])
+        s = Simulation(form_dict['num_of_proteins'],
+                       form_dict['first_pdb_type'], form_dict['first_pdb_id'],
+                       form_dict['second_pdb_type'], form_dict['second_pdb_id'],
+                       form_dict['x1'], form_dict['y1'], form_dict['z1'],
+                       form_dict['x2'], form_dict['y2'], form_dict['z2'],
+                       form_dict['temperature'])
         s.create_simulation()
 
         # self.delete_temp_files() # todo: fix this line
