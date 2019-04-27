@@ -1,4 +1,7 @@
 from django import forms
+import pymol
+import os
+from SimuMoleScripts.OpenMM_scriptBuilder import openMMbuilder
 
 
 class SimulationForm0_LoadPdb(forms.Form):
@@ -122,7 +125,23 @@ class SimulationForm0_LoadPdb(forms.Form):
 
     @staticmethod
     def pdb_id_valid_by_openmm(pdb_id):
-        # todo 3: check that the force field of OpenMM accept this PDB
+        file_name = 'temp/' + pdb_id + '__validate.pdb'
+        cmd = pymol.cmd
+        try:
+            cmd.load("https://files.rcsb.org/download/" + pdb_id + '.pdb')
+            cmd.save(file_name)
+            # Should use here the builder that is actually used, not the default.
+            openMMbuilder(output_path='temp/', input_coor=file_name)
+        except:
+            return False
+        finally:
+            cmd.abort()
+            if os.path.exists(file_name):
+                os.remove(file_name)
+            if os.path.exists('temp/openmm.py'):
+                os.remove('temp/openmm.py')
+            if os.path.exists('temp/trajectory.dcd'):
+                os.remove('temp/trajectory.dcd')
         return True
 
     @staticmethod
@@ -168,3 +187,7 @@ class SimulationForm2_SimulationParameters(forms.Form):
         cleaned_data = super(SimulationForm2_SimulationParameters, self).clean()
         data = {**self.initial, **cleaned_data}  # self.initial->from previous steps, cleaned_data->from current step
         return cleaned_data
+
+
+if __name__ == '__main__':
+    print(SimulationForm0_LoadPdb.pdb_id_valid_by_openmm('6G8T'))
