@@ -132,7 +132,7 @@ class SimulationForm0_LoadPdb(forms.Form):
             cmd.save(file_name)
             # Should use here the builder that is actually used, not the default.
             openMMbuilder(output_path='temp/', input_coor=file_name)
-        except:
+        except Exception:
             return False
         finally:
             cmd.abort()
