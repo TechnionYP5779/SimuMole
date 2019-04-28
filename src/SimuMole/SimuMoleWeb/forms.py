@@ -1,6 +1,6 @@
 from django import forms
 
-from SimuMoleScripts.transformations import get_atoms_string, translate_vecs
+from SimuMoleScripts.transformations import get_atoms, get_atoms_string, translate_vecs
 import requests
 
 from django.core.files.uploadedfile import UploadedFile
@@ -162,13 +162,15 @@ class SimulationForm1_DetermineRelativePosition(forms.Form):
         data = {**self.initial, **cleaned_data}  # self.initial->from previous steps, cleaned_data->from current step
 
         if not self.position_is_valid(data['x1'], data['y1'], data['z1'], data['x2'], data['y2'], data['z2']
-                                      , data['first_pdb_id'], data['second_pdb_id']):
+                                      , data['first_pdb_id'], data['second_pdb_id'], data['first_pdb_type'],
+                                      data['second_pdb_type'], data['first_pdb_file'], data['second_pdb_file']):
             raise forms.ValidationError("Positions are not possible: The proteins collide with each other")
 
         return cleaned_data
 
     @staticmethod
-    def position_is_valid(x1, y1, z1, x2, y2, z2, first_pdb_id, second_pdb_id):
+    def position_is_valid(x1, y1, z1, x2, y2, z2, first_pdb_id, second_pdb_id, first_pdb_type, second_pdb_type,
+                          first_pdb_file, second_pdb_file):
         # DONE 6: check with PyMol that the proteins do not collide with each other (need to add the pdbs parameters)
 
         # return max X,Y,Z locations from all the atoms in vecs
@@ -180,11 +182,17 @@ class SimulationForm1_DetermineRelativePosition(forms.Form):
             return min(vecs, key=lambda v: v[0])[0], min(vecs, key=lambda v: v[1])[1], min(vecs, key=lambda v: v[2])[2]
 
         # get the atoms of the first protein after moving it in x1,y1,z1
-        vecs1 = get_atoms_string(requests.get('https://files.rcsb.org/view/' + first_pdb_id + '.pdb').text)
+        if first_pdb_type == 'by_id':
+            vecs1 = get_atoms_string(requests.get('https://files.rcsb.org/view/' + first_pdb_id + '.pdb').text)
+        else:
+            vecs1 = get_atoms('media/files/_1_.pdb')
         translate_vecs(x1, y1, z1, vecs1)
 
         # get the atoms of the second protein after moving it in x2,y2,z2
-        vecs2 = get_atoms_string(requests.get("https://files.rcsb.org/view/" + second_pdb_id + ".pdb").text)
+        if second_pdb_type == 'by_id':
+            vecs2 = get_atoms_string(requests.get("https://files.rcsb.org/view/" + second_pdb_id + ".pdb").text)
+        else:
+            vecs2 = get_atoms('media/files/_2_.pdb')
         translate_vecs(x2, y2, z2, vecs2)
 
         maxX1, maxY1, maxZ1 = get_max_XYZ(vecs1)
@@ -204,6 +212,7 @@ class SimulationForm1_DetermineRelativePosition(forms.Form):
         isOverlap = resultX and resultY and resultZ
 
         return not isOverlap
+
 
 
 class SimulationForm2_SimulationParameters(forms.Form):
