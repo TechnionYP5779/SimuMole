@@ -162,7 +162,8 @@ class SimulationForm1_DetermineRelativePosition(forms.Form):
 
 
 class SimulationForm2_SimulationParameters(forms.Form):
-    temperature = forms.FloatField(required=True, label='Enter temperature')
+    temperature = forms.FloatField(required=True, label='Enter temperature (Kelvin)')
+    # production_steps = forms.IntegerField(required=True, label='Enter number of production steps (1000 = 1 frame)')
 
     # todo 7: add field of number of time steps (and also: size of every time step)
 
