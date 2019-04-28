@@ -1,4 +1,8 @@
 from django import forms
+from django.core.files.uploadedfile import UploadedFile
+from django.core.files.storage import FileSystemStorage
+from django.conf import settings
+import os
 
 
 class SimulationForm0_LoadPdb(forms.Form):
@@ -8,8 +12,6 @@ class SimulationForm0_LoadPdb(forms.Form):
         choices=[('1', 'one protein'), ('2', 'two proteins')],
         widget=forms.RadioSelect)
 
-    # todo 1: change types of fields "first_pdb_file" and "second_pdb_file"
-
     # first pdb
     first_pdb_type = forms.ChoiceField(
         required=False,
@@ -17,7 +19,7 @@ class SimulationForm0_LoadPdb(forms.Form):
         choices=[('by_id', 'by id'), ('by_file', 'by file')],
         widget=forms.RadioSelect)
     first_pdb_id = forms.CharField(required=False, label='Enter your first pdb ID', max_length=10)
-    first_pdb_file = forms.CharField(required=False, label='Upload your first pdb file', max_length=10)
+    first_pdb_file = forms.FileField(required=False, label='Upload your first pdb file')
 
     # second pdb
     second_pdb_type = forms.ChoiceField(
@@ -26,7 +28,13 @@ class SimulationForm0_LoadPdb(forms.Form):
         choices=[('by_id', 'by id'), ('by_file', 'by file')],
         widget=forms.RadioSelect)
     second_pdb_id = forms.CharField(required=False, label='Enter your second pdb ID', max_length=10)
-    second_pdb_file = forms.CharField(required=False, label='Upload your second pdb file', max_length=10)
+    second_pdb_file = forms.FileField(required=False, label='Upload your second pdb file')
+
+    @staticmethod
+    def save_file(file: UploadedFile, filename: str):
+        file_storage = FileSystemStorage(location=os.path.join(settings.MEDIA_ROOT, 'files'))
+        file_storage.delete(filename)  # delete existing file with same name (due to clean_my_file previous calls)
+        file_storage.save(filename, file)  # save existing file
 
     def clean(self):
         cleaned_data = super(SimulationForm0_LoadPdb, self).clean()
@@ -59,12 +67,13 @@ class SimulationForm0_LoadPdb(forms.Form):
         num_of_proteins = self.cleaned_data['num_of_proteins']
         if self.cleaned_data.get('first_pdb_type') is not None:
             first_pdb_type = self.cleaned_data['first_pdb_type']
-            first_pdb_file = self.cleaned_data['first_pdb_file']
+            first_pdb_file: UploadedFile = self.cleaned_data['first_pdb_file']
             if (num_of_proteins == '1' or num_of_proteins == '2') and first_pdb_type == 'by_file':
                 if first_pdb_file == '':
                     raise forms.ValidationError("This field is required.")
                 else:
                     self.pdb_file_validation(first_pdb_file)
+                self.save_file(first_pdb_file, "_1_.pdb")
             return first_pdb_file
 
     # second pdb validation:
@@ -93,12 +102,13 @@ class SimulationForm0_LoadPdb(forms.Form):
         num_of_proteins = self.cleaned_data['num_of_proteins']
         if self.cleaned_data.get('second_pdb_type') is not None:
             second_pdb_type = self.cleaned_data['second_pdb_type']
-            second_pdb_file = self.cleaned_data['second_pdb_file']
+            second_pdb_file: UploadedFile = self.cleaned_data['second_pdb_file']
             if (num_of_proteins == '2') and second_pdb_type == 'by_file':
                 if second_pdb_file == '':
                     raise forms.ValidationError("This field is required.")
                 else:
                     self.pdb_file_validation(second_pdb_file)
+                self.save_file(second_pdb_file, "_2_.pdb")
             return second_pdb_file
 
     # pdb validation checks:
