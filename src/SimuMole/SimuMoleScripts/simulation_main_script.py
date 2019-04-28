@@ -13,9 +13,13 @@ pdb = '.pdb'  # pdb suffix
 
 class Simulation:
 
+<<<<<<< HEAD
 
     def __init__(self, num_of_proteins, first_pdb_id, second_pdb_id, x1, y1, z1, x2, y2, z2, temperature, production_steps):
 
+=======
+    def __init__(self, num_of_proteins, first_pdb_id, second_pdb_id, x1, y1, z1, x2, y2, z2, temperature):
+>>>>>>> parent of 70a4670... cleses #79 - added productions steps parameter
         self.cmd = None
 
         self.num_of_proteins = num_of_proteins
@@ -32,7 +36,6 @@ class Simulation:
         self.y2 = float(y2)
         self.z2 = float(z2)
         self.temperature = float(temperature)
-        self.production_steps = int(production_steps)
 
     #   # for debugging: # todo: delete when complete with debugging
     #   self.first_pdb_id, self.second_pdb_id = '1GK7', '6CTH'
@@ -75,8 +78,12 @@ class Simulation:
            # openMMbuilder('media/files/', input_coor=input_coor_name, state_dataT=True, pdbT=True, dcdT=False,
            #       report_interval=1000, equilibration_steps=100, production_steps=1000, minimize=True,
            #       max_minimize_steps=3, temperature=self.temperature, platform='OpenCL')
+<<<<<<< HEAD
             scr(input_coor_name,self.production_steps,self.temperature)
 
+=======
+            scr(input_coor_name,40000,self.temperature)
+>>>>>>> parent of 70a4670... cleses #79 - added productions steps parameter
         else:
             # STEP 1: load input pdb
             if self.first_pdb_type == 'by_id':
@@ -94,8 +101,12 @@ class Simulation:
             # openMMbuilder('media/files/', input_coor=input_coor_name, state_dataT=True, pdbT=True, dcdT=False,
             #              report_interval=1000, equilibration_steps=100, production_steps=1000, minimize=True,
             #              max_minimize_steps=1, temperature=self.temperature, platform='OpenCL')
+<<<<<<< HEAD
 
             scr(input_coor_name, self.production_steps, self.temperature) 
+=======
+            scr(input_coor_name, 40000, self.temperature) 
+>>>>>>> parent of 70a4670... cleses #79 - added productions steps parameter
 
 
         self.cmd.reinitialize()
