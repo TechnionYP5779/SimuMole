@@ -14,7 +14,7 @@ pdb = '.pdb'  # pdb suffix
 
 class Simulation:
 
-    def __init__(self, num_of_proteins, first_pdb_id, second_pdb_id, x1, y1, z1, x2, y2, z2, temperature):
+    def __init__(self, num_of_proteins, first_pdb_id, second_pdb_id, x1, y1, z1, x2, y2, z2, temperature, production_steps):
         self.cmd = None
 
         self.num_of_proteins = num_of_proteins
@@ -27,6 +27,7 @@ class Simulation:
         self.y2 = float(y2)
         self.z2 = float(z2)
         self.temperature = float(temperature)
+        self.production_steps = int(production_steps)
 
      #   # for debugging: # todo: delete when complete with debugging
      #   self.first_pdb_id, self.second_pdb_id = '1GK7', '6CTH'
@@ -60,7 +61,7 @@ class Simulation:
            # openMMbuilder('media/files/', input_coor=input_coor_name, state_dataT=True, pdbT=True, dcdT=False,
            #       report_interval=1000, equilibration_steps=100, production_steps=1000, minimize=True,
            #       max_minimize_steps=3, temperature=self.temperature, platform='OpenCL')
-            scr(input_coor_name,40000,self.temperature)
+            scr(input_coor_name,self.production_steps,self.temperature)
         else:
             filename_1 = 'pdb_1__' + str(self.first_pdb_id)
             self.save_pdb_by_id(self.first_pdb_id, filename_1 + pdb)
@@ -77,7 +78,7 @@ class Simulation:
             #openMMbuilder('media/files/', input_coor=input_coor_name, state_dataT=True, pdbT=True, dcdT=False,
             #              report_interval=1000, equilibration_steps=100, production_steps=1000, minimize=True,
             #              max_minimize_steps=1, temperature=self.temperature, platform='OpenCL')
-            scr(input_coor_name, 40000, self.temperature) 
+            scr(input_coor_name, self.production_steps, self.temperature) 
 
         self.cmd.reinitialize()
         self.cmd.load(input_coor_name)
