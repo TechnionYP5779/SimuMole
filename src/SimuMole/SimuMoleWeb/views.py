@@ -1,11 +1,12 @@
-from formtools.wizard.views import CookieWizardView
-from django.shortcuts import render
-
 from SimuMoleScripts.simulation_main_script import Simulation
+from formtools.wizard.views import CookieWizardView
 from .models import UploadForm
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.contrib import messages
+from django.shortcuts import render
+from django.core.files.storage import FileSystemStorage
+from django.conf import settings
 import os
 
 
@@ -40,8 +41,37 @@ def about(request):
 class SimulationWizard(CookieWizardView):
     template_name = 'create_simulation.html'
 
-    @staticmethod
-    def clean_form_dict(dict_):
+    # file_storage:
+    file_storage = FileSystemStorage(location=os.path.join(settings.MEDIA_ROOT, 'files'))
+
+    def delete_temp_files(self):
+        path_to_temp_dir = self.file_storage.base_location
+        listdir = os.listdir(path_to_temp_dir)
+        for file in listdir:
+            os.remove(os.path.join(path_to_temp_dir, file))
+
+    def done(self, form_list, **kwargs):
+        """
+        override "done": this function is called when the form is submitted
+        """
+        form_data = [form.cleaned_data for form in form_list]
+        form_dict = {k: v for d in form_data for k, v in d.items()}  # convert list of dictionaries to one dictionary
+        form_dict = self.clean_form_dict(form_dict)
+
+        # todo 8: change parameter list
+        s = Simulation(form_dict['num_of_proteins'],
+                       form_dict['first_pdb_type'], form_dict['first_pdb_id'],
+                       form_dict['second_pdb_type'], form_dict['second_pdb_id'],
+                       form_dict['x1'], form_dict['y1'], form_dict['z1'],
+                       form_dict['x2'], form_dict['y2'], form_dict['z2'],
+                       form_dict['temperature'])
+        s.create_simulation()
+
+        # self.delete_temp_files() # todo: fix this line
+
+        return render(self.request, 'create_simulation_result.html', {'form_data': form_dict})
+
+    def clean_form_dict(self, dict_):
         """
         get dictionary that represent the form data, and return clean dictionary data (without contradictions)
         """
@@ -91,6 +121,7 @@ class SimulationWizard(CookieWizardView):
 
         return clean_dict
 
+
     def done(self, form_list, **kwargs):
         """
         override "done": this function is called when the form is submitted
@@ -104,6 +135,7 @@ class SimulationWizard(CookieWizardView):
                         form_dict['z2'], form_dict['temperature'], form_dict['production_steps'])
         s.create_simulation()
         return render(self.request, 'create_simulation_result.html', {'form_data': form_dict})
+
 
     def get_form_initial(self, step):
         """
