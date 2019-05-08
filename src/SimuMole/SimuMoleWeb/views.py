@@ -117,6 +117,8 @@ class SimulationWizard(CookieWizardView):
                        form_dict['x2'], form_dict['y2'], form_dict['z2'],
                        form_dict['temperature'], form_dict['production_steps'])
         s.create_simulation()
+       
+    
         return render(self.request, 'create_simulation_result.html', {'form_data': form_dict})
 
 
