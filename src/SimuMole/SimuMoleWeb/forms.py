@@ -1,8 +1,12 @@
 from django import forms
+
+import requests
+
 from django.core.files.uploadedfile import UploadedFile
 from django.core.files.storage import FileSystemStorage
 from django.conf import settings
 import os
+
 
 
 class SimulationForm0_LoadPdb(forms.Form):
@@ -127,7 +131,9 @@ class SimulationForm0_LoadPdb(forms.Form):
 
     @staticmethod
     def pdb_id_exists(pdb_id):
-        # todo 2: check that the ID is exist
+        r = requests.get("https://files.rcsb.org/download/" + pdb_id + ".pdb").status_code
+        if r == 404:
+            return False
         return True
 
     @staticmethod
@@ -170,7 +176,8 @@ class SimulationForm1_DetermineRelativePosition(forms.Form):
 
 
 class SimulationForm2_SimulationParameters(forms.Form):
-    temperature = forms.FloatField(required=True, label='Enter temperature')
+    temperature = forms.FloatField(required=True, label='Enter temperature (Kelvin)')
+    production_steps = forms.IntegerField(required=True, label='Enter number of production steps (1000 = 1 frame)')
 
     # todo 7: add field of number of time steps (and also: size of every time step)
 

@@ -50,26 +50,6 @@ class SimulationWizard(CookieWizardView):
         for file in listdir:
             os.remove(os.path.join(path_to_temp_dir, file))
 
-    def done(self, form_list, **kwargs):
-        """
-        override "done": this function is called when the form is submitted
-        """
-        form_data = [form.cleaned_data for form in form_list]
-        form_dict = {k: v for d in form_data for k, v in d.items()}  # convert list of dictionaries to one dictionary
-        form_dict = self.clean_form_dict(form_dict)
-
-        # todo 8: change parameter list
-        s = Simulation(form_dict['num_of_proteins'],
-                       form_dict['first_pdb_type'], form_dict['first_pdb_id'],
-                       form_dict['second_pdb_type'], form_dict['second_pdb_id'],
-                       form_dict['x1'], form_dict['y1'], form_dict['z1'],
-                       form_dict['x2'], form_dict['y2'], form_dict['z2'],
-                       form_dict['temperature'])
-        s.create_simulation()
-
-        # self.delete_temp_files() # todo: fix this line
-
-        return render(self.request, 'create_simulation_result.html', {'form_data': form_dict})
 
     def clean_form_dict(self, dict_):
         """
@@ -101,6 +81,7 @@ class SimulationWizard(CookieWizardView):
 
         x1, y1, z1 = dict_.get('x1', 0), dict_.get('y1', 0), dict_.get('z1', 0)
         temperature = dict_.get('temperature', '')
+        production_steps = dict_.get('production_steps', '')
 
         clean_dict['num_of_proteins'] = num_of_proteins
         clean_dict['first_pdb_type'] = first_pdb_type
@@ -116,8 +97,30 @@ class SimulationWizard(CookieWizardView):
         clean_dict['y2'] = y2
         clean_dict['z2'] = z2
         clean_dict['temperature'] = temperature
+        clean_dict['production_steps'] = production_steps
 
         return clean_dict
+
+
+    def done(self, form_list, **kwargs):
+        """
+        override "done": this function is called when the form is submitted
+        """
+        form_data = [form.cleaned_data for form in form_list]
+        form_dict = {k: v for d in form_data for k, v in d.items()}  # convert list of dictionaries to one dictionary
+        form_dict = self.clean_form_dict(form_dict)
+        # todo 8: change parameter list
+        s = Simulation(form_dict['num_of_proteins'],
+                       form_dict['first_pdb_type'], form_dict['first_pdb_id'],
+                       form_dict['second_pdb_type'], form_dict['second_pdb_id'],
+                       form_dict['x1'], form_dict['y1'], form_dict['z1'],
+                       form_dict['x2'], form_dict['y2'], form_dict['z2'],
+                       form_dict['temperature'], form_dict['production_steps'])
+        s.create_simulation()
+       
+    
+        return render(self.request, 'create_simulation_result.html', {'form_data': form_dict})
+
 
     def get_form_initial(self, step):
         """
@@ -146,7 +149,8 @@ class SimulationWizard(CookieWizardView):
         # SimulationForm2_SimulationParameters
         step_2_prev_data = self.storage.get_step_data('2')
         step_2_prev_data = {} if step_2_prev_data is None \
-            else {'temperature': step_2_prev_data.get('2-temperature')}
+            else {'temperature': step_2_prev_data.get('2-temperature'),
+                  'production_steps': step_2_prev_data.get('2-production_steps')}
 
         update_data = {**step_0_prev_data, **step_1_prev_data, **step_2_prev_data, **initial_data}
         return self.initial_dict.get(step, update_data)
