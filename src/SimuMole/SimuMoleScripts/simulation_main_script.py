@@ -97,7 +97,15 @@ class Simulation:
         self.cmd.load(input_coor_name)
         self.cmd.load(temp + 'trajectory.dcd')
         # self.cmd.quit() # todo: need to close PyMol window
-
+        #Trying to run on a webpage
+        self.cmd.do("cd ../pymol_exporter")
+        self.cmd.do("run exportToWeb.py")
+        self.cmd.do("exportToWeb ObjectNameToExport") # TODO: fix
+        # ObjectNameToExport is the name of the molecule to be exported
+        # (see the right part of the Pymol window). Please note that it is not 'selection name'.
+        # https://docs.djangoproject.com/en/2.2/howto/static-files/
+        # https://pymol.org/pymol-command-ref.html
+        # http://webglmol.osdn.jp/pymol_exporter/index.html
     def clear_simulation(self):  # todo: complete this! delete all temporary files
         # os.remove('path/to/files')
         return

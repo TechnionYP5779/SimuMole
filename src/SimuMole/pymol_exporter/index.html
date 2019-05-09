@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+ 
+<html>
+<head>
+ <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+ <meta charset="utf-8">
+ 
+ <title>GLmol exporter for Pymol</title>
+ <style type="text/css">
+ </style>
+</head>
+
+<body>
+<h1>GLmol exporter for Pymol</h1>
+
+<h2>About</h2>
+<p>This pymol scripts lets you export a scene
+from <a href="http://www.pymolwiki.org/index.php/Main_Page">Pymol</a>
+to <a href="../index-en.html">GLmol</a>, a molecular viewer for Web
+browsers written in WebGL/Javascript.
+</p>
+
+<h2>Examples</h2>
+
+<p>The following scenes were created in Pymol and then exported to
+GLmol. You can open exported files by clicking the image.</p>
+<p>
+<a href="all.html"><img src="all.png" width="709" height="343"></a><br>
+<a  href="coord.html"><img src="coord.png" width="767" height="343"></a><br>
+This model is from PDBID <a href="http://www.rcsb.org/pdb/explore/explore.do?pdbId=2POR">2POR</a>, "Structure of porin refined at 1.8 A resolution" by Weiss, M.S., Schulz, G.E. published on J.Mol.Biol. 227: 493-509(1992).
+</p>
+
+<h2>Features</h2>
+<p>Currently the followings are exported.</p>
+
+<ul>
+<li>Representations 
+<ul>
+<li>lines
+<li>sticks
+<li>cartoon (drawn as flat ribbon in GLmol)
+<li>ribbon
+<li>dashed line for bonds
+<li>nb_spheres
+<li>nonbonded
+</ul>
+<li>Colors
+<li>Rotation center
+<li>Camera position
+<li>Field of view
+<li>Slab
+<li>Fog
+</ul>
+
+<p>Support for <a href="../surface.html">surface representation</a> is under development.<br>
+Orthoscopic projection ("set orthoscopic on" in Pymol) will be supported soon.</p>
+
+<h2>System requirements</h2>
+<p>GLmol runs on newer versions of Firefox, Chrome, Safari or
+Opera. Internet Explorer is not supported because IE doesn't implement
+WebGL. GLmol also runs on Sony Ericsson's Android devices which
+support WebGL. Support for Firefox Mobile is currently
+underway. Reportedly, GLmol also runs on WebGL enabled safari in
+iOS.</p>
+
+<p>If you see only black screen and you are using
+<ul><li>Internet Explorer: sorry. IE doesn't support WebGL.</li>
+<li>Firefox (version 4 or later): try <a href="https://wiki.mozilla.org/Blocklisting/Blocked_Graphics_Drivers#How_to_force-enable_blocked_graphics_features">force enable WebGL</a>.</li>
+<li>Chrome: try <a href="http://www.google.com/support/forum/p/Chrome/thread?tid=4b9244822aa2f2e0&hl=en">force enable WebGL</a>.</li>
+<li>Safari: <a href="https://discussions.apple.com/thread/3300585?start=0&tstart=0">enable WebGL</a>.</li>
+</ul>
+
+<h2>Beta version</h2>
+<p>You can try beta version below. Most core features are implemented
+but there are some bugs remaining.</p>
+
+<p>You can download them from the following link.</p>
+<script src="http://sourceforge.jp/projects/webglmol/releases/compact.js" type="text/javascript" charset="utf-8"></script>
+
+<h2>How to use</h2>
+<ol>
+<li> Unzip the distribution.
+<li> Make a scene in Pymol.
+<li> Change directory to the directory where the package has been extracted. For example, <br>
+<kbd>cd ~/pymol_exporter/</kbd>
+<li> Load the script.<br>
+<kbd>run exportToWeb.py</kbd>
+<li> Run the script. <br>
+<kbd>exportToWeb ObjectNameToExport</kbd><br> 
+ObjectNameToExport is
+the name of the molecule to be exported (see the right part of the
+Pymol window). Please note that it is not 'selection name'.
+<li>Now "ObjectNameToExport.html" is created in your current
+directory. Open it with your browser. To put it on the net, please
+upload "js" folder with it.
+</ol>
+
+<h2>Contacts</h2>
+<p>Comments and suggestions are welcome. Please mail to biochem_fan at users.sourceforge.jp or write in <a href="http://sourceforge.jp/projects/webglmol/forums/">the forum</a>.</p>
+
+<p style="clear: both;"><a href="http://sourceforge.jp/"><img src="http://sourceforge.jp/sflogo.php?group_id=6386&type=1" width="96" height="31" border="0" alt="SourceForge.JP"></a>
+</body></html>
