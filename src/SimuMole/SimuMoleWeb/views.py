@@ -8,6 +8,9 @@ from django.shortcuts import render
 from django.core.files.storage import FileSystemStorage
 from django.conf import settings
 import os
+import shutil
+
+temp = 'media/files/'  # path to temp folder
 
 
 ################################
@@ -116,6 +119,9 @@ class SimulationWizard(CookieWizardView):
                        form_dict['x1'], form_dict['y1'], form_dict['z1'],
                        form_dict['x2'], form_dict['y2'], form_dict['z2'],
                        form_dict['temperature'], form_dict['production_steps'])
+        shutil.make_archive('dcd_pdbs_openmm', 'zip', temp)
+        shutil.move("dcd_pdbs_openmm.zip", "media/files/dcd_pdbs_openmm.zip")
+
         s.create_simulation()
        
     
