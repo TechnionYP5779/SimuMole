@@ -5,7 +5,10 @@ import requests
 from django.core.files.uploadedfile import UploadedFile
 from django.core.files.storage import FileSystemStorage
 from django.conf import settings
+from SimuMoleScripts.basicTrajectoryBuilder import scr
+from SimuMoleScripts.fix_pdb import fix_pdb
 import os
+import urllib.request
 
 
 
@@ -120,14 +123,18 @@ class SimulationForm0_LoadPdb(forms.Form):
     def pdb_id_validation(self, pdb_id):
         if not self.pdb_id_exists(pdb_id):
             raise forms.ValidationError("invalid PDB id")
-        if not self.pdb_id_valid_by_openmm(pdb_id):
-            raise forms.ValidationError("Protein not supported by OpenMM")
+        # Running the validation takes a long time, during which the client doesn't see the progress.
+        # So currently validating is disabled.
+        
+        # if not self.pdb_id_valid(pdb_id):
+        #   raise forms.ValidationError("Protein not supported by OpenMM")
 
     def pdb_file_validation(self, pdb_id):
-        if not self.pdb_file_valid(pdb_id):
-            raise forms.ValidationError("invalid PDB file")
-        if not self.pdb_file_valid_by_openmm(pdb_id):
-            raise forms.ValidationError("Protein not supported by OpenMM")
+        return True
+        # See above
+
+        # if not self.pdb_file_valid(pdb_id):
+        #    raise forms.ValidationError("Protein not supported by OpenMM")
 
     @staticmethod
     def pdb_id_exists(pdb_id):
@@ -136,19 +143,47 @@ class SimulationForm0_LoadPdb(forms.Form):
             return False
         return True
 
+    '''
+    Checks whether a pdb id can be used in an openMM simulation by downloading the relevant file and testing it.
+    This function assumes the id is valid.
+    '''
     @staticmethod
-    def pdb_id_valid_by_openmm(pdb_id):
-        # todo 3: check that the force field of OpenMM accept this PDB
-        return True
+    def pdb_id_valid(pdb_id):
+        pdb_file = "media/files/"+pdb_id+".pdb"
+        urllib.request.urlretrieve("https://files.rcsb.org/view/"+pdb_id+".pdb", filename=pdb_file)
+        return SimulationForm0_LoadPdb.pdb_file_valid(pdb_file)
 
+    '''
+    Checks if the given file can be used in an openMM simulation.
+    If it can run without fixing then it returns true.
+    If it can run with fixing it will return true AND fix the file.
+    Otherwise it returns false.
+    '''
     @staticmethod
     def pdb_file_valid(pdb_file):
-        # todo 4: check that the file is valid
-        return True
+        dcd_file = "media/files/trajectory.dcd"
+        min_steps = 2000    # Steps for 1 frame
+        default_temp = 293  # Room temperature in Kelvin
+        fix_not_needed = True
+        try:
+            scr(pdb_file, min_steps, default_temp)
+        except Exception:
+            fix_not_needed = False
+        finally:
+            if os.path.exists(dcd_file):
+                os.remove(dcd_file)
 
-    @staticmethod
-    def pdb_file_valid_by_openmm(pdb_file):
-        # todo 5: check that the force field of OpenMM accept this PDB
+        if fix_not_needed:
+            return True
+
+        try:
+            fix_pdb(pdb_file)
+            scr(pdb_file, min_steps, default_temp)
+        except Exception:
+            return False
+        finally:
+            if os.path.exists(dcd_file):
+                os.remove(dcd_file)
         return True
 
 
