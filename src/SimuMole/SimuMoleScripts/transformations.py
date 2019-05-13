@@ -108,6 +108,19 @@ def translate_pdb(old_pdb, new_pdb, x, y, z, degXY, degYZ):
     rotate_molecular(x, y, z, degXY, degYZ, vecs)
     change_pdb(old_pdb, new_pdb, vecs)
 
+
+'''
+Rotate each point in vecs in the degrees according to degXZ and degYZ around the center (x, y, z)
+Parameters:
+x - the x axis of the center
+y - the y axis of the center
+z - the z axis of the center
+degXY - the rotation rate in degrees in XY level
+degYZ - the rotation rate in degrees in YZ level
+vecs - the vector of the points to be rotated
+
+Note: In the future we may calculate the center instead of getting it as parameters
+'''
 def rotate_molecular(x, y, z, degXY, degYZ, vecs):
     degXY_Rad = math.radians(degXY)
     degYZ_Rad = math.radians(degYZ)
@@ -115,10 +128,12 @@ def rotate_molecular(x, y, z, degXY, degYZ, vecs):
     oX, oY, oZ = center
 
     for v in vecs:
+        # rotation in XY level
         pX, pY = v[0], v[1]
         v[0] = oX + math.cos(degXY_Rad) * (pX - oX) - math.sin(degXY_Rad) * (pY - oY)
         v[1] = oY + math.sin(degXY_Rad) * (pX - oX) + math.cos(degXY_Rad) * (pY - oY)
 
+        # rotation in YZ level
         pY, pZ = v[1], v[2]
         v[1] = oY + math.cos(degYZ_Rad) * (pY - oY) - math.sin(degYZ_Rad) * (pZ - oZ)
         v[2] = oZ + math.sin(degYZ_Rad) * (pY - oY) + math.cos(degYZ_Rad) * (pZ - oZ)
