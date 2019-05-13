@@ -58,6 +58,7 @@ class SimulationWizard(CookieWizardView):
         clean_dict = {}
         first_pdb_type, first_pdb_id, first_pdb_file, second_pdb_type, second_pdb_id, second_pdb_file = '', '', '', '', '', ''
         x1, y1, z1, x2, y2, z2 = '0', '0', '0', '0', '0', '0'
+        degXY_1, degYZ_1, degXY_2, degYZ_2 = '0', '0', '0', '0'
 
         num_of_proteins = dict_.get('num_of_proteins')
 
@@ -78,8 +79,10 @@ class SimulationWizard(CookieWizardView):
                 second_pdb_id = ''
                 second_pdb_file = dict_.get('second_pdb_file')
             x2, y2, z2 = dict_.get('x2', 0), dict_.get('y2', 0), dict_.get('z2', 0)
+            degXY_2, degYZ_2 = dict_.get('degXY_2', 0), dict_.get('degYZ_2', 0)
 
         x1, y1, z1 = dict_.get('x1', 0), dict_.get('y1', 0), dict_.get('z1', 0)
+        degXY_1, degYZ_1 = dict_.get('degXY_1', 0), dict_.get('degYZ_1', 0)
         temperature = dict_.get('temperature', '')
         production_steps = dict_.get('production_steps', '')
 
@@ -96,6 +99,10 @@ class SimulationWizard(CookieWizardView):
         clean_dict['x2'] = x2
         clean_dict['y2'] = y2
         clean_dict['z2'] = z2
+        clean_dict['degXY_1'] = degXY_1
+        clean_dict['degYZ_1'] = degYZ_1
+        clean_dict['degXY_2'] = degXY_2
+        clean_dict['degYZ_2'] = degYZ_2
         clean_dict['temperature'] = temperature
         clean_dict['production_steps'] = production_steps
 
@@ -115,6 +122,8 @@ class SimulationWizard(CookieWizardView):
                        form_dict['second_pdb_type'], form_dict['second_pdb_id'],
                        form_dict['x1'], form_dict['y1'], form_dict['z1'],
                        form_dict['x2'], form_dict['y2'], form_dict['z2'],
+                       form_dict['degXY_1'], form_dict['degYZ_1'],
+                       form_dict['degXY_2'], form_dict['degYZ_2'],
                        form_dict['temperature'], form_dict['production_steps'])
         s.create_simulation()
        

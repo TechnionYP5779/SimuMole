@@ -159,6 +159,10 @@ class SimulationForm1_DetermineRelativePosition(forms.Form):
     x2 = forms.FloatField(required=True, label='Enter delta x of second pdb')
     y2 = forms.FloatField(required=True, label='Enter delta y of second pdb')
     z2 = forms.FloatField(required=True, label='Enter delta z of second pdb')
+    degXY_1 = forms.FloatField(required=True, label='Enter degrees to rotate from left to right of first pdb')
+    degYZ_1 = forms.FloatField(required=True, label='Enter degrees to rotate from down to up of first pdb')
+    degXY_2 = forms.FloatField(required=True, label='Enter degrees to rotate from left to right of second pdb')
+    degYZ_2 = forms.FloatField(required=True, label='Enter degrees to rotate from down to up of second pdb')
 
     def clean(self):
         cleaned_data = super(SimulationForm1_DetermineRelativePosition, self).clean()

@@ -1,5 +1,6 @@
 #import pymol
 import numpy as np
+import math
 
 
 COORDINATES_START = 31
@@ -101,7 +102,24 @@ x - the amount each atom will be moved in the X axis.
 y - the amount each atom will be moved in the Y axis.
 z - the amount each atom will be moved in the Z axis.
 '''
-def translate_pdb(old_pdb, new_pdb, x, y, z):
+def translate_pdb(old_pdb, new_pdb, x, y, z, degXY, degYZ):
     vecs = get_atoms(old_pdb)
     translate_vecs(x, y, z, vecs)
+    rotate_molecular(x, y, z, degXY, degYZ, vecs)
     change_pdb(old_pdb, new_pdb, vecs)
+
+def rotate_molecular(x, y, z, degXY, degYZ, vecs):
+    degXY_Rad = math.radians(degXY)
+    degYZ_Rad = math.radians(degYZ)
+    center = x, y, z
+    oX, oY, oZ = center
+
+    for v in vecs:
+        pX, pY = v[0], v[1]
+        v[0] = oX + math.cos(degXY_Rad) * (pX - oX) - math.sin(degXY_Rad) * (pY - oY)
+        v[1] = oY + math.sin(degXY_Rad) * (pX - oX) + math.cos(degXY_Rad) * (pY - oY)
+
+        pY, pZ = v[1], v[2]
+        v[1] = oY + math.cos(degYZ_Rad) * (pY - oY) - math.sin(degYZ_Rad) * (pZ - oZ)
+        v[2] = oZ + math.sin(degYZ_Rad) * (pY - oY) + math.cos(degYZ_Rad) * (pZ - oZ)
+
