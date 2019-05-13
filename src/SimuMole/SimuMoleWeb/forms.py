@@ -7,9 +7,9 @@ from django.core.files.storage import FileSystemStorage
 from django.conf import settings
 from SimuMoleScripts.basicTrajectoryBuilder import scr
 from SimuMoleScripts.fix_pdb import fix_pdb
+from SimuMoleScripts.transformations import get_atoms, get_atoms_string, translate_vecs
 import os
 import urllib.request
-
 
 
 class SimulationForm0_LoadPdb(forms.Form):
@@ -194,15 +194,58 @@ class SimulationForm1_DetermineRelativePosition(forms.Form):
         cleaned_data = super(SimulationForm1_DetermineRelativePosition, self).clean()
         data = {**self.initial, **cleaned_data}  # self.initial->from previous steps, cleaned_data->from current step
 
-        if not self.position_is_valid(data['x1'], data['y1'], data['z1'], data['x2'], data['y2'], data['z2']):
+        if not self.position_is_valid(data['x1'], data['y1'], data['z1'], data['x2'], data['y2'], data['z2']
+                                      , data['first_pdb_id'], data['second_pdb_id'], data['first_pdb_type'],
+                                      data['second_pdb_type'], data['first_pdb_file'], data['second_pdb_file']):
             raise forms.ValidationError("Positions are not possible: The proteins collide with each other")
 
         return cleaned_data
 
     @staticmethod
-    def position_is_valid(x1, y1, z1, x2, y2, z2):
-        # todo 6: check with PyMol that the proteins do not collide with each other (need to add the pdbs parameters)
-        return True
+    def position_is_valid(x1, y1, z1, x2, y2, z2, first_pdb_id, second_pdb_id, first_pdb_type, second_pdb_type,
+                          first_pdb_file, second_pdb_file):
+        # DONE 6: check with PyMol that the proteins do not collide with each other (need to add the pdbs parameters)
+
+        # return max X,Y,Z locations from all the atoms in vecs
+        def get_max_XYZ(vecs):
+            return max(vecs, key=lambda v: v[0])[0], max(vecs, key=lambda v: v[1])[1], max(vecs, key=lambda v: v[2])[2]
+
+        # return min X,Y,Z locations from all the atoms in vecs
+        def get_min_XYZ(vecs):
+            return min(vecs, key=lambda v: v[0])[0], min(vecs, key=lambda v: v[1])[1], min(vecs, key=lambda v: v[2])[2]
+
+        # get the atoms of the first protein after moving it in x1,y1,z1
+        if first_pdb_type == 'by_id':
+            vecs1 = get_atoms_string(requests.get('https://files.rcsb.org/view/' + first_pdb_id + '.pdb').text)
+        else:
+            vecs1 = get_atoms('media/files/_1_.pdb')
+        translate_vecs(x1, y1, z1, vecs1)
+
+        # get the atoms of the second protein after moving it in x2,y2,z2
+        if second_pdb_type == 'by_id':
+            vecs2 = get_atoms_string(requests.get("https://files.rcsb.org/view/" + second_pdb_id + ".pdb").text)
+        else:
+            vecs2 = get_atoms('media/files/_2_.pdb')
+        translate_vecs(x2, y2, z2, vecs2)
+
+        maxX1, maxY1, maxZ1 = get_max_XYZ(vecs1)
+        maxX2, maxY2, maxZ2 = get_max_XYZ(vecs2)
+
+        minX1, minY1, minZ1 = get_min_XYZ(vecs1)
+        minX2, minY2, minZ2 = get_min_XYZ(vecs2)
+
+        dist = 1
+
+        # check overlap in axis X, axis Y and axis Z
+        resultX = (maxX1 + dist) >= minX2 and (maxX2 + dist) >= minX1
+        resultY = (maxY1 + dist) >= minY2 and (maxY2 + dist) >= minY1
+        resultZ = (maxZ1 + dist) >= minZ2 and (maxZ2 + dist) >= minZ1
+
+        # check overlap of whole "boxes" of proteins
+        isOverlap = resultX and resultY and resultZ
+
+        return not isOverlap
+
 
 
 class SimulationForm2_SimulationParameters(forms.Form):

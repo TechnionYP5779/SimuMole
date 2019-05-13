@@ -1,13 +1,14 @@
 from SimuMoleScripts.simulation_main_script import Simulation
 from formtools.wizard.views import CookieWizardView
 from .models import UploadForm
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from django.urls import reverse
 from django.contrib import messages
 from django.shortcuts import render
 from django.core.files.storage import FileSystemStorage
 from django.conf import settings
 import os
+import threading
 
 
 ################################
@@ -35,6 +36,25 @@ def about(request):
 
 
 ################################
+#   Simulation Result
+################################
+
+def update_simulation_status(request):
+    f = open(os.path.join(settings.MEDIA_ROOT, 'files', 'simulation_status.txt'), 'r')
+    simulation_status = f.read()
+    f.close()
+
+    f = open(os.path.join(settings.MEDIA_ROOT, 'files', 'simulation_status_during_run.txt'), 'r')
+    simulation_status_during_run_lines = f.readlines()
+    simulation_status_during_run = '' if len(simulation_status_during_run_lines) == 0 \
+        else simulation_status_during_run_lines[-1]
+    f.close()
+
+    context = {'simulation_status': simulation_status, 'simulation_status_during_run': simulation_status_during_run}
+    return JsonResponse(context)
+
+
+################################
 #   Create Simulation
 ################################
 
@@ -49,7 +69,6 @@ class SimulationWizard(CookieWizardView):
         listdir = os.listdir(path_to_temp_dir)
         for file in listdir:
             os.remove(os.path.join(path_to_temp_dir, file))
-
 
     def clean_form_dict(self, dict_):
         """
@@ -101,15 +120,7 @@ class SimulationWizard(CookieWizardView):
 
         return clean_dict
 
-
-    def done(self, form_list, **kwargs):
-        """
-        override "done": this function is called when the form is submitted
-        """
-        form_data = [form.cleaned_data for form in form_list]
-        form_dict = {k: v for d in form_data for k, v in d.items()}  # convert list of dictionaries to one dictionary
-        form_dict = self.clean_form_dict(form_dict)
-        # todo 8: change parameter list
+    def create_simulation_thread(self, form_dict):
         s = Simulation(form_dict['num_of_proteins'],
                        form_dict['first_pdb_type'], form_dict['first_pdb_id'],
                        form_dict['second_pdb_type'], form_dict['second_pdb_id'],
@@ -117,10 +128,29 @@ class SimulationWizard(CookieWizardView):
                        form_dict['x2'], form_dict['y2'], form_dict['z2'],
                        form_dict['temperature'], form_dict['production_steps'])
         s.create_simulation()
-       
-    
-        return render(self.request, 'create_simulation_result.html', {'form_data': form_dict})
 
+    def done(self, form_list, **kwargs):
+        """
+        override "done": this function is called when the form is submitted
+        """
+        # Processing the input parameters:
+        form_data = [form.cleaned_data for form in form_list]
+        form_dict = {k: v for d in form_data for k, v in d.items()}  # convert list of dictionaries to one dictionary
+        form_dict = self.clean_form_dict(form_dict)
+
+        # Create a new thread responsible for creating the simulation:
+        t = threading.Thread(target=self.create_simulation_thread, args=(form_dict,))
+        t.setDaemon(True)
+        t.start()
+
+        # Initialize the status file:
+        with open(os.path.join(settings.MEDIA_ROOT, 'files', 'simulation_status.txt'), "w+") as f:
+            f.write("Processing your parameters...")
+        with open(os.path.join(settings.MEDIA_ROOT, 'files', 'simulation_status_during_run.txt'), "w+") as f:
+            f.write("")
+
+        # Render 'create_simulation_result.html' without waiting until the simulation is complete:
+        return render(self.request, 'create_simulation_result.html', {'form_data': form_dict})
 
     def get_form_initial(self, step):
         """
