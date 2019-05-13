@@ -123,18 +123,13 @@ class SimulationForm0_LoadPdb(forms.Form):
     def pdb_id_validation(self, pdb_id):
         if not self.pdb_id_exists(pdb_id):
             raise forms.ValidationError("invalid PDB id")
-        # Running the validation takes a long time, during which the client doesn't see the progress.
-        # So currently validating is disabled.
-        
-        # if not self.pdb_id_valid(pdb_id):
-        #   raise forms.ValidationError("Protein not supported by OpenMM")
+
+        if not self.pdb_id_valid(pdb_id):
+            raise forms.ValidationError("Protein not supported by OpenMM")
 
     def pdb_file_validation(self, pdb_id):
-        return True
-        # See above
-
-        # if not self.pdb_file_valid(pdb_id):
-        #    raise forms.ValidationError("Protein not supported by OpenMM")
+        if not self.pdb_file_valid(pdb_id):
+            raise forms.ValidationError("Protein not supported by OpenMM")
 
     @staticmethod
     def pdb_id_exists(pdb_id):
