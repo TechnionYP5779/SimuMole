@@ -24,6 +24,22 @@ def get_atoms(pdb):
     file.close()
     return vecs
 
+'''
+Gathers the coordinates of all atoms in string.
+Arguments:
+str - the string containing the atoms, each atom separated by new line
+Returns:
+A list of all coordinates, each in a numpy array of size 3.
+'''
+def get_atoms_string(str):
+    vecs = []
+    for line in str.splitlines():
+        if not (line.startswith('ATOM') or line.startswith('HETATM')):
+            continue
+        words = list(filter(lambda s: s != '', line[COORDINATES_START:].split(' ')))
+        vecs.append(np.array([float(words[0]), float(words[1]), float(words[2])]))
+    return vecs
+
 
 '''
 Prepares a number to string form for the pdb file.
