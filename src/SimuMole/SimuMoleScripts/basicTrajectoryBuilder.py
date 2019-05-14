@@ -2,7 +2,11 @@ from __future__ import print_function
 from simtk.openmm import app
 import simtk.openmm as mm
 from simtk import unit
-from sys import stdout
+
+dir_path = 'media/files/'
+simulation_status_path = dir_path + 'simulation_status.txt'
+simulation_status_during_run_path = dir_path + 'simulation_status_during_run.txt'
+trajectory_path = dir_path + 'trajectory.dcd'
 
 
 def scr(input_coor_name, simu_steps, temperature):
@@ -19,18 +23,25 @@ def scr(input_coor_name, simu_steps, temperature):
     simulation = app.Simulation(pdb.topology, system, integrator, platform, properties)
     simulation.context.setPositions(pdb.positions)
 
-    print('Minimizing...')
+    update_simulation_status('Minimizing energy...')
     simulation.minimizeEnergy()
 
     simulation.context.setVelocitiesToTemperature(temperature * unit.kelvin)
-    print('Equilibrating...')
+
+    update_simulation_status('Equilibrating...')
     simulation.step(100)
 
-    simulation.reporters.append(app.DCDReporter('media/files/' + 'trajectory.dcd', 1000))
+    simulation.reporters.append(app.DCDReporter(trajectory_path, 1000))
     simulation.reporters.append(
-        app.StateDataReporter(stdout, 1000, step=True, potentialEnergy=True, temperature=True, progress=True,
-                              remainingTime=True, speed=True, totalSteps=simu_steps, separator='\t'))
+        app.StateDataReporter(simulation_status_during_run_path, 1000, progress=True, remainingTime=True,
+                              totalSteps=simu_steps, separator=','))
 
-    print('Running Production...')
+    update_simulation_status('Running simulation...')
     simulation.step(simu_steps)
-    print('Done!')
+
+    update_simulation_status('Done!')
+
+
+def update_simulation_status(status):
+    with open(simulation_status_path, "w+") as f:
+        f.write(status)

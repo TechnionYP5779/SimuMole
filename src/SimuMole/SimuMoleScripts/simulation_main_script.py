@@ -134,3 +134,21 @@ class Simulation:
         self.cmd.load(temp + filename_2 + pdb)
         self.cmd.zoom()
         self.cmd.save(temp + "both__" + filename_1 + '_' + filename_2 + pdb)
+
+    @staticmethod
+    def merge_pdbs_by_copy(filename_1, filename_2, do_fix=True):
+        merged_pdb = temp + "both__" + filename_1 + "_" + filename_2 + pdb
+        merged_file = open(merged_pdb, 'w')
+        file1 = open(temp + filename_1 + pdb)
+        file2 = open(temp + filename_2 + pdb)
+        for line in file1:
+            if not (line.startswith('MASTER') or line.startswith('END')):
+                merged_file.write(line)
+        for line in file2:
+            if not (line.startswith('HEADER')):
+                merged_file.write(line)
+        file1.close()
+        file2.close()
+        merged_file.close()
+        if do_fix:
+            fix_pdb(merged_pdb)
