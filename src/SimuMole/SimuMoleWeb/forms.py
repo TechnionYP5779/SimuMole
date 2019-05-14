@@ -7,7 +7,7 @@ from django.core.files.storage import FileSystemStorage
 from django.conf import settings
 from SimuMoleScripts.basicTrajectoryBuilder import scr
 from SimuMoleScripts.fix_pdb import fix_pdb
-from SimuMoleScripts.transformations import get_atoms, get_atoms_string, translate_vecs
+from SimuMoleScripts.transformations import get_atoms, get_atoms_string, translate_vecs, rotate_molecular
 import os
 import urllib.request
 
@@ -79,7 +79,9 @@ class SimulationForm0_LoadPdb(forms.Form):
                 if first_pdb_file == '':
                     raise forms.ValidationError("This field is required.")
                 else:
-                    self.pdb_file_validation(first_pdb_file)
+                    pass
+                    # self.pdb_file_validation(first_pdb_file)
+                    # TODO: fix
                 self.save_file(first_pdb_file, "_1_.pdb")
             return first_pdb_file
 
@@ -114,7 +116,9 @@ class SimulationForm0_LoadPdb(forms.Form):
                 if second_pdb_file == '':
                     raise forms.ValidationError("This field is required.")
                 else:
-                    self.pdb_file_validation(second_pdb_file)
+                    pass
+                    # self.pdb_file_validation(second_pdb_file)
+                    # TODO: fix
                 self.save_file(second_pdb_file, "_2_.pdb")
             return second_pdb_file
 
@@ -124,8 +128,9 @@ class SimulationForm0_LoadPdb(forms.Form):
         if not self.pdb_id_exists(pdb_id):
             raise forms.ValidationError("invalid PDB id")
 
-        if not self.pdb_id_valid(pdb_id):
-            raise forms.ValidationError("Protein not supported by OpenMM")
+        # if not self.pdb_id_valid(pdb_id):
+        #     raise forms.ValidationError("Protein not supported by OpenMM")
+        # TODO: fix
 
     def pdb_file_validation(self, pdb_id):
         if not self.pdb_file_valid(pdb_id):
@@ -199,6 +204,7 @@ class SimulationForm1_DetermineRelativePosition(forms.Form):
         data = {**self.initial, **cleaned_data}  # self.initial->from previous steps, cleaned_data->from current step
 
         if not self.position_is_valid(data['x1'], data['y1'], data['z1'], data['x2'], data['y2'], data['z2']
+                                      , data['degXY_1'], data['degYZ_1'], data['degXY_2'], data['degYZ_2']
                                       , data['first_pdb_id'], data['second_pdb_id'], data['first_pdb_type'],
                                       data['second_pdb_type'], data['first_pdb_file'], data['second_pdb_file']):
             raise forms.ValidationError("Positions are not possible: The proteins collide with each other")
@@ -206,7 +212,8 @@ class SimulationForm1_DetermineRelativePosition(forms.Form):
         return cleaned_data
 
     @staticmethod
-    def position_is_valid(x1, y1, z1, x2, y2, z2, first_pdb_id, second_pdb_id, first_pdb_type, second_pdb_type,
+    def position_is_valid(x1, y1, z1, x2, y2, z2, degXY_1, degYZ_1, degXY_2, degYZ_2,
+                          first_pdb_id, second_pdb_id, first_pdb_type, second_pdb_type,
                           first_pdb_file, second_pdb_file):
         # DONE 6: check with PyMol that the proteins do not collide with each other (need to add the pdbs parameters)
 
@@ -224,6 +231,7 @@ class SimulationForm1_DetermineRelativePosition(forms.Form):
         else:
             vecs1 = get_atoms('media/files/_1_.pdb')
         translate_vecs(x1, y1, z1, vecs1)
+        rotate_molecular(x1, y1, z1, degXY_1, degYZ_1, vecs1)
 
         # get the atoms of the second protein after moving it in x2,y2,z2
         if second_pdb_type == 'by_id':
@@ -231,6 +239,7 @@ class SimulationForm1_DetermineRelativePosition(forms.Form):
         else:
             vecs2 = get_atoms('media/files/_2_.pdb')
         translate_vecs(x2, y2, z2, vecs2)
+        rotate_molecular(x2, y2, z2, degXY_2, degYZ_2, vecs2)
 
         maxX1, maxY1, maxZ1 = get_max_XYZ(vecs1)
         maxX2, maxY2, maxZ2 = get_max_XYZ(vecs2)
