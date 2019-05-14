@@ -204,8 +204,8 @@ def my_file_upload(request):
             for f in files:
                 file_name, file_extension = os.path.splitext(f.name)
                 file_extension = file_extension.lower()
-                # allowing only pdb files
-                if file_extension == '.pdb':
+                # allowing only pdb and dcd files
+                if file_extension == '.pdb' or file_extension == '.dcd':
                     messages.success(request, 'File Uploaded Successfully')
                     data = f
                     path = default_storage.save('files/' + f.name , ContentFile(data.read()))
