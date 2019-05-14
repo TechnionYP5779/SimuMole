@@ -210,7 +210,8 @@ def my_file_upload(request):
                     data = f
                     path = default_storage.save('files/' + f.name , ContentFile(data.read()))
                     tmp_file = os.path.join(settings.MEDIA_ROOT, path)
-            return HttpResponseRedirect(reverse('my_file_upload'))
+				else:
+                    return HttpResponseRedirect(reverse('my_file_upload'))
     else:
         form = MultipuleFieldForm()
     return render(request, 'file_upload.html', {'form': form})
