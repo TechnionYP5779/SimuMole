@@ -133,6 +133,8 @@ class SimulationWizard(CookieWizardView):
                        form_dict['second_pdb_type'], form_dict['second_pdb_id'],
                        form_dict['x1'], form_dict['y1'], form_dict['z1'],
                        form_dict['x2'], form_dict['y2'], form_dict['z2'],
+                       form_dict['degXY_1'], form_dict['degYZ_1'],
+                       form_dict['degXY_2'], form_dict['degYZ_2'],
                        form_dict['temperature'], form_dict['production_steps'])
         s.create_simulation()
 
