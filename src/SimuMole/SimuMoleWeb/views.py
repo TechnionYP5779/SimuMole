@@ -1,6 +1,7 @@
 from SimuMoleScripts.simulation_main_script import Simulation
 from formtools.wizard.views import CookieWizardView
 from .models import UploadForm
+from .forms import MultipuleFieldForm
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.contrib import messages
@@ -9,6 +10,8 @@ from django.core.files.storage import FileSystemStorage
 from django.conf import settings
 import os
 import shutil
+from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
 
 temp = 'media/files/'  # path to temp folder
 
@@ -178,7 +181,7 @@ def show_form1(wizard: CookieWizardView):
 def file_upload(request):
     if request.method == "POST":
         file = UploadForm(request.POST, request.FILES)
-        if file.is_valid():
+        if file.is_valid():	
             file_name, file_extension = os.path.splitext(request.FILES['file'].name)
             file_extension = file_extension.lower()
             # allowing only pdb files
@@ -192,3 +195,22 @@ def file_upload(request):
     else:
         file = UploadForm()
     return render(request, 'file_upload.html', {'form': file})
+
+def my_file_upload(request):
+    if request.method == "POST":
+        form = MultipuleFieldForm(request.POST, request.FILES)
+        files = request.FILES.getlist('file_field')
+        if form.is_valid():
+            for f in files:
+                file_name, file_extension = os.path.splitext(f.name)
+                file_extension = file_extension.lower()
+                # allowing only pdb files
+                if file_extension == '.pdb':
+                    messages.success(request, 'File Uploaded Successfully')
+                    data = f
+                    path = default_storage.save('files/' + f.name , ContentFile(data.read()))
+                    tmp_file = os.path.join(settings.MEDIA_ROOT, path)
+            return HttpResponseRedirect(reverse('my_file_upload'))
+    else:
+        form = MultipuleFieldForm()
+    return render(request, 'file_upload.html', {'form': form})

@@ -185,3 +185,7 @@ class SimulationForm2_SimulationParameters(forms.Form):
         cleaned_data = super(SimulationForm2_SimulationParameters, self).clean()
         data = {**self.initial, **cleaned_data}  # self.initial->from previous steps, cleaned_data->from current step
         return cleaned_data
+
+
+class MultipuleFieldForm(forms.Form):
+    file_field = forms.FileField(widget=forms.ClearableFileInput(attrs={'multiple': True}))
