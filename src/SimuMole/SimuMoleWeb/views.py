@@ -1,4 +1,5 @@
 from SimuMoleScripts.simulation_main_script import Simulation
+from SimuMoleScripts.uploaded_simulation import Uploaded_Simulation
 from formtools.wizard.views import CookieWizardView
 from .models import UploadForm
 from .forms import MultipuleFieldForm
@@ -223,7 +224,8 @@ def my_file_upload(request):
                 path = default_storage.save('files/' + files_arr[1].name , ContentFile(files_arr[1].read()))
                 tmp_file = os.path.join(settings.MEDIA_ROOT, path)
                 messages.success(request, 'Files Uploaded Successfully - Simulation will open now')
-                # create class uploaded_simulation and use it here				
+                sim = Uploaded_Simulation(files_arr[0].name, files_arr[1].name)
+                sim.run_simulation()				
             else:
                 messages.error(request, "Failed - Upload only 1 dcd file and 1 pdb file.")
                 return HttpResponseRedirect(reverse('my_file_upload'))
