@@ -12,6 +12,7 @@ import os
 import shutil
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
+from django.contrib import messages
 
 temp = 'media/files/'  # path to temp folder
 
@@ -197,21 +198,34 @@ def file_upload(request):
     return render(request, 'file_upload.html', {'form': file})
 
 def my_file_upload(request):
+    messages.info(request, "Upload only 1 dcd file and 1 pdb file - both required")
+    pdb_count = 0
+    dcd_count = 0
+    i = 0
+    files_arr = []
     if request.method == "POST":
         form = MultipuleFieldForm(request.POST, request.FILES)
         files = request.FILES.getlist('file_field')
         if form.is_valid():
             for f in files:
+                i+=1
                 file_name, file_extension = os.path.splitext(f.name)
                 file_extension = file_extension.lower()
                 # allowing only pdb and dcd files
-                if file_extension == '.pdb' or file_extension == '.dcd':
-                    messages.success(request, 'File Uploaded Successfully')
-                    data = f
-                    path = default_storage.save('files/' + f.name , ContentFile(data.read()))
-                    tmp_file = os.path.join(settings.MEDIA_ROOT, path)
-                else:
-                    return HttpResponseRedirect(reverse('my_file_upload'))
+                if file_extension == '.pdb':
+                    pdb_count+=1
+                elif file_extension == '.dcd':
+                    dcd_count+=1
+                files_arr.append(f)
+            if (pdb_count == 1) and (dcd_count == 1) and (i == 2):
+                path = default_storage.save('files/' + files_arr[0].name , ContentFile(files_arr[0].read()))
+                tmp_file = os.path.join(settings.MEDIA_ROOT, path)
+                path = default_storage.save('files/' + files_arr[1].name , ContentFile(files_arr[1].read()))
+                tmp_file = os.path.join(settings.MEDIA_ROOT, path)
+                messages.success(request, 'Files Uploaded Successfully')   
+            else:
+                messages.error(request, "Failed - Upload only 1 dcd file and 1 pdb file.")
+                return HttpResponseRedirect(reverse('my_file_upload'))
     else:
         form = MultipuleFieldForm()
     return render(request, 'file_upload.html', {'form': form})
