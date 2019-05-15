@@ -222,7 +222,8 @@ def my_file_upload(request):
                 tmp_file = os.path.join(settings.MEDIA_ROOT, path)
                 path = default_storage.save('files/' + files_arr[1].name , ContentFile(files_arr[1].read()))
                 tmp_file = os.path.join(settings.MEDIA_ROOT, path)
-                messages.success(request, 'Files Uploaded Successfully')   
+                messages.success(request, 'Files Uploaded Successfully - Simulation will open now')
+                # create class uploaded_simulation and use it here				
             else:
                 messages.error(request, "Failed - Upload only 1 dcd file and 1 pdb file.")
                 return HttpResponseRedirect(reverse('my_file_upload'))
