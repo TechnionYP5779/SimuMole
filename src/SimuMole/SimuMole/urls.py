@@ -3,6 +3,7 @@ from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
 from SimuMoleWeb import views
+from django.conf.urls import url
 
 from SimuMoleWeb.forms import SimulationForm0_LoadPdb, \
     SimulationForm1_DetermineRelativePosition, \
@@ -22,4 +23,5 @@ urlpatterns = [
                                                 condition_dict={'1': show_form1})),
                   path('update_simulation_status/', views.update_simulation_status, name='update_simulation_status'),
                   path('upload/', views.file_upload, name='file_upload'),
+                  url(r'^video/(?P<video_name>\w+)/$', views.display_video),
               ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

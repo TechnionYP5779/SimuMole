@@ -1,0 +1,253 @@
+{% extends "base.html" %}
+{% block content %}
+    <title>Display_Video</title>
+    <video id="video_1" width="175" height="150" loop muted onclick="play_big_1()">
+        <source src="{{url}}video_1.mp4" type="video/mp4">
+        Your browser does not support HTML5 video.
+    </video>
+    <video id="video_2" width="175" height="150" loop muted onclick="play_big_2()">
+        <source src="{{url}}video_2.mp4" type="video/mp4">
+        Your browser does not support HTML5 video.
+    </video>
+    <video id="video_3" width="175" height="150" loop muted onclick="play_big_3()">
+        <source src="{{url}}video_3.mp4" type="video/mp4">
+        Your browser does not support HTML5 video.
+    </video>
+    <video id="video_4" width="175" height="150" loop muted onclick="play_big_4()">
+        <source src="{{url}}video_4.mp4" type="video/mp4">
+        Your browser does not support HTML5 video.
+    </video>
+    <video id="video_5" width="175" height="150" loop muted onclick="play_big_5()">
+        <source src="{{url}}video_5.mp4" type="video/mp4">
+        Your browser does not support HTML5 video.
+    </video>
+    <video id="video_6" width="175" height="150" loop muted onclick="play_big_6()">
+        <source src="{{url}}video_6.mp4" type="video/mp4">
+        Your browser does not support HTML5 video.
+    </video>
+
+    <video id="big_video" width="700" height="700" loop muted>
+        <source src="{{url}}video_1.mp4" type="video/mp4">
+        Your browser does not support HTML5 video.
+    </video>>
+
+    <button type="button" id="StartButton" onclick="StartAllVideos()">
+        {% load static %}
+        <img src="{% static "SimuMoleWeb/Start_button.png" %}" alt="Start" height="70" width="70">
+    </button>>
+
+    <button type="button" id="PauseButton" onclick="PauseAllVideos()">
+        {% load static %}
+        <img src="{% static "SimuMoleWeb/Pause_button.png" %}" alt="Pause" height="70" width="70">
+    </button>>
+
+    <button type="button" id="FullControl" onclick="GetFullControl()" class="btn btn-primary">
+        Full Control
+    </button>>
+    <button type="button" id="LessControl" onclick="GetLessControl()" class="btn btn-primary">
+        Less Control
+    </button>>
+{#class="btn btn-primary#}
+    <style>
+            #video_1{
+                position: absolute;
+                left: 100px;
+                top: 300px;
+
+            }
+            #video_2{
+                position: absolute;
+                left: 300px;
+                top: 300px
+            }
+            #video_3{
+                position: absolute;
+                left: 500px;
+                top: 300px;
+            }
+            #video_4{
+                position: absolute;
+                left: 100px;
+                top: 450px;
+            }
+            #video_5{
+                position: absolute;
+                left: 300px;
+                top: 450px;
+            }
+            #video_6{
+                position: absolute;
+                left: 500px;
+                top: 450px;
+            }
+            #big_video{
+                position: absolute;
+                left: 800px;
+                top: 150px;
+            }
+            #StartButton{
+                position: absolute;
+                left: -10px;
+                top: 400px;
+                font-size: 17px;
+                background: Transparent;
+                {#background-repeat:no-repeat;#}
+                border: none;
+                outline: none;
+                cursor:pointer;
+            }
+            #PauseButton{
+                position: absolute;
+                left: -10px;
+                top: 400px;
+                font-size: 17px;
+                background: Transparent;
+                {#background-repeat:no-repeat;#}
+                border: none;
+                outline: none;
+                cursor: pointer;
+                display: none;
+            }
+            #FullControl{
+                position: absolute;
+                left: 300px;
+                top: 650px;
+                font-size: 17px;
+                {#background: Transparent;#}
+                {#background-repeat:no-repeat;#}
+                border: none;
+                outline: none;
+                cursor: pointer;
+            }
+            #LessControl{
+                position: absolute;
+                left: 300px;
+                top: 650px;
+                font-size: 17px;
+                {#background: Transparent;#}
+                {#background-repeat:no-repeat;#}
+                border: none;
+                outline: none;
+                cursor: pointer;
+                display: none;
+            }
+    </style>
+
+    <script>
+    function StartAllVideos(){
+        document.getElementById("video_1").play();
+        document.getElementById("video_2").play();
+        document.getElementById("video_3").play();
+        document.getElementById("video_4").play();
+        document.getElementById("video_5").play();
+        document.getElementById("video_6").play();
+        document.getElementById("big_video").play();
+        document.getElementById("StartButton").style.display="none";
+        document.getElementById("PauseButton").style.display="initial";
+    }
+    function PauseAllVideos(){
+        document.getElementById("video_1").pause();
+        document.getElementById("video_2").pause();
+        document.getElementById("video_3").pause();
+        document.getElementById("video_4").pause();
+        document.getElementById("video_5").pause();
+        document.getElementById("video_6").pause();
+        document.getElementById("big_video").pause();
+        document.getElementById("StartButton").style.display="initial";
+        document.getElementById("PauseButton").style.display="none";
+    }
+    function play_big_1() {
+        var big = document.getElementById("big_video");
+        var video_1 = document.getElementById("video_1");
+        big.setAttribute('src', "{{url}}video_1.mp4");
+        big.currentTime = video_1.currentTime;
+        if (video_1.paused) {
+            big.pause();
+        }
+        else {
+            big.play();
+        }
+    }
+    function play_big_2() {
+        var big = document.getElementById("big_video");
+        var video_2 = document.getElementById("video_2");
+        big.setAttribute("src", "{{url}}video_2.mp4");
+        big.currentTime = video_2.currentTime;
+        if (video_2.paused) {
+            big.pause();
+        }
+        else {
+            big.play();
+        }
+    }
+    function play_big_3() {
+        var big = document.getElementById("big_video");
+        var video_3 = document.getElementById("video_3");
+        big.setAttribute("src", "{{url}}video_3.mp4");
+        big.currentTime = video_3.currentTime;
+        if (video_3.paused) {
+            big.pause();
+        }
+        else {
+            big.play();
+        }
+    }
+    function play_big_4() {
+        var big = document.getElementById("big_video");
+        var video_4 = document.getElementById("video_4");
+        big.setAttribute("src", "{{url}}video_4.mp4");
+        big.currentTime = video_4.currentTime;
+        if (video_4.paused) {
+            big.pause();
+        }
+        else {
+            big.play();
+        }
+    }
+    function play_big_5() {
+        var big = document.getElementById("big_video");
+        var video_5 = document.getElementById("video_5");
+        big.setAttribute("src", "{{url}}video_5.mp4");
+        big.currentTime = video_5.currentTime;
+        if (video_5.paused) {
+            big.pause();
+        }
+        else {
+            big.play();
+        }
+    }
+    function play_big_6() {
+        var big = document.getElementById("big_video");
+        var video_6 = document.getElementById("video_6");
+        big.setAttribute("src", "{{url}}video_6.mp4");
+        big.currentTime = video_6.currentTime;
+        if (video_6.paused) {
+            big.pause();
+        }
+        else {
+            big.play();
+        }
+    }
+    function GetFullControl() {
+        document.getElementById("video_1").controls=true;
+        document.getElementById("video_2").controls=true;
+        document.getElementById("video_3").controls=true;
+        document.getElementById("video_4").controls=true;
+        document.getElementById("video_5").controls=true;
+        document.getElementById("video_6").controls=true;
+        document.getElementById("LessControl").style.display="initial";
+        document.getElementById("FullControl").style.display="none";
+    }
+    function GetLessControl() {
+        document.getElementById("video_1").controls=false;
+        document.getElementById("video_2").controls=false;
+        document.getElementById("video_3").controls=false;
+        document.getElementById("video_4").controls=false;
+        document.getElementById("video_5").controls=false;
+        document.getElementById("video_6").controls=false;
+        document.getElementById("LessControl").style.display="none";
+        document.getElementById("FullControl").style.display="initial";
+    }
+    </script>
+
+{% endblock %}

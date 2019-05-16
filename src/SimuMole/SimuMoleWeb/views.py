@@ -1,7 +1,7 @@
 from SimuMoleScripts.simulation_main_script import Simulation
 from formtools.wizard.views import CookieWizardView
 from .models import UploadForm
-from django.http import HttpResponseRedirect, JsonResponse
+from django.http import HttpResponseRedirect, JsonResponse, HttpResponse
 from django.urls import reverse
 from django.contrib import messages
 from django.shortcuts import render
@@ -9,7 +9,7 @@ from django.core.files.storage import FileSystemStorage
 from django.conf import settings
 import os
 import threading
-
+import fnmatch
 
 ################################
 #   Home, News, Contact, About
@@ -225,3 +225,16 @@ def file_upload(request):
     else:
         file = UploadForm()
     return render(request, 'file_upload.html', {'form': file})
+
+################################
+#   Display Video
+################################
+
+
+def display_video(request, video_name=None):
+    if(video_name is None):
+        return HttpResponse("Please Enter Video Name")
+    # video_url = os.path.join(settings.MEDIA_ROOT, 'videos', 'video_1.mp4')
+    video_url = settings.MEDIA_URL + 'videos/'
+    return render(request, "video_display.html", {"url": video_url})
+
