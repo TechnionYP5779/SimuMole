@@ -5,14 +5,18 @@ import requests
 from django.core.files.uploadedfile import UploadedFile
 from django.core.files.storage import FileSystemStorage
 from django.conf import settings
-from SimuMoleScripts.basicTrajectoryBuilder import scr
+from SimuMoleScripts.basicTrajectoryBuilder import scr_for_checks
 from SimuMoleScripts.fix_pdb import fix_pdb
 import os
-import urllib.request
 
 
+do_checks_cnt = 0
 
 class SimulationForm0_LoadPdb(forms.Form):
+
+    global do_checks
+    do_checks = True
+
     num_of_proteins = forms.ChoiceField(
         required=True,
         label='Choose whether to load one or two proteins',
@@ -43,9 +47,21 @@ class SimulationForm0_LoadPdb(forms.Form):
         file_storage.delete(filename)  # delete existing file with same name (due to clean_my_file previous calls)
         file_storage.save(filename, file)  # save existing file
 
+    @staticmethod
+    def update_cnt():
+        global do_checks_cnt
+        print("Cleaned with cnt = " + str(do_checks_cnt))
+        loop_amount = 9
+
+        if do_checks_cnt < loop_amount-1:
+            do_checks_cnt += 1
+        else:
+            do_checks_cnt = 0
+
     def clean(self):
         cleaned_data = super(SimulationForm0_LoadPdb, self).clean()
         data = {**self.initial, **cleaned_data}  # self.initial->from previous steps, cleaned_data->from current step
+        SimulationForm0_LoadPdb.update_cnt()
         return cleaned_data
 
     # first pdb validation:
@@ -121,6 +137,10 @@ class SimulationForm0_LoadPdb(forms.Form):
     # pdb validation checks:
 
     def pdb_id_validation(self, pdb_id):
+        global do_checks_cnt
+        if do_checks_cnt != 0:
+            return
+
         if not self.pdb_id_exists(pdb_id):
             raise forms.ValidationError("invalid PDB id")
 
@@ -128,6 +148,10 @@ class SimulationForm0_LoadPdb(forms.Form):
             raise forms.ValidationError("Protein not supported by OpenMM")
 
     def pdb_file_validation(self, pdb_id):
+        global do_checks_cnt
+        if do_checks_cnt != 0:
+            return
+
         if not self.pdb_file_valid(pdb_id):
             raise forms.ValidationError("Protein not supported by OpenMM")
 
@@ -138,15 +162,24 @@ class SimulationForm0_LoadPdb(forms.Form):
             return False
         return True
 
+    @staticmethod
+    def download_pdb(pdb_id):
+        response = requests.get("https://files.rcsb.org/view/"+pdb_id+".pdb")
+        pdb_file_name = "media/files/"+pdb_id+".pdb"
+        pdb_file = open(pdb_file_name, 'w')
+        pdb_file.write(response.text)
+        pdb_file.close()
+        response.close()
+        return pdb_file_name
+
     '''
     Checks whether a pdb id can be used in an openMM simulation by downloading the relevant file and testing it.
     This function assumes the id is valid.
     '''
     @staticmethod
     def pdb_id_valid(pdb_id):
-        pdb_file = "media/files/"+pdb_id+".pdb"
-        urllib.request.urlretrieve("https://files.rcsb.org/view/"+pdb_id+".pdb", filename=pdb_file)
-        return SimulationForm0_LoadPdb.pdb_file_valid(pdb_file)
+        pdb_file_name = SimulationForm0_LoadPdb.download_pdb(pdb_id)
+        return SimulationForm0_LoadPdb.pdb_file_valid(pdb_file_name)
 
     '''
     Checks if the given file can be used in an openMM simulation.
@@ -156,12 +189,10 @@ class SimulationForm0_LoadPdb(forms.Form):
     '''
     @staticmethod
     def pdb_file_valid(pdb_file):
-        dcd_file = "media/files/trajectory.dcd"
-        min_steps = 2000    # Steps for 1 frame
-        default_temp = 293  # Room temperature in Kelvin
+        dcd_file = "media/files/very_good.dcd"
         fix_not_needed = True
         try:
-            scr(pdb_file, min_steps, default_temp)
+            scr_for_checks(pdb_file)
         except Exception:
             fix_not_needed = False
         finally:
@@ -173,7 +204,7 @@ class SimulationForm0_LoadPdb(forms.Form):
 
         try:
             fix_pdb(pdb_file)
-            scr(pdb_file, min_steps, default_temp)
+            scr_for_checks(pdb_file)
         except Exception:
             return False
         finally:
