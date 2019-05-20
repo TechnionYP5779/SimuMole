@@ -52,7 +52,6 @@ class SimulationForm0_LoadPdb(forms.Form):
     @staticmethod
     def update_cnt():
         global do_checks_cnt
-        print("Cleaned with cnt = " + str(do_checks_cnt))
         loop_amount = 9
 
         if do_checks_cnt < loop_amount-1:

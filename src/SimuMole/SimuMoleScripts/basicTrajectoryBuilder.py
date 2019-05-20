@@ -2,7 +2,6 @@ from __future__ import print_function
 from simtk.openmm import app
 import simtk.openmm as mm
 from simtk import unit
-from sys import stdout
 
 dir_path = 'media/files/'
 simulation_status_path = dir_path + 'simulation_status.txt'
@@ -73,10 +72,6 @@ def scr_for_checks(input_coor_name):
     simulation.step(100)
 
     simulation.reporters.append(app.DCDReporter('media/files/' + 'very_good.dcd', 1000))
-    simulation.reporters.append(app.StateDataReporter(stdout, 1000, step=True,
-                                                      potentialEnergy=True, temperature=True, progress=True,
-                                                      remainingTime=True,
-                                                      speed=True, totalSteps=1000, separator='\t'))
 
     print('Running Production...')
     simulation.step(1000)
