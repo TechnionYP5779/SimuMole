@@ -133,7 +133,9 @@ def dump_rep(name):
     for i in range(9):
         ret += ",%.3f" % view[i]
 
-    bgcolor = cmd.get_setting_tuple('bg_rgb')[1]
+# after fix from here https://sourceforge.net/p/pymol/mailman/message/34551837/
+    # before it was bgcolor = cmd.get_setting_tuple('bg_rgb')[1]
+    bgcolor = cmd.get_setting_tuple(cmd.get_setting_tuple('bg_rgb')[1][0])
     ret += "\nbgcolor:%02x%02x%02x" % (int(255 * float(bgcolor[0])), \
               int(255 * float(bgcolor[1])), int(255 * float(bgcolor[2])))
     
