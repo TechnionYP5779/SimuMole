@@ -31,20 +31,32 @@
         Your browser does not support HTML5 video.
     </video>>
 
-    <button type="button" id="StartButton" onclick="StartAllVideos()">
+    <button type="submit" id="StartButton" onclick="StartAllVideos()" style="border:none;">
         {% load static %}
         <img src="{% static "SimuMoleWeb/Start_button.png" %}" alt="Start" height="70" width="70">
     </button>>
 
-    <button type="button" id="PauseButton" onclick="PauseAllVideos()">
+    <button type="submit" id="PauseButton" onclick="PauseAllVideos()">
         {% load static %}
         <img src="{% static "SimuMoleWeb/Pause_button.png" %}" alt="Pause" height="70" width="70">
     </button>>
 
-    <button type="button" id="FullControl" onclick="GetFullControl()" class="btn btn-primary">
+	<button type="submit" id="MinusFiveButton" onclick="minusFive()" class="btn btn-primary">
+		-5
+	</button>
+	
+	<button type="submit" id="PlusFiveButton" onclick="plusFive()" class="btn btn-primary">
+		+5
+	</button>
+	
+	<button type="submit" id="RestartButton" onclick="restart()" class="btn btn-primary">
+		Restart
+	</button>
+	
+    <button type="submit" id="FullControl" onclick="GetFullControl()" class="btn btn-primary">
         Full Control
     </button>>
-    <button type="button" id="LessControl" onclick="GetLessControl()" class="btn btn-primary">
+    <button type="submit" id="LessControl" onclick="GetLessControl()" class="btn btn-primary">
         Less Control
     </button>>
 {#class="btn btn-primary#}
@@ -91,6 +103,7 @@
                 top: 400px;
                 font-size: 17px;
                 background: Transparent;
+				{#background-color: white;#}
                 {#background-repeat:no-repeat;#}
                 border: none;
                 outline: none;
@@ -131,6 +144,49 @@
                 cursor: pointer;
                 display: none;
             }
+			#MinusFiveButton{
+			    position: absolute;
+                left: -10px;
+                top: 480px;
+                font-size: 17px;
+                background: Transparent;
+                background-repeat:no-repeat;
+                border: none;
+                outline: none;
+                cursor: pointer;
+				color: #E67E22;
+				height: 10;
+				width: 10;
+			}
+			#PlusFiveButton{
+			    position: absolute;
+                left: 30px;
+                top: 480px;
+                font-size: 17px;
+                background: Transparent;
+                background-repeat:no-repeat;
+                border: none;
+                outline: none;
+                cursor: pointer;
+				color: #E67E22;
+				height: 10;
+				width: 10;
+			}
+			#RestartButton{
+			    position: absolute;
+                left: -10px;
+                top: 510px;
+                font-size: 17px;
+                background: Transparent;
+                background-repeat:no-repeat;
+                border: none;
+                outline: none;
+                cursor: pointer;
+				color: #2980B9;
+				height: 10;
+				width: 10;
+				
+			}
     </style>
 
     <script>
@@ -248,6 +304,47 @@
         document.getElementById("LessControl").style.display="none";
         document.getElementById("FullControl").style.display="initial";
     }
+	function minusFive() {
+		var v = document.getElementById("video_1")
+		v.currentTime = v.currentTime <= 5 ? 0 : v.currentTime-5;
+		v = document.getElementById("video_2")
+		v.currentTime = v.currentTime <= 5 ? 0 : v.currentTime-5;
+		v = document.getElementById("video_3")
+		v.currentTime = v.currentTime <= 5 ? 0 : v.currentTime-5;
+		v = document.getElementById("video_4")
+		v.currentTime = v.currentTime <= 5 ? 0 : v.currentTime-5;
+		v = document.getElementById("video_5")
+		v.currentTime = v.currentTime <= 5 ? 0 : v.currentTime-5;
+		v = document.getElementById("video_6")
+		v.currentTime = v.currentTime <= 5 ? 0 : v.currentTime-5;
+		v = document.getElementById("big_video")
+		v.currentTime = v.currentTime <= 5 ? 0 : v.currentTime-5;
+	}
+	function plusFive() {
+		var v = document.getElementById("video_1")
+		v.currentTime = v.currentTime+5 >= v.duration ? v.duration : v.currentTime+5;
+		v = document.getElementById("video_2")
+		v.currentTime = v.currentTime+5 >= v.duration ? v.duration : v.currentTime+5;
+		v = document.getElementById("video_3")
+		v.currentTime = v.currentTime+5 >= v.duration ? v.duration : v.currentTime+5;
+		v = document.getElementById("video_4")
+		v.currentTime = v.currentTime+5 >= v.duration ? v.duration : v.currentTime+5;
+		v = document.getElementById("video_5")
+		v.currentTime = v.currentTime+5 >= v.duration ? v.duration : v.currentTime+5;
+		v = document.getElementById("video_6")
+		v.currentTime = v.currentTime+5 >= v.duration ? v.duration : v.currentTime+5;
+		v = document.getElementById("big_video")
+		v.currentTime = v.currentTime+5 >= v.duration ? v.duration : v.currentTime+5;
+	}
+	function restart() {
+	document.getElementById("video_1").currentTime = 0;
+	document.getElementById("video_2").currentTime = 0;
+	document.getElementById("video_3").currentTime = 0;
+	document.getElementById("video_4").currentTime = 0;
+	document.getElementById("video_5").currentTime = 0;
+	document.getElementById("video_6").currentTime = 0;
+	document.getElementById("big_video").currentTime = 0;
+	}
     </script>
 
 {% endblock %}
