@@ -2,15 +2,28 @@
 
 {% block content %}
 
+    <style>
+        #simulation_status {
+            font-weight: bold;
+        }
 
-<title>Simulation Result</title>
+        #simulation_status_during_run {
+            white-space: pre;
+        }
+    </style>
 
+
+    <title>Create Simulation - SimuMole</title>
 
     <h1><strong>Create Your Simulation</strong></h1><br>
 
 
-    <h3>Response entered by you:</h3>
+    <h3>The status of your request:</h3>
+    <p id="simulation_status"> Processing your parameters...</p>
+    <p id="simulation_status_during_run"></p>
 
+
+    <h3>Your input parameters:</h3>
     <ul>
         {% for key, value in form_data.items %}
             <li><strong>{{ key }}</strong> - {{ value }}</li>
@@ -20,3 +33,45 @@
 	<a href="/media/files/dcd_pdbs_openmm.zip">Download pdb, dcd files and the openmm script</a>
 
 {% endblock %}
+
+{% block extra_js %}
+    <script>
+
+        const interval = setInterval(function () {
+            update_simulation_status_()
+        }, 4000); // unit of milliseconds
+
+        function update_simulation_status_() {
+            $.ajax({
+                url: '{% url 'update_simulation_status' %}',
+                type: "get",
+                cache: true,
+                timeout: 30000,
+                dataType: 'json',
+                success: function (data) {
+
+                    // simulation_status:
+                    if (data['simulation_status'] !== "") {
+                        document.getElementById('simulation_status').textContent = data['simulation_status'];
+                        if (data['simulation_status'] === "Done!") {
+                            clearInterval(interval);
+                        }
+                    }
+
+                    // simulation_status_during_run:
+                    if (data['simulation_status'] === "Running simulation..." && data['simulation_status_during_run'] !== "") {
+                        const simulation_status_during_run = data['simulation_status_during_run'].split(',');
+                        const progress = simulation_status_during_run[0];
+                        const remainingTime = simulation_status_during_run[1];
+                        document.getElementById('simulation_status_during_run').textContent =
+                            'Progress: ' + progress + '\r\n' + 'Remaining Time: ' + remainingTime;
+                    } else {
+                        document.getElementById('simulation_status_during_run').textContent = ''
+                    }
+
+                },
+            });
+        }
+
+    </script>
+{% endblock extra_js %}

@@ -14,7 +14,7 @@ pdb = '.pdb'  # pdb suffix
 class Simulation:
 
     def __init__(self, num_of_proteins, first_pdb_type, first_pdb_id, second_pdb_type, second_pdb_id,
-                 x1, y1, z1, x2, y2, z2, temperature, production_steps):
+                 x1, y1, z1, x2, y2, z2, degXY_1, degYZ_1, degXY_2, degYZ_2, temperature, production_steps):
 
         self.cmd = None
 
@@ -31,6 +31,10 @@ class Simulation:
         self.x2 = float(x2)
         self.y2 = float(y2)
         self.z2 = float(z2)
+        self.degXY_1 = float(degXY_1)
+        self.degYZ_1 = float(degYZ_1)
+        self.degXY_2 = float(degXY_2)
+        self.degYZ_2 = float(degYZ_2)
         self.temperature = float(temperature)
         self.production_steps = int(production_steps)
 
@@ -56,8 +60,10 @@ class Simulation:
             # STEP 2: fix positions
             filename_1_movement = filename_1 + '__movement'
             filename_2_movement = filename_2 + '__movement'
-            translate_pdb(temp + filename_1 + pdb, temp + filename_1_movement + pdb, self.x1, self.y1, self.z1)
-            translate_pdb(temp + filename_2 + pdb, temp + filename_2_movement + pdb, self.x2, self.y2, self.z2)
+            translate_pdb(temp + filename_1 + pdb, temp + filename_1_movement + pdb, self.x1, self.y1, self.z1,
+                          self.degXY_1, self.degYZ_1)
+            translate_pdb(temp + filename_2 + pdb, temp + filename_2_movement + pdb, self.x2, self.y2, self.z2,
+                          self.degXY_2, self.degYZ_2)
 
             # STEP 2.5: fix pdb
             fix_pdb(temp + filename_1_movement + pdb)
@@ -86,7 +92,8 @@ class Simulation:
 
             # STEP 2: fix positions
             filename_1_movement = filename_1 + '__movement'
-            translate_pdb(temp + filename_1 + pdb, temp + filename_1_movement + pdb, self.x1, self.y1, self.z1)
+            translate_pdb(temp + filename_1 + pdb, temp + filename_1_movement + pdb, self.x1, self.y1, self.z1,
+                          self.degXY_1, self.degYZ_1)
 
             # STEP 2.5: fix pdb
             fix_pdb(temp + filename_1_movement + pdb)
@@ -128,3 +135,21 @@ class Simulation:
         self.cmd.load(temp + filename_2 + pdb)
         self.cmd.zoom()
         self.cmd.save(temp + "both__" + filename_1 + '_' + filename_2 + pdb)
+
+    @staticmethod
+    def merge_pdbs_by_copy(filename_1, filename_2, do_fix=True):
+        merged_pdb = temp + "both__" + filename_1 + "_" + filename_2 + pdb
+        merged_file = open(merged_pdb, 'w')
+        file1 = open(temp + filename_1 + pdb)
+        file2 = open(temp + filename_2 + pdb)
+        for line in file1:
+            if not (line.startswith('MASTER') or line.startswith('END')):
+                merged_file.write(line)
+        for line in file2:
+            if not (line.startswith('HEADER')):
+                merged_file.write(line)
+        file1.close()
+        file2.close()
+        merged_file.close()
+        if do_fix:
+            fix_pdb(merged_pdb)

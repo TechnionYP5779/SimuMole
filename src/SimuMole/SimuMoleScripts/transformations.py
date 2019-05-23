@@ -1,5 +1,6 @@
 #import pymol
 import numpy as np
+import math
 
 
 COORDINATES_START = 31
@@ -22,6 +23,22 @@ def get_atoms(pdb):
         words = list(filter(lambda s: s != '', line[COORDINATES_START:].split(' ')))
         vecs.append(np.array([float(words[0]), float(words[1]), float(words[2])]))
     file.close()
+    return vecs
+
+'''
+Gathers the coordinates of all atoms in string.
+Arguments:
+str - the string containing the atoms, each atom separated by new line
+Returns:
+A list of all coordinates, each in a numpy array of size 3.
+'''
+def get_atoms_string(str):
+    vecs = []
+    for line in str.splitlines():
+        if not (line.startswith('ATOM') or line.startswith('HETATM')):
+            continue
+        words = list(filter(lambda s: s != '', line[COORDINATES_START:].split(' ')))
+        vecs.append(np.array([float(words[0]), float(words[1]), float(words[2])]))
     return vecs
 
 
@@ -101,7 +118,39 @@ x - the amount each atom will be moved in the X axis.
 y - the amount each atom will be moved in the Y axis.
 z - the amount each atom will be moved in the Z axis.
 '''
-def translate_pdb(old_pdb, new_pdb, x, y, z):
+def translate_pdb(old_pdb, new_pdb, x, y, z, degXY, degYZ):
     vecs = get_atoms(old_pdb)
     translate_vecs(x, y, z, vecs)
+    rotate_molecular(x, y, z, degXY, degYZ, vecs)
     change_pdb(old_pdb, new_pdb, vecs)
+
+
+'''
+Rotate each point in vecs in the degrees according to degXZ and degYZ around the center (x, y, z)
+Parameters:
+x - the x axis of the center
+y - the y axis of the center
+z - the z axis of the center
+degXY - the rotation rate in degrees in XY level
+degYZ - the rotation rate in degrees in YZ level
+vecs - the vector of the points to be rotated
+
+Note: In the future we may calculate the center instead of getting it as parameters
+'''
+def rotate_molecular(x, y, z, degXY, degYZ, vecs):
+    degXY_Rad = math.radians(degXY)
+    degYZ_Rad = math.radians(degYZ)
+    center = x, y, z
+    oX, oY, oZ = center
+
+    for v in vecs:
+        # rotation in XY level
+        pX, pY = v[0], v[1]
+        v[0] = oX + math.cos(degXY_Rad) * (pX - oX) - math.sin(degXY_Rad) * (pY - oY)
+        v[1] = oY + math.sin(degXY_Rad) * (pX - oX) + math.cos(degXY_Rad) * (pY - oY)
+
+        # rotation in YZ level
+        pY, pZ = v[1], v[2]
+        v[1] = oY + math.cos(degYZ_Rad) * (pY - oY) - math.sin(degYZ_Rad) * (pZ - oZ)
+        v[2] = oZ + math.sin(degYZ_Rad) * (pY - oY) + math.cos(degYZ_Rad) * (pZ - oZ)
+
