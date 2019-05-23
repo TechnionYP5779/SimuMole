@@ -188,20 +188,24 @@ class SimulationForm0_LoadPdb(forms.Form):
 
 
 class SimulationForm1_DetermineRelativePosition(forms.Form):
-    x1 = forms.FloatField(required=True, label='Enter delta x of first pdb')
-    y1 = forms.FloatField(required=True, label='Enter delta y of first pdb')
-    z1 = forms.FloatField(required=True, label='Enter delta z of first pdb')
-    x2 = forms.FloatField(required=True, label='Enter delta x of second pdb')
-    y2 = forms.FloatField(required=True, label='Enter delta y of second pdb')
-    z2 = forms.FloatField(required=True, label='Enter delta z of second pdb')
-    degXY_1 = forms.FloatField(required=True, label='Enter degrees to rotate from left to right of first pdb')
-    degYZ_1 = forms.FloatField(required=True, label='Enter degrees to rotate from down to up of first pdb')
-    degXY_2 = forms.FloatField(required=True, label='Enter degrees to rotate from left to right of second pdb')
-    degYZ_2 = forms.FloatField(required=True, label='Enter degrees to rotate from down to up of second pdb')
+    x1 = forms.FloatField(required=False, label='Enter delta x of first pdb')
+    y1 = forms.FloatField(required=False, label='Enter delta y of first pdb')
+    z1 = forms.FloatField(required=False, label='Enter delta z of first pdb')
+    x2 = forms.FloatField(required=False, label='Enter delta x of second pdb')
+    y2 = forms.FloatField(required=False, label='Enter delta y of second pdb')
+    z2 = forms.FloatField(required=False, label='Enter delta z of second pdb')
+    degXY_1 = forms.FloatField(required=False, label='Enter degrees to rotate from left to right of first pdb')
+    degYZ_1 = forms.FloatField(required=False, label='Enter degrees to rotate from down to up of first pdb')
+    degXY_2 = forms.FloatField(required=False, label='Enter degrees to rotate from left to right of second pdb')
+    degYZ_2 = forms.FloatField(required=False, label='Enter degrees to rotate from down to up of second pdb')
 
     def clean(self):
         cleaned_data = super(SimulationForm1_DetermineRelativePosition, self).clean()
         data = {**self.initial, **cleaned_data}  # self.initial->from previous steps, cleaned_data->from current step
+
+        for field in ['x1', 'y1', 'z1', 'x2', 'y2', 'z2', 'degXY_1', 'degYZ_1', 'degXY_2', 'degYZ_2']:
+            if self.cleaned_data[field] == '' or self.cleaned_data[field] is None:
+                raise forms.ValidationError("All fields are required.")
 
         if not self.position_is_valid(data['x1'], data['y1'], data['z1'], data['x2'], data['y2'], data['z2']
                                       , data['degXY_1'], data['degYZ_1'], data['degXY_2'], data['degYZ_2']
@@ -262,12 +266,17 @@ class SimulationForm1_DetermineRelativePosition(forms.Form):
 
 
 class SimulationForm2_SimulationParameters(forms.Form):
-    temperature = forms.FloatField(required=True, label='Enter temperature (Kelvin)')
-    production_steps = forms.IntegerField(required=True, label='Enter number of production steps (1000 = 1 frame)')
+    temperature = forms.FloatField(required=False, label='Enter temperature (Kelvin)')
+    production_steps = forms.IntegerField(required=False, label='Enter number of production steps (1000 = 1 frame)')
 
     # todo 7: add field of number of time steps (and also: size of every time step)
 
     def clean(self):
         cleaned_data = super(SimulationForm2_SimulationParameters, self).clean()
         data = {**self.initial, **cleaned_data}  # self.initial->from previous steps, cleaned_data->from current step
+
+        for field in ['temperature', 'production_steps']:
+            if self.cleaned_data[field] == '' or self.cleaned_data[field] is None:
+                raise forms.ValidationError("All fields are required.")
+
         return cleaned_data
