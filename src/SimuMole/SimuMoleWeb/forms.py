@@ -280,3 +280,7 @@ class SimulationForm2_SimulationParameters(forms.Form):
                 raise forms.ValidationError("All fields are required.")
 
         return cleaned_data
+
+
+class MultipuleFieldForm(forms.Form):
+    file_field = forms.FileField(widget=forms.ClearableFileInput(attrs={'multiple': True}))
