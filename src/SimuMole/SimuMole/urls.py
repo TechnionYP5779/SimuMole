@@ -21,6 +21,5 @@ urlpatterns = [
                                                  SimulationForm2_SimulationParameters],
                                                 condition_dict={'1': show_form1})),
                   path('update_simulation_status/', views.update_simulation_status, name='update_simulation_status'),
-                  path('upload/', views.file_upload, name='file_upload'),
                   path('upload/', views.my_file_upload, name='my_file_upload'),
               ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
