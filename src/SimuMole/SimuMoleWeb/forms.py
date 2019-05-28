@@ -10,12 +10,10 @@ from SimuMoleScripts.fix_pdb import fix_pdb
 from SimuMoleScripts.transformations import get_atoms, get_atoms_string, translate_vecs, rotate_molecular
 import os
 
-
-
 do_checks_cnt = 0
 
-class SimulationForm0_LoadPdb(forms.Form):
 
+class SimulationForm0_LoadPdb(forms.Form):
     global do_checks
     do_checks = True
 
@@ -54,7 +52,7 @@ class SimulationForm0_LoadPdb(forms.Form):
         global do_checks_cnt
         loop_amount = 9
 
-        if do_checks_cnt < loop_amount-1:
+        if do_checks_cnt < loop_amount - 1:
             do_checks_cnt += 1
         else:
             do_checks_cnt = 0
@@ -170,8 +168,8 @@ class SimulationForm0_LoadPdb(forms.Form):
 
     @staticmethod
     def download_pdb(pdb_id):
-        response = requests.get("https://files.rcsb.org/view/"+pdb_id+".pdb")
-        pdb_file_name = "media/files/"+pdb_id+".pdb"
+        response = requests.get("https://files.rcsb.org/view/" + pdb_id + ".pdb")
+        pdb_file_name = "media/files/" + pdb_id + ".pdb"
         pdb_file = open(pdb_file_name, 'w')
         pdb_file.write(response.text)
         pdb_file.close()
@@ -182,6 +180,7 @@ class SimulationForm0_LoadPdb(forms.Form):
     Checks whether a pdb id can be used in an openMM simulation by downloading the relevant file and testing it.
     This function assumes the id is valid.
     '''
+
     @staticmethod
     def pdb_id_valid(pdb_id):
         pdb_file_name = SimulationForm0_LoadPdb.download_pdb(pdb_id)
@@ -193,6 +192,7 @@ class SimulationForm0_LoadPdb(forms.Form):
     If it can run with fixing it will return true AND fix the file.
     Otherwise it returns false.
     '''
+
     @staticmethod
     def pdb_file_valid(pdb_file):
         dcd_file = "media/files/very_good.dcd"
@@ -239,9 +239,10 @@ class SimulationForm1_DetermineRelativePosition(forms.Form):
             if self.cleaned_data[field] == '' or self.cleaned_data[field] is None:
                 raise forms.ValidationError("All fields are required.")
 
-        if not self.position_is_valid(data['x1'], data['y1'], data['z1'], data['x2'], data['y2'], data['z2']
-                                      , data['degXY_1'], data['degYZ_1'], data['degXY_2'], data['degYZ_2']
-                                      , data['first_pdb_id'], data['second_pdb_id'], data['first_pdb_type'],
+        if not self.position_is_valid(data['x1'], data['y1'], data['z1'],
+                                      data['x2'], data['y2'], data['z2'],
+                                      data['degXY_1'], data['degYZ_1'], data['degXY_2'], data['degYZ_2'],
+                                      data['first_pdb_id'], data['second_pdb_id'], data['first_pdb_type'],
                                       data['second_pdb_type'], data['first_pdb_file'], data['second_pdb_file']):
             raise forms.ValidationError("Positions are not possible: The proteins collide with each other")
 
@@ -294,7 +295,6 @@ class SimulationForm1_DetermineRelativePosition(forms.Form):
         isOverlap = resultX and resultY and resultZ
 
         return not isOverlap
-
 
 
 class SimulationForm2_SimulationParameters(forms.Form):
