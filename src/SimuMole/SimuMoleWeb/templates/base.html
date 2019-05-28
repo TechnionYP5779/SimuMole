@@ -66,6 +66,21 @@
                 transform: none;
             }
         }
+
+        {# overwriting "style.css" #}
+
+        .single-page {
+            margin-top: 30px;
+        }
+
+        body {
+            background: unset;
+        }
+
+        #page {
+            box-shadow: unset;
+        }
+
     </style>
     <header>
         <div class="header">
@@ -80,7 +95,7 @@
                     <h1 id="site-title">
                         <a href="/" title="Simu Mole" rel="home">SimuMole</a>
                     </h1>
-                    <p>Molecular dynamic simulation and visualization.</p>
+                    <p>Molecular dynamic simulation and visualization</p>
                 </div>
             </div>
             <!-- {% load static %}
@@ -114,7 +129,6 @@
     <div class="main-wrapper">
         <div class="single-page clearfix">
             <div class="inner-wrap">
-                <hr>
                 <div>
                     {% if messages %}
                         <ul class="messages">
@@ -133,7 +147,7 @@
     </div>
     <footer id="colophon">
         <div class="inner-wrap">
-            SimuMol was created at the Technion – Israel Institute of Technology <br>
+            SimuMole was created at the Technion – Israel Institute of Technology <br>
             as a project under the supervision of Boaz Rozenan, as part of the yearly project course 234312 spring 2019
         </div>
     </footer>
