@@ -147,6 +147,9 @@ class SimulationWizard(CookieWizardView):
                        form_dict['temperature'], form_dict['production_steps'])
         s.create_simulation()
 
+        shutil.make_archive('dcd_pdbs_openmm', 'zip', temp)
+        shutil.move("dcd_pdbs_openmm.zip", "media/files/dcd_pdbs_openmm.zip")
+
     def done(self, form_list, **kwargs):
         """
         override "done": this function is called when the form is submitted
@@ -155,22 +158,6 @@ class SimulationWizard(CookieWizardView):
         form_data = [form.cleaned_data for form in form_list]
         form_dict = {k: v for d in form_data for k, v in d.items()}  # convert list of dictionaries to one dictionary
         form_dict = self.clean_form_dict(form_dict)
-
-        # todo 8: change parameter list
-        s = Simulation(form_dict['num_of_proteins'],
-                       form_dict['first_pdb_type'], form_dict['first_pdb_id'],
-                       form_dict['second_pdb_type'], form_dict['second_pdb_id'],
-                       form_dict['x1'], form_dict['y1'], form_dict['z1'],
-                       form_dict['x2'], form_dict['y2'], form_dict['z2'],
-                       form_dict['temperature'], form_dict['production_steps'])
-        shutil.make_archive('dcd_pdbs_openmm', 'zip', temp)
-        shutil.move("dcd_pdbs_openmm.zip", "media/files/dcd_pdbs_openmm.zip")
-
-        s.create_simulation()
-       
-    
-        return render(self.request, 'create_simulation_result.html', {'form_data': form_dict})
-
 
         # Create a new thread responsible for creating the simulation:
         t = threading.Thread(target=self.create_simulation_thread, args=(form_dict,))
@@ -233,7 +220,7 @@ def show_form1(wizard: CookieWizardView):
 #   File Upload
 ################################
 
-def file_upload(request):
+def file_upload_old_version(request):
     if request.method == "POST":
         file = UploadForm(request.POST, request.FILES)
         if file.is_valid():	
@@ -251,7 +238,7 @@ def file_upload(request):
         file = UploadForm()
     return render(request, 'file_upload.html', {'form': file})
 
-def my_file_upload(request):
+def file_upload(request):
     messages.info(request, "Upload only 1 dcd file and 1 pdb file - both required")
     pdb_count = 0
     dcd_count = 0
@@ -281,7 +268,7 @@ def my_file_upload(request):
                 sim.run_simulation()				
             else:
                 messages.error(request, "Failed - Upload only 1 dcd file and 1 pdb file.")
-                return HttpResponseRedirect(reverse('my_file_upload'))
+                return HttpResponseRedirect(reverse('file_upload'))
     else:
         form = MultipuleFieldForm()
     return render(request, 'file_upload.html', {'form': form})
