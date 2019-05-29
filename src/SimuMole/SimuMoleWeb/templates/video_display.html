@@ -1,6 +1,13 @@
 {% extends "base.html" %}
 {% block content %}
     <title>Molecular Animation</title>
+
+    <video id="big_video" width="1100" height="400" loop muted>
+        <source src="{{path}}video_1.mp4" type="video/mp4">
+        Your browser does not support HTML5 video.
+    </video>
+
+
     <video id="video_1" width="175" height="150" loop muted onclick="play_big(this.id)">
         <source src="{{path}}video_1.mp4" type="video/mp4">
         Your browser does not support HTML5 video.
@@ -31,20 +38,15 @@
         Your browser does not support HTML5 video.
     </video>
 
-    <video id="big_video" width="700" height="700" loop muted>
-        <source src="{{path}}video_1.mp4" type="video/mp4">
-        Your browser does not support HTML5 video.
-    </video>>
-
     <button type="submit" class="buttonStyle" id="StartButton" onclick="StartAllVideos()">
         {% load static %}
         <img src="{% static "SimuMoleWeb/Start_button.png" %}" alt="Start" height="70" width="70">
-    </button>>
+    </button>
 
     <button type="submit" class="buttonStyle" id="PauseButton" onclick="PauseAllVideos()">
         {% load static %}
         <img src="{% static "SimuMoleWeb/Pause_button.png" %}" alt="Pause" height="70" width="70">
-    </button>>
+    </button>
 
 	<button type="submit" class="buttonStyle" id="MinusFiveButton" onclick="minusFive()">
 		-5
@@ -58,13 +60,13 @@
 		Restart
 	</button>
 
-    <button type="submit" class="buttonStyle" id="FullControl" onclick="GetFullControl()">
+    <button type="submit" class="btn btn-primary" id="FullControl" onclick="GetFullControl()">
         Full Control
-    </button>>
+    </button>
 
-    <button type="submit" class="buttonStyle" id="LessControl" onclick="GetLessControl()">
+    <button type="submit" class="btn btn-primary" id="LessControl" onclick="GetLessControl()">
         Less Control
-    </button>>
+    </button>
 
     <style>
             .buttonStyle {
@@ -73,83 +75,71 @@
                 border: none;
                 outline: none;
                 cursor:pointer;
+                padding: 0px;
+                margin: 0;
                 {#background-color: white;#}
                 {#background-repeat:no-repeat;#}
             }
-
             #video_1{
-                position: absolute;
-                left: 100px;
-                top: 300px;
+                position: relative;
             }
             #video_2{
-                position: absolute;
-                left: 300px;
-                top: 300px
+                position: relative;
             }
             #video_3{
-                position: absolute;
-                left: 500px;
-                top: 300px;
+                position: relative;
             }
             #video_4{
-                position: absolute;
-                left: 100px;
-                top: 450px;
+                position: relative;
             }
             #video_5{
-                position: absolute;
-                left: 300px;
-                top: 450px;
+                position: relative;
             }
             #video_6{
-                position: absolute;
-                left: 500px;
-                top: 450px;
+                position: relative;
             }
             #big_video{
-                position: absolute;
-                left: 800px;
-                top: 150px;
+                position: relative;
+                {#top: -200px;#}
             }
             #StartButton{
                 position: absolute;
-                left: -10px;
-                top: 400px;
+                left: 70px;
+                top: 380px;
             }
             #PauseButton{
                 position: absolute;
-                left: -10px;
-                top: 400px;
+                left: 70px;
+                top: 380px;
                 display: none;
             }
             #FullControl{
                 position: absolute;
-                left: 300px;
-                top: 650px;
+                left: 40px;
+                top: 520px;
             }
             #LessControl{
                 position: absolute;
-                left: 300px;
-                top: 650px;
+                left: 40px;
+                top: 520px;
                 display: none;
             }
 			#MinusFiveButton{
 			    position: absolute;
-                left: -10px;
-                top: 480px;
+                left: 70px;
+                top: 460px;
 				color: #E67E22;
 			}
 			#PlusFiveButton{
 			    position: absolute;
-                left: 30px;
-                top: 480px;
+                left: 110px;
+                top: 460px;
 				color: #E67E22;
 			}
 			#RestartButton{
 			    position: absolute;
-                left: -10px;
-                top: 510px;
+                left: 75px;
+                top: 490px;
 				color: #2980B9;
 			}
     </style>
