@@ -11,6 +11,7 @@
     <title>Create Simulation - SimuMole</title>
 
     <style>
+
         .error input, .error select, .errorlist {
             color: red;
             padding-bottom: 30px;
@@ -19,12 +20,42 @@
         #gray-button {
             background-color: #e7e7e7;
             color: black;
+            margin-bottom: 20px;
         }
 
         #blue-button {
             background-color: #5e88e7;
             color: black;
+            margin-bottom: 20px;
         }
+
+        @keyframes spinner {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .spinner:before {
+            content: '';
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid #e7e7e7;
+            border-top-color: #07d;
+            border-bottom-color: #07d;
+            animation: spinner .8s ease infinite;
+            display: inline-block;
+        }
+
+        #spinner-image {
+            display: inline-block;
+            margin-right: 5px;
+        }
+
+        #spinner-text {
+            display: inline-block;
+        }
+
     </style>
 
 
@@ -63,22 +94,33 @@
 
         <!-- "Next" and "Submit" buttons -->
         {% if wizard.steps.current == wizard.steps.last %}
-            <input id="blue-button" type="submit" value="Submit" class="btn btn-primary"/>
+            <input onclick="show_loading_spinner()" id="blue-button" type="submit" value="Submit"
+                   class="btn btn-primary"/>
         {% else %}
-            <input id="blue-button" type="submit" value="Next" class="btn btn-primary"/>
+            <input onclick="show_loading_spinner()" id="blue-button" type="submit" value="Next"
+                   class="btn btn-primary"/>
         {% endif %}
 
         <!-- "Return To Start" and "Previous" buttons -->
         {% if wizard.steps.prev %}
-            <button formnovalidate="formnovalidate" id="gray-button" name="wizard_goto_step" type="submit"
+            <button onclick="show_loading_spinner()" formnovalidate="formnovalidate" id="gray-button"
+                    name="wizard_goto_step" type="submit"
                     value="{{ wizard.steps.prev }}" class="btn">
                 {% trans "Previous" %}
             </button>
-            <button formnovalidate="formnovalidate" id="gray-button" name="wizard_goto_step" type="submit"
+            <button onclick="show_loading_spinner()" formnovalidate="formnovalidate" id="gray-button"
+                    name="wizard_goto_step" type="submit"
                     value="{{ wizard.steps.first }}" class="btn">
                 {% trans "Return To Start" %}
             </button>
         {% endif %}
+
+
+        <!-- loading spinner -->
+        <div id="loading_spinner">
+            <div class="spinner" id="spinner-image"></div>
+            <div id="spinner-text"><p>Loading...</p></div>
+        </div>
 
     </form>
 
@@ -86,6 +128,25 @@
 
 {% block extra_js %}
     <script type="text/javascript">
+
+        // show/hide the loading spinner:
+
+        hide_loading_spinner(); // hide spinner as default#
+
+        function show_loading_spinner() {
+            let num_of_proteins_1 = document.getElementById('id_0-num_of_proteins_0');
+            let num_of_proteins_2 = document.getElementById('id_0-num_of_proteins_1');
+            if (num_of_proteins_1 && num_of_proteins_2) { // the user is currently filling form 0
+                if (num_of_proteins_1.checked || num_of_proteins_2.checked)
+                    change_visibility_of_element("loading_spinner", '', '');
+            } else
+                change_visibility_of_element("loading_spinner", '', '');
+        }
+
+        function hide_loading_spinner() {
+            change_visibility_of_element("loading_spinner", 'hidden', 'none');
+        }
+
 
         // form0 - show/hide the fields "first pdb" and "second pdb":
 

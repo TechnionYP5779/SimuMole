@@ -5,14 +5,18 @@ import requests
 from django.core.files.uploadedfile import UploadedFile
 from django.core.files.storage import FileSystemStorage
 from django.conf import settings
-from SimuMoleScripts.basicTrajectoryBuilder import scr
+from SimuMoleScripts.basicTrajectoryBuilder import scr_for_checks
 from SimuMoleScripts.fix_pdb import fix_pdb
 from SimuMoleScripts.transformations import get_atoms, get_atoms_string, translate_vecs, rotate_molecular
 import os
-import urllib.request
+
+do_checks_cnt = 0
 
 
 class SimulationForm0_LoadPdb(forms.Form):
+    global do_checks
+    do_checks = True
+
     num_of_proteins = forms.ChoiceField(
         required=True,
         label='Choose whether to load one or two proteins',
@@ -43,9 +47,20 @@ class SimulationForm0_LoadPdb(forms.Form):
         file_storage.delete(filename)  # delete existing file with same name (due to clean_my_file previous calls)
         file_storage.save(filename, file)  # save existing file
 
+    @staticmethod
+    def update_cnt():
+        global do_checks_cnt
+        loop_amount = 9
+
+        if do_checks_cnt < loop_amount - 1:
+            do_checks_cnt += 1
+        else:
+            do_checks_cnt = 0
+
     def clean(self):
         cleaned_data = super(SimulationForm0_LoadPdb, self).clean()
         data = {**self.initial, **cleaned_data}  # self.initial->from previous steps, cleaned_data->from current step
+        SimulationForm0_LoadPdb.update_cnt()
         return cleaned_data
 
     # first pdb validation:
@@ -125,6 +140,10 @@ class SimulationForm0_LoadPdb(forms.Form):
     # pdb validation checks:
 
     def pdb_id_validation(self, pdb_id):
+        global do_checks_cnt
+        if do_checks_cnt != 0:
+            return
+
         if not self.pdb_id_exists(pdb_id):
             raise forms.ValidationError("invalid PDB id")
 
@@ -133,6 +152,10 @@ class SimulationForm0_LoadPdb(forms.Form):
         # TODO: fix
 
     def pdb_file_validation(self, pdb_id):
+        global do_checks_cnt
+        if do_checks_cnt != 0:
+            return
+
         if not self.pdb_file_valid(pdb_id):
             raise forms.ValidationError("Protein not supported by OpenMM")
 
@@ -143,15 +166,25 @@ class SimulationForm0_LoadPdb(forms.Form):
             return False
         return True
 
+    @staticmethod
+    def download_pdb(pdb_id):
+        response = requests.get("https://files.rcsb.org/view/" + pdb_id + ".pdb")
+        pdb_file_name = "media/files/" + pdb_id + ".pdb"
+        pdb_file = open(pdb_file_name, 'w')
+        pdb_file.write(response.text)
+        pdb_file.close()
+        response.close()
+        return pdb_file_name
+
     '''
     Checks whether a pdb id can be used in an openMM simulation by downloading the relevant file and testing it.
     This function assumes the id is valid.
     '''
+
     @staticmethod
     def pdb_id_valid(pdb_id):
-        pdb_file = "media/files/"+pdb_id+".pdb"
-        urllib.request.urlretrieve("https://files.rcsb.org/view/"+pdb_id+".pdb", filename=pdb_file)
-        return SimulationForm0_LoadPdb.pdb_file_valid(pdb_file)
+        pdb_file_name = SimulationForm0_LoadPdb.download_pdb(pdb_id)
+        return SimulationForm0_LoadPdb.pdb_file_valid(pdb_file_name)
 
     '''
     Checks if the given file can be used in an openMM simulation.
@@ -159,14 +192,13 @@ class SimulationForm0_LoadPdb(forms.Form):
     If it can run with fixing it will return true AND fix the file.
     Otherwise it returns false.
     '''
+
     @staticmethod
     def pdb_file_valid(pdb_file):
-        dcd_file = "media/files/trajectory.dcd"
-        min_steps = 2000    # Steps for 1 frame
-        default_temp = 293  # Room temperature in Kelvin
+        dcd_file = "media/files/very_good.dcd"
         fix_not_needed = True
         try:
-            scr(pdb_file, min_steps, default_temp)
+            scr_for_checks(pdb_file)
         except Exception:
             fix_not_needed = False
         finally:
@@ -178,7 +210,7 @@ class SimulationForm0_LoadPdb(forms.Form):
 
         try:
             fix_pdb(pdb_file)
-            scr(pdb_file, min_steps, default_temp)
+            scr_for_checks(pdb_file)
         except Exception:
             return False
         finally:
@@ -188,24 +220,29 @@ class SimulationForm0_LoadPdb(forms.Form):
 
 
 class SimulationForm1_DetermineRelativePosition(forms.Form):
-    x1 = forms.FloatField(required=True, label='Enter delta x of first pdb')
-    y1 = forms.FloatField(required=True, label='Enter delta y of first pdb')
-    z1 = forms.FloatField(required=True, label='Enter delta z of first pdb')
-    x2 = forms.FloatField(required=True, label='Enter delta x of second pdb')
-    y2 = forms.FloatField(required=True, label='Enter delta y of second pdb')
-    z2 = forms.FloatField(required=True, label='Enter delta z of second pdb')
-    degXY_1 = forms.FloatField(required=True, label='Enter degrees to rotate from left to right of first pdb')
-    degYZ_1 = forms.FloatField(required=True, label='Enter degrees to rotate from down to up of first pdb')
-    degXY_2 = forms.FloatField(required=True, label='Enter degrees to rotate from left to right of second pdb')
-    degYZ_2 = forms.FloatField(required=True, label='Enter degrees to rotate from down to up of second pdb')
+    x1 = forms.FloatField(required=False, label='Enter delta x of first pdb')
+    y1 = forms.FloatField(required=False, label='Enter delta y of first pdb')
+    z1 = forms.FloatField(required=False, label='Enter delta z of first pdb')
+    x2 = forms.FloatField(required=False, label='Enter delta x of second pdb')
+    y2 = forms.FloatField(required=False, label='Enter delta y of second pdb')
+    z2 = forms.FloatField(required=False, label='Enter delta z of second pdb')
+    degXY_1 = forms.FloatField(required=False, label='Enter degrees to rotate from left to right of first pdb')
+    degYZ_1 = forms.FloatField(required=False, label='Enter degrees to rotate from down to up of first pdb')
+    degXY_2 = forms.FloatField(required=False, label='Enter degrees to rotate from left to right of second pdb')
+    degYZ_2 = forms.FloatField(required=False, label='Enter degrees to rotate from down to up of second pdb')
 
     def clean(self):
         cleaned_data = super(SimulationForm1_DetermineRelativePosition, self).clean()
         data = {**self.initial, **cleaned_data}  # self.initial->from previous steps, cleaned_data->from current step
 
-        if not self.position_is_valid(data['x1'], data['y1'], data['z1'], data['x2'], data['y2'], data['z2']
-                                      , data['degXY_1'], data['degYZ_1'], data['degXY_2'], data['degYZ_2']
-                                      , data['first_pdb_id'], data['second_pdb_id'], data['first_pdb_type'],
+        for field in ['x1', 'y1', 'z1', 'x2', 'y2', 'z2', 'degXY_1', 'degYZ_1', 'degXY_2', 'degYZ_2']:
+            if self.cleaned_data[field] == '' or self.cleaned_data[field] is None:
+                raise forms.ValidationError("All fields are required.")
+
+        if not self.position_is_valid(data['x1'], data['y1'], data['z1'],
+                                      data['x2'], data['y2'], data['z2'],
+                                      data['degXY_1'], data['degYZ_1'], data['degXY_2'], data['degYZ_2'],
+                                      data['first_pdb_id'], data['second_pdb_id'], data['first_pdb_type'],
                                       data['second_pdb_type'], data['first_pdb_file'], data['second_pdb_file']):
             raise forms.ValidationError("Positions are not possible: The proteins collide with each other")
 
@@ -260,14 +297,22 @@ class SimulationForm1_DetermineRelativePosition(forms.Form):
         return not isOverlap
 
 
-
 class SimulationForm2_SimulationParameters(forms.Form):
-    temperature = forms.FloatField(required=True, label='Enter temperature (Kelvin)')
-    production_steps = forms.IntegerField(required=True, label='Enter number of production steps (1000 = 1 frame)')
+    temperature = forms.FloatField(required=False, label='Enter temperature (Kelvin)')
+    production_steps = forms.IntegerField(required=False, label='Enter number of production steps (1000 = 1 frame)')
 
     # todo 7: add field of number of time steps (and also: size of every time step)
 
     def clean(self):
         cleaned_data = super(SimulationForm2_SimulationParameters, self).clean()
         data = {**self.initial, **cleaned_data}  # self.initial->from previous steps, cleaned_data->from current step
+
+        for field in ['temperature', 'production_steps']:
+            if self.cleaned_data[field] == '' or self.cleaned_data[field] is None:
+                raise forms.ValidationError("All fields are required.")
+
         return cleaned_data
+
+
+class MultipuleFieldForm(forms.Form):
+    file_field = forms.FileField(widget=forms.ClearableFileInput(attrs={'multiple': True}))

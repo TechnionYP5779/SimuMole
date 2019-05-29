@@ -22,18 +22,43 @@
     <p id="simulation_status"> Processing your parameters...</p>
     <p id="simulation_status_during_run"></p>
 
+    {# this section appears only after the simulation is ready    #}
+    <div id="simulation_is_ready">
 
-    <h3>Your input parameters:</h3>
-    <ul>
-        {% for key, value in form_data.items %}
-            <li><strong>{{ key }}</strong> - {{ value }}</li>
-        {% endfor %}
-    </ul>
+        <div>
+            <br>
+            <h3>Download pdb, dcd files and the OpenMM script:</h3>
+            <a href="/media/files/dcd_pdbs_openmm.zip">Link to download zip file</a>
+        </div>
+
+        <div>
+            <br>
+            <h3>Get the files by email:</h3>
+            <p> complete later...</p>
+        </div>
+
+        <div>
+            <br>
+            <h3>Create the animation:</h3>
+            <p> complete later...</p>
+        </div>
+
+    </div>
+
+    {#    <h3>Your input parameters:</h3>#}
+    {#    <ul>#}
+    {#        {% for key, value in form_data.items %}#}
+    {#            <li><strong>{{ key }}</strong> - {{ value }}</li>#}
+    {#        {% endfor %}#}
+    {#    </ul>#}
+
 
 {% endblock %}
 
 {% block extra_js %}
     <script>
+
+        hide_results(); // hide "simulation_is_ready" section as default
 
         const interval = setInterval(function () {
             update_simulation_status_()
@@ -53,6 +78,7 @@
                         document.getElementById('simulation_status').textContent = data['simulation_status'];
                         if (data['simulation_status'] === "Done!") {
                             clearInterval(interval);
+                            show_results()
                         }
                     }
 
@@ -69,6 +95,24 @@
 
                 },
             });
+        }
+
+        function show_results() {
+            if (document.getElementById('simulation_is_ready')) {
+                change_visibility_of_element("simulation_is_ready", '', '');
+            }
+        }
+
+        function hide_results() {
+            if (document.getElementById('simulation_is_ready')) {
+                change_visibility_of_element("simulation_is_ready", 'hidden', 'none');
+            }
+        }
+
+        function change_visibility_of_element(element_id, visibility = '', display = '') {
+            let element = document.getElementById(element_id);
+            element.style.visibility = visibility;      // visibility = 'hidden' or ''
+            element.style.display = display;            // display = 'none' or ''
         }
 
     </script>

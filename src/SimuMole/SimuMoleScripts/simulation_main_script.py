@@ -92,7 +92,8 @@ class Simulation:
 
             # STEP 2: fix positions
             filename_1_movement = filename_1 + '__movement'
-            translate_pdb(temp + filename_1 + pdb, temp + filename_1_movement + pdb, self.x1, self.y1, self.z1)
+            translate_pdb(temp + filename_1 + pdb, temp + filename_1_movement + pdb, self.x1, self.y1, self.z1,
+                          self.degXY_1, self.degYZ_1)
 
             # STEP 2.5: fix pdb
             fix_pdb(temp + filename_1_movement + pdb)
