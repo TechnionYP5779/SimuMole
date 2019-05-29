@@ -231,10 +231,8 @@ def file_upload(request):
 ################################
 
 
-def display_video(request, video_name=None):
-    if(video_name is None):
-        return HttpResponse("Please Enter Video Name")
-    # video_url = os.path.join(settings.MEDIA_ROOT, 'videos', 'video_1.mp4')
+def display_video(request):
+    # video_url = os.path.join(settings.MEDIA_ROOT, 'videos\\')
     video_url = settings.MEDIA_URL + 'videos/'
-    return render(request, "video_display.html", {"url": video_url})
+    return render(request, 'video_display.html', {'path': video_url})
 
