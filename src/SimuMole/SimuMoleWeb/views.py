@@ -5,13 +5,13 @@ from .models import UploadForm
 from django.http import HttpResponseRedirect, JsonResponse
 from .forms import MultipuleFieldForm
 from django.urls import reverse
-from django.contrib import messages
 from django.shortcuts import render
 from django.core.files.storage import FileSystemStorage
 from django.conf import settings
 import os
 import threading
-import shutil
+import zipfile
+from os.path import basename
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 from django.contrib import messages
@@ -60,6 +60,50 @@ def update_simulation_status(request):
 
     context = {'simulation_status': simulation_status, 'simulation_status_during_run': simulation_status_during_run}
     return JsonResponse(context)
+
+
+def download_pdb_dcd__create_zip(num_of_proteins, include_pdb_file, include_dcd_file):
+    files = []
+
+    if include_pdb_file:
+        file_name = ''
+        if num_of_proteins == '1':
+            file_name = '_1___movement.pdb'
+        if num_of_proteins == '2':
+            file_name = 'both___1___movement__2___movement.pdb'
+        files.append(os.path.join(settings.MEDIA_ROOT, 'files', file_name))
+    if include_dcd_file:
+        files.append(os.path.join(settings.MEDIA_ROOT, 'files', 'trajectory.dcd'))
+
+    zip_file = zipfile.ZipFile(os.path.join(settings.MEDIA_ROOT, 'files', "pdb_dcd.zip"), "w")
+    for f in files:
+        zip_file.write(f, basename(f))
+    zip_file.close()
+
+
+def download_pdb_dcd__zip(request):
+    num_of_proteins = request.GET.get('num_of_proteins')
+    include_pdb_file = (request.GET.get('pdb_file') == 'true')
+    include_dcd_file = (request.GET.get('dcd_file') == 'true')
+
+    download_pdb_dcd__create_zip(num_of_proteins, include_pdb_file, include_dcd_file)
+
+    return JsonResponse({})
+
+
+def download_pdb_dcd__email(request):
+    num_of_proteins = request.GET.get('num_of_proteins')
+    include_pdb_file = (request.GET.get('pdb_file') == 'true')
+    include_dcd_file = (request.GET.get('dcd_file') == 'true')
+    email = request.GET.get('email')
+
+    download_pdb_dcd__create_zip(num_of_proteins, include_pdb_file, include_dcd_file)
+
+    # todo: complete this function. need to send the mail
+
+    response = {'email': email}
+
+    return JsonResponse(response)
 
 
 ################################
@@ -145,9 +189,6 @@ class SimulationWizard(CookieWizardView):
                        form_dict['degXY_2'], form_dict['degYZ_2'],
                        form_dict['temperature'], form_dict['production_steps'])
         s.create_simulation()
-
-        shutil.make_archive('dcd_pdbs_openmm', 'zip', temp)
-        shutil.move("dcd_pdbs_openmm.zip", "media/files/dcd_pdbs_openmm.zip")
 
     def done(self, form_list, **kwargs):
         """
