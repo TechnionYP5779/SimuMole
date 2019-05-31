@@ -2,7 +2,7 @@ from SimuMoleScripts.simulation_main_script import Simulation
 from SimuMoleScripts.uploaded_simulation import Uploaded_Simulation
 from formtools.wizard.views import CookieWizardView
 from .models import UploadForm
-from django.http import HttpResponseRedirect, JsonResponse, HttpResponse
+from django.http import HttpResponseRedirect, JsonResponse
 from .forms import MultipuleFieldForm
 from django.urls import reverse
 from django.shortcuts import render
@@ -10,8 +10,6 @@ from django.core.files.storage import FileSystemStorage
 from django.conf import settings
 import os
 import threading
-import fnmatch
-import shutil
 import zipfile
 from os.path import basename
 from django.core.files.storage import default_storage
@@ -60,7 +58,9 @@ def update_simulation_status(request):
         else simulation_status_during_run_lines[-1]
     f.close()
 
-    context = {'simulation_status': simulation_status, 'simulation_status_during_run': simulation_status_during_run}
+    video_url = settings.MEDIA_URL + 'videos/'
+    context = {'simulation_status': simulation_status, 'simulation_status_during_run': simulation_status_during_run,
+               'video_path': video_url}
     return JsonResponse(context)
 
 
@@ -105,6 +105,30 @@ def download_pdb_dcd__email(request):
 
     response = {'email': email}
 
+    return JsonResponse(response)
+
+
+def download_animation__create_zip():
+    files = []
+    for i in range(1, 7):
+        files.append(os.path.join(settings.MEDIA_ROOT, 'videos', 'video_{}.mp4'.format(str(i))))
+
+    zip_file = zipfile.ZipFile(os.path.join(settings.MEDIA_ROOT, 'files', "animations.zip"), "w")
+    for f in files:
+        zip_file.write(f, basename(f))
+    zip_file.close()
+
+
+def download_animation__zip(request):
+    download_animation__create_zip()
+    return JsonResponse({})
+
+
+def download_animation__email(request):
+    email = request.GET.get('email')
+    download_animation__create_zip()
+    # todo: complete this function. need to send the mail
+    response = {'email': email}
     return JsonResponse(response)
 
 
@@ -322,14 +346,3 @@ def file_upload(request):
     else:
         form = MultipuleFieldForm()
     return render(request, 'file_upload.html', {'form': form})
-
-################################
-#   Display Video
-################################
-
-
-def display_video(request):
-    # video_url = os.path.join(settings.MEDIA_ROOT, 'videos\\')
-    video_url = settings.MEDIA_URL + 'videos/'
-    return render(request, 'video_display.html', {'path': video_url})
-

@@ -6,10 +6,13 @@
 
         .error input, .error select, .errorlist {
             color: red;
-            padding-bottom: 0px;
+            padding-bottom: 0;
+            margin-bottom: 0;
         }
 
-        {# simulation status:  #}
+        {################################################################}
+        {# simulation status                                            #}
+        {################################################################}
 
         #simulation_status {
             font-weight: bold;
@@ -19,14 +22,55 @@
             white-space: pre;
         }
 
-        {# download PDB / DCD - via zip or email: #}
+        {################################################################}
+        {# download - via zip or email                                  #}
+        {################################################################}
 
-        #download_pdb_dcd__zip_id, #download_pdb_dcd__email_id {
-            background-color: #e7574f;
+        #download_pdb_dcd__zip_id, #download_pdb_dcd__email_id,
+        #download_animation__zip_id, #download_animation__email_id {
+            background-color: #e7e7e7;
             color: black;
             margin-bottom: 20px;
             width: 200px;
             margin-right: 10px;
+        }
+
+        {################################################################}
+        {# create the animation                                         #}
+        {################################################################}
+
+        table {
+            width: fit-content;
+            border: none;
+        }
+
+        td {
+            vertical-align: middle;
+            text-align: center;
+            border: none;
+        }
+
+        button {
+            margin: 10px 10px 10px 10px;
+            background: Transparent;
+            border: none;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .gray_button {
+            background-color: #e7e7e7;
+            color: black;
+            margin-top: 20px;
+        }
+
+        #StartButton img, #PauseButton img, #RestartButton img, #MinusFiveButton img, #PlusFiveButton img {
+            height: 70px;
+            width: 70px;
+        }
+
+        #PauseButton, #LessControl {
+            display: none;
         }
 
     </style>
@@ -40,7 +84,7 @@
     {# simulation status                                            #}
     {################################################################}
     <div id="simulation_is_in_processing">
-        <h3>The status of your request:</h3>
+        <h3>The status of your request</h3>
         <p id="simulation_status"> Processing your parameters...</p>
         <p id="simulation_status_during_run"></p>
         <br>
@@ -53,40 +97,163 @@
         {# download PDB / DCD - via zip or email                        #}
         {################################################################}
         <div>
-            <h3>Download PDB and DCD files</h3>
+            <h2>Download PDB and DCD files</h2>
             <form action="" method="post"> {% csrf_token %}
                 <p>Select which files to download:</p>
 
+                {#............................#}
+                {# file checkbox              #}
+                {#............................#}
                 <input type="checkbox" id="pdb_file" onchange="download_pdb_dcd__hide_select_error()">PDB file<br>
                 <input type="checkbox" id="dcd_file" onchange="download_pdb_dcd__hide_select_error()">DCD file<br>
 
                 <p class="errorlist" id="download_pdb_dcd__select_error">Select one or more files of the above</p>
 
-                <button type="button" id="download_pdb_dcd__zip_id" onclick="download_pdb_dcd__zip()">
+                {#............................#}
+                {# download buttons           #}
+                {#............................#}
+                <button type="button" id="download_pdb_dcd__zip_id" onclick="download_pdb_dcd__zip_event()">
                     Download as zip
                 </button>
                 <br>
 
-                <button type="button" id="download_pdb_dcd__email_id" onclick="download_pdb_dcd__email()">
+                <button type="button" id="download_pdb_dcd__email_id" onclick="download_pdb_dcd__email_event()">
                     Download via email
                 </button>
-                <input type="text" id="email" placeholder="Enter email address"
-                       onchange="download_pdb_dcd__hide_email_error()"
-                       style="width: 25%;">
-                <p class="errorlist" id="download_pdb_dcd__email_error">Please provide an email
-                    address</p>
+                <input type="text" id="download_pdb_dcd__email" placeholder="Enter email address"
+                       onchange="download_pdb_dcd__hide_email_error()" style="width: 25%;">
+                <p class="errorlist" id="download_pdb_dcd__email_error">Please provide an email address</p>
                 <br>
 
             </form>
         </div>
 
         {################################################################}
-        {# create the animation                                         #} {# todo: complete! #}
+        {# create the animation                                         #}
         {################################################################}
         <div>
+            <h2>Create the animation</h2>
+
+            <table>
+
+                <tr>
+
+                    {#............................#}
+                    {# buttons                    #}
+                    {#............................#}
+                    <td id="button_cell" colspan="2">
+                        <button type="submit" id="StartButton" onclick="StartAllVideos()">
+                            {% load static %} <img src="{% static "SimuMoleWeb/icon_play.png" %}" alt="Start">
+                            <p>Play</p>
+                        </button>
+
+                        <button type="submit" id="PauseButton" onclick="PauseAllVideos()">
+                            {% load static %} <img src="{% static "SimuMoleWeb/icon_pause.png" %}" alt="Pause">
+                            <p>Pause</p>
+                        </button>
+
+                        <button type="submit" id="RestartButton" onclick="restart()">
+                            {% load static %} <img src="{% static "SimuMoleWeb/icon_restart.png" %}" alt="Restart">
+                            <p>Restart</p>
+                        </button>
+
+                        <br>
+
+                        <button type="submit" id="MinusFiveButton" onclick="minusFive()">
+                            {% load static %} <img src="{% static "SimuMoleWeb/icon_backward.png" %}" alt="Backward">
+                            <p>-5 frames</p>
+                        </button>
+
+                        <button type="submit" id="PlusFiveButton" onclick="plusFive()">
+                            {% load static %} <img src="{% static "SimuMoleWeb/icon_forward.png" %}" alt="Restart">
+                            <p>+5 frames</p>
+                        </button>
+
+                        <button type="submit" class="gray_button" id="FullControl" onclick="GetFullControl()">
+                            Full Control
+                        </button>
+
+                        <button type="submit" class="gray_button" id="LessControl" onclick="GetLessControl()">
+                            Less Control
+                        </button>
+                    </td>
+
+                    {#............................#}
+                    {# main video                 #}
+                    {#............................#}
+                    <td id="big_video_cell" colspan="4">
+
+                        <video id="big_video" loop muted>
+                            <source src="" type="video/mp4">
+                            Your browser does not support HTML5 video.
+                        </video>
+
+                    </td>
+
+                </tr>
+
+                <tr>
+                    {#............................#}
+                    {# 6 more videos              #}
+                    {#............................#}
+
+                    <td>
+                        <video id="video_1" width="175" height="150" loop muted onclick="play_big(this.id)">
+                            <source src="" type="video/mp4">
+                            Your browser does not support HTML5 video.
+                        </video>
+                    </td>
+                    <td>
+                        <video id="video_2" width="175" height="150" loop muted onclick="play_big(this.id)">
+                            <source src="" type="video/mp4">
+                            Your browser does not support HTML5 video.
+                        </video>
+                    </td>
+                    <td>
+                        <video id="video_3" width="175" height="150" loop muted onclick="play_big(this.id)">
+                            <source src="" type="video/mp4">
+                            Your browser does not support HTML5 video.
+                        </video>
+                    </td>
+                    <td>
+                        <video id="video_4" width="175" height="150" loop muted onclick="play_big(this.id)">
+                            <source src="" type="video/mp4">
+                            Your browser does not support HTML5 video.
+                        </video>
+                    </td>
+                    <td>
+                        <video id="video_5" width="175" height="150" loop muted onclick="play_big(this.id)">
+                            <source src="" type="video/mp4">
+                            Your browser does not support HTML5 video.
+                        </video>
+                    </td>
+                    <td>
+                        <video id="video_6" width="175" height="150" loop muted onclick="play_big(this.id)">
+                            <source src="" type="video/mp4">
+                            Your browser does not support HTML5 video.
+                        </video>
+                    </td>
+
+                </tr>
+
+            </table>
+
+            {#............................#}
+            {# download buttons           #}
+            {#............................#}
+            <button type="button" id="download_animation__zip_id" onclick="download_animation__zip_event()">
+                Download as zip
+            </button>
             <br>
-            <h3>Create the animation</h3>
-            <p> complete later...</p>
+
+            <button type="button" id="download_animation__email_id" onclick="download_animation__email_event()">
+                Download via email
+            </button>
+            <input type="text" id="download_animation__email" placeholder="Enter email address"
+                   onchange="download_animation__hide_email_error()" style="width: 25%;">
+            <p class="errorlist" id="download_animation__email_error">Please provide an email address</p>
+            <br>
+
         </div>
 
     </div>
@@ -98,7 +265,6 @@
     {#        {% endfor %}#}
     {#    </ul>#}
 
-
 {% endblock %}
 
 {% block extra_js %}
@@ -109,8 +275,9 @@
         {# the simulation building process is finished                  #}
         {################################################################}
 
-        hide_results(); // hide "simulation_is_ready" section as default
+        let video_path = "unknown";
 
+        hide_results(); // hide "simulation_is_ready" section as default
         const interval = setInterval(function () {
             update_simulation_status_event()
         }, 4000); // unit of milliseconds
@@ -130,7 +297,9 @@
                         if (data['simulation_status'] === "Done!") {
                             clearInterval(interval);
                             setTimeout(function () {
-                                show_results()
+                                show_results();
+                                video_path = data['video_path'];
+                                init_video_path()
                             }, 1000); // do nothing during 1 seconds and display 'Done!'
                         }
                     }
@@ -162,6 +331,16 @@
             }
         }
 
+        function init_video_path() {
+            document.getElementById("big_video").setAttribute('src', video_path + 'video_1' + ".mp4");
+            document.getElementById("video_1").setAttribute('src', video_path + 'video_1' + ".mp4");
+            document.getElementById("video_2").setAttribute('src', video_path + 'video_2' + ".mp4");
+            document.getElementById("video_3").setAttribute('src', video_path + 'video_3' + ".mp4");
+            document.getElementById("video_4").setAttribute('src', video_path + 'video_4' + ".mp4");
+            document.getElementById("video_5").setAttribute('src', video_path + 'video_5' + ".mp4");
+            document.getElementById("video_6").setAttribute('src', video_path + 'video_6' + ".mp4");
+        }
+
         {################################################################}
         {# download PDB / DCD - via zip or email                        #}
         {################################################################}
@@ -169,7 +348,7 @@
         hide_element("download_pdb_dcd__select_error", '');
         hide_element("download_pdb_dcd__email_error", 'inline');
 
-        function download_pdb_dcd__zip() {
+        function download_pdb_dcd__zip_event() {
             num_of_proteins = {{ form_data.num_of_proteins }};
             const pdb_file = document.getElementById("pdb_file").checked;
             const dcd_file = document.getElementById("dcd_file").checked;
@@ -189,11 +368,11 @@
             });
         }
 
-        function download_pdb_dcd__email() {
+        function download_pdb_dcd__email_event() {
             num_of_proteins = {{ form_data.num_of_proteins }};
             const pdb_file = document.getElementById("pdb_file").checked;
             const dcd_file = document.getElementById("dcd_file").checked;
-            const email = document.getElementById("email").value;
+            const email = document.getElementById("download_pdb_dcd__email").value;
 
             if ((pdb_file === false && dcd_file === false) || (email === '')) {
                 if (pdb_file === false && dcd_file === false) {
@@ -227,11 +406,126 @@
         }
 
         function download_pdb_dcd__hide_email_error() {
-            const email = document.getElementById("email").value;
+            const email = document.getElementById("download_pdb_dcd__email").value;
             const error = document.getElementById("download_pdb_dcd__email_error");
             const error_visibility = error.style.visibility;
             if (email !== '' && error_visibility === '') {
                 hide_element("download_pdb_dcd__email_error", 'inline')
+            }
+        }
+
+        {################################################################}
+        {# create the animation                                         #}
+        {################################################################}
+
+        {# vidoe functionallity:                                        #}
+
+        function StartAllVideos() {
+            for (let i = 1; i <= 6; i++) {
+                document.getElementById("video_" + i).play();
+            }
+            document.getElementById("big_video").play();
+            document.getElementById("StartButton").style.display = "none";
+            document.getElementById("PauseButton").style.display = "initial";
+        }
+
+        function PauseAllVideos() {
+            for (let i = 1; i <= 6; i++) {
+                document.getElementById("video_" + i).pause()
+            }
+            document.getElementById("big_video").pause();
+            document.getElementById("StartButton").style.display = "initial";
+            document.getElementById("PauseButton").style.display = "none";
+        }
+
+        function play_big(video_id) {
+            let big = document.getElementById("big_video");
+            let video = document.getElementById(video_id);
+            big.setAttribute('src', video_path + video_id + ".mp4");
+            big.currentTime = video.currentTime;
+            video.paused ? big.pause() : big.play();
+        }
+
+        function GetFullControl() {
+            for (let i = 1; i <= 6; i++) {
+                document.getElementById("video_" + i).controls = true;
+            }
+            document.getElementById("LessControl").style.display = "initial";
+            document.getElementById("FullControl").style.display = "none";
+        }
+
+        function GetLessControl() {
+            for (let i = 1; i <= 6; i++) {
+                document.getElementById("video_" + i).controls = false;
+            }
+            document.getElementById("LessControl").style.display = "none";
+            document.getElementById("FullControl").style.display = "initial";
+        }
+
+        function minusFive() {
+            for (let i = 1; i <= 6; i++) {
+                let v = document.getElementById("video_" + i);
+                v.currentTime = v.currentTime <= 5 ? 0 : v.currentTime - 5;
+            }
+            let v = document.getElementById("big_video");
+            v.currentTime = v.currentTime <= 5 ? 0 : v.currentTime - 5;
+        }
+
+        function plusFive() {
+            for (let i = 1; i <= 6; i++) {
+                let v = document.getElementById("video_" + i);
+                v.currentTime = v.currentTime + 5 >= v.duration ? v.duration : v.currentTime + 5;
+            }
+            let v = document.getElementById("big_video");
+            v.currentTime = v.currentTime + 5 >= v.duration ? v.duration : v.currentTime + 5;
+        }
+
+        function restart() {
+            for (let i = 1; i <= 6; i++) {
+                document.getElementById("video_" + i).currentTime = 0;
+            }
+            document.getElementById("big_video").currentTime = 0;
+        }
+
+        {# download animation - via zip or email                        #}
+        hide_element("download_animation__email_error", 'inline');
+
+        function download_animation__zip_event() {
+            $.ajax({
+                url: '{% url 'download_animation__zip' %}',
+                data: {},
+                dataType: 'json',
+                success: function (response) {
+                    location.href = "/media/files/animations.zip"
+                }
+            });
+        }
+
+        function download_animation__email_event() {
+            const email = document.getElementById("download_animation__email").value;
+
+            if (email === '') {
+                show_element("download_animation__email_error", 'inline');
+                return
+            }
+
+            $.ajax({
+                url: '{% url 'download_animation__email' %}',
+                data: {'email': email},
+                dataType: 'json',
+                success:
+                    function (response) {
+                        console.log("download_animation_email__zip: email=" + response['email']); // todo: complete!
+                    }
+            });
+        }
+
+        function download_animation__hide_email_error() {
+            const email = document.getElementById("download_animation__email").value;
+            const error = document.getElementById("download_animation__email_error");
+            const error_visibility = error.style.visibility;
+            if (email !== '' && error_visibility === '') {
+                hide_element("download_animation__email_error", 'inline')
             }
         }
 
