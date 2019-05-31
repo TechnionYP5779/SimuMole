@@ -12,9 +12,6 @@ from SimuMoleWeb.views import SimulationWizard, show_form1
 urlpatterns = [
                   path('', views.home, name='home'),
                   path('admin/', admin.site.urls),
-                  path('news/', views.news),
-                  path('contact/', views.contact),
-                  path('about/', views.about),
 
                   path('create_simulation/',
                        SimulationWizard.as_view([SimulationForm0_LoadPdb,
