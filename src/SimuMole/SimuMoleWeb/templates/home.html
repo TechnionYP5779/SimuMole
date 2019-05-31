@@ -3,6 +3,28 @@
 
     <title>Home - SimuMole</title>
 
+    <style>
+
+        #td_img {
+            text-align: center;
+        }
+
+        table {
+            width: fit-content;
+            border: none;
+        }
+
+        td {
+            vertical-align: middle;
+            border: none;
+        }
+
+        img {
+            height: 40px;
+            margin: 0 0 0 0;
+        }
+
+    </style>
     <div>
 
         {################################################################}
@@ -31,15 +53,46 @@
         {################################################################}
         <br>
         <h3>Technologies</h3>
-        <p> complete later...</p>
+        <table>
+            <tr>
+                <td id="td_img">
+                    <img src="../static/SimuMoleWeb/technologies_django.png"/>
+                </td>
+                <td>
+                    <p style="font-size: large">
+                        <strong>Django:</strong> a high-level Python Web framework</p>
+                    <p>Used for creating the web application.</p>
+                </td>
+            </tr>
+            <tr>
+                <td id="td_img">
+                    <img src="../static/SimuMoleWeb/technologies_pymol.png"/>
+                </td>
+                <td>
+                    <p style="font-size: large">
+                        <strong>PyMOL:</strong> a user-sponsored molecular visualization </p>
+                    <p>Used for displaying the simulations.</p> {# todo: chnage this #}
+                </td>
+            </tr>
+            <tr>
+                <td id="td_img">
+                    <img src="../static/SimuMoleWeb/technologies_openmm.png"/>
+                </td>
+                <td>
+                    <p style="font-size: large">
+                        <strong>OpenMM:</strong> a high performance toolkit for molecular simulation</p>
+                    <p>Used for creating the MD simulations.</p>
+                </td>
+            </tr>
+        </table>
 
         {################################################################}
         {# GitHub                                                       #}
         {################################################################}
         <br>
         <br>
-        <p> For more information, visit our repository hosted by
-            <a href="https://github.com/TechnionYP5779/SimuMole">GitHub</a>.
+        <p> For more information, visit our 
+            <a href="https://github.com/TechnionYP5779/SimuMole">GitHub</a> repository.
         </p>
 
     </div>
