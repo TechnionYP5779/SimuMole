@@ -24,5 +24,5 @@ urlpatterns = [
                   path('download_pdb_dcd__email/', views.download_pdb_dcd__email, name='download_pdb_dcd__email'),
 
                   path('upload/', views.file_upload, name='file_upload'),
-
+                  path('animation/', views.display_video),
               ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

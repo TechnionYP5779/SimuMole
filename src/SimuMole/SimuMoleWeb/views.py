@@ -2,7 +2,7 @@ from SimuMoleScripts.simulation_main_script import Simulation
 from SimuMoleScripts.uploaded_simulation import Uploaded_Simulation
 from formtools.wizard.views import CookieWizardView
 from .models import UploadForm
-from django.http import HttpResponseRedirect, JsonResponse
+from django.http import HttpResponseRedirect, JsonResponse, HttpResponse
 from .forms import MultipuleFieldForm
 from django.urls import reverse
 from django.shortcuts import render
@@ -10,6 +10,8 @@ from django.core.files.storage import FileSystemStorage
 from django.conf import settings
 import os
 import threading
+import fnmatch
+import shutil
 import zipfile
 from os.path import basename
 from django.core.files.storage import default_storage
@@ -320,3 +322,14 @@ def file_upload(request):
     else:
         form = MultipuleFieldForm()
     return render(request, 'file_upload.html', {'form': form})
+
+################################
+#   Display Video
+################################
+
+
+def display_video(request):
+    # video_url = os.path.join(settings.MEDIA_ROOT, 'videos\\')
+    video_url = settings.MEDIA_URL + 'videos/'
+    return render(request, 'video_display.html', {'path': video_url})
+
