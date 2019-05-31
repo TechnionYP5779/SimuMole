@@ -9,6 +9,19 @@
 <body class="wide">
 <div id="page" class="hfeed site">
     <style>
+        .main-wrapper {
+            padding-bottom: 70px;
+        }
+
+        #colophon {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            height: 20px;
+            text-align: center;
+            padding: 10px 0px 10px 0px;
+        }
+
         /* Add a black background color to the top navigation */
         .topnav {
             position: relative;
@@ -109,11 +122,8 @@
             <!-- Centered link -->
             <div class="topnav-centered">
                 <a href='/'>Home</a>
-                <a href='/news'>News</a>
-                <a href='/contact'>Contact</a>
-                <a href='/about'>About</a>
                 <a href='/create_simulation'>Create Simulation</a>
-                <a href='/upload'>Upload PDB</a>
+                <a href='/upload'>Upload PDB & DCD</a>
             </div>
             <!-- Left-aligned links (default) -->
             <a> </a>    <!-- leave it here-->
@@ -147,8 +157,8 @@
     </div>
     <footer id="colophon">
         <div class="inner-wrap">
-            SimuMole was created at the Technion – Israel Institute of Technology <br>
-            as a project under the supervision of Boaz Rozenan, as part of the yearly project course 234312 spring 2019
+            SimuMole was created at the "Technion – Israel Institute of Technology", as part of the "Yearly Project in
+            Software Engineering" course, spring 2019
         </div>
     </footer>
 </div>

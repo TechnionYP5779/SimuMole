@@ -1,12 +1,97 @@
 {% extends "base.html" %}
 {% block content %}
 
-<title>Home - SimuMole</title>
+    <title>SimuMole: Home</title>
 
-<div>
-  <h3>Welcome to SimuMole!</h3>
-  <p>SimuMole is a web application to create molecular dynamic simolations.
-    Molecular dynamics is a computer simulation method for studying the physical movements of atoms and molecules. The atoms and molecules are allowed to interact for a fixed period of time, giving a view of the dynamic evolution of the system. In the most common version, the trajectories of atoms and molecules are determined by numerically solving Newton's equations of motion for a system of interacting particles, where forces between the particles and their potential energies are often calculated using interatomic potentials or molecular mechanics force fields.
-  </p>
-</div>
+    <style>
+
+        #td_img {
+            text-align: center;
+        }
+
+        table {
+            width: fit-content;
+            border: none;
+        }
+
+        td {
+            vertical-align: middle;
+            border: none;
+        }
+
+        img {
+            height: 40px;
+            margin: 0 0 0 0;
+        }
+
+    </style>
+    <div>
+
+        {################################################################}
+        {# project description                                          #}
+        {################################################################}
+        <h1>Welcome to SimuMole!</h1>
+
+        <p style="font-size: large">
+            <strong>SimuMole</strong> is a web application to create molecular dynamic simulations.
+        </p>
+        <p style="font-size: large">
+            <strong>Molecular Dynamics</strong> is a computer simulation method for studying the physical movements
+            of atoms and molecules. The atoms and molecules are allowed to interact for a fixed period of time,
+            giving a view of the dynamic evolution of the system. In the most common version, the trajectories of
+            atoms and molecules are determined by numerically solving Newton's equations of motion for a system of
+            interacting particles, where forces between the particles and their potential energies are often
+            calculated using interatomic potentials or molecular mechanics force fields.
+        </p>
+        <p style="font-size: large">
+            With SimuMole you can <strong>create animations</strong> by selecting PDB files or by uploading PDB and DCD
+            files from previous runs.
+        </p>
+
+        {################################################################}
+        {# technologies                                                    #}
+        {################################################################}
+        <br>
+        <h3>Technologies</h3>
+        <table>
+            <tr>
+                <td id="td_img">
+                    <img src="../static/SimuMoleWeb/technologies_django.png"/>
+                </td>
+                <td>
+                    <p style="font-size: large">
+                        <strong>Django:</strong> a high-level Python Web framework</p>
+                    <p>Used for creating the web application.</p>
+                </td>
+            </tr>
+            <tr>
+                <td id="td_img">
+                    <img src="../static/SimuMoleWeb/technologies_pymol.png"/>
+                </td>
+                <td>
+                    <p style="font-size: large">
+                        <strong>PyMOL:</strong> a user-sponsored molecular visualization </p>
+                    <p>Used for displaying the simulations.</p> {# todo: chnage this #}
+                </td>
+            </tr>
+            <tr>
+                <td id="td_img">
+                    <img src="../static/SimuMoleWeb/technologies_openmm.png"/>
+                </td>
+                <td>
+                    <p style="font-size: large">
+                        <strong>OpenMM:</strong> a high performance toolkit for molecular simulation</p>
+                    <p>Used for creating the MD simulations.</p>
+                </td>
+            </tr>
+        </table>
+
+        {################################################################}
+        {# GitHub                                                       #}
+        {################################################################}
+        <p> For more information, visit our <a href="https://github.com/TechnionYP5779/SimuMole">GitHub</a> repository.
+        </p>
+
+    </div>
+
 {% endblock %}
