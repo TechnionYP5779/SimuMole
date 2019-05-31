@@ -324,14 +324,3 @@ def file_upload(request):
     else:
         form = MultipuleFieldForm()
     return render(request, 'file_upload.html', {'form': form})
-
-
-################################
-#   Display Video
-################################
-
-
-def display_video(request):
-    # video_url = os.path.join(settings.MEDIA_ROOT, 'videos\\')
-    video_url = settings.MEDIA_URL + 'videos/'
-    return render(request, 'video_display.html', {'path': video_url})

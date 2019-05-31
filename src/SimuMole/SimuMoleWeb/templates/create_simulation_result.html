@@ -39,99 +39,42 @@
 
         table {
             width: fit-content;
-            {#border: none;#}
+            border: none;
         }
 
         td {
             vertical-align: middle;
-            {#border: none;#}
+            text-align: center;
+            border: none;
         }
 
-        {#///////////////////////////////////////#}
-
-        .buttonStyle {
-            font-size: 17px;
+        button {
+            margin: 10px 10px 10px 10px;
             background: Transparent;
             border: none;
             outline: none;
             cursor: pointer;
-            padding: 0;
-            margin: 0;
         }
 
-        #video_1 {
-            position: relative;
+        .gray_button {
+            background-color: #e7e7e7;
+            color: black;
+            margin-top: 20px;
         }
 
-        #video_2 {
-            position: relative;
+        #StartButton img, #PauseButton img, #RestartButton img, #MinusFiveButton img, #PlusFiveButton img {
+            height: 70px;
+            width: 70px;
         }
 
-        #video_3 {
-            position: relative;
-        }
-
-        #video_4 {
-            position: relative;
-        }
-
-        #video_5 {
-            position: relative;
-        }
-
-        #video_6 {
-            position: relative;
-        }
-
-        #big_video {
-            position: relative;
-        }
-
-        #StartButton {
-            position: absolute;
-            left: 70px;
-            top: 380px;
-        }
+        {#///////////////////////////////////////#}
 
         #PauseButton {
-            position: absolute;
-            left: 70px;
-            top: 380px;
             display: none;
-        }
-
-        #FullControl {
-            position: absolute;
-            left: 40px;
-            top: 520px;
         }
 
         #LessControl {
-            position: absolute;
-            left: 40px;
-            top: 520px;
             display: none;
-        }
-
-        #MinusFiveButton {
-            position: absolute;
-            left: 70px;
-            top: 460px;
-            color: #E67E22;
-        }
-
-        #PlusFiveButton {
-            position: absolute;
-            left: 110px;
-            top: 460px;
-            color: #E67E22;
-        }
-
-        #RestartButton {
-            position: absolute;
-            left: 75px;
-            top: 490px;
-            color: #2980B9;
         }
 
     </style>
@@ -191,7 +134,111 @@
         <div>
             <br>
             <h3>Create the animation</h3>
-            <p> complete later...</p>
+
+            <table>
+
+                <tr>
+
+                    {#............................#}
+                    {# buttons                    #}
+                    {#............................#}
+                    <td id="button_cell" colspan="2">
+                        <button type="submit" id="StartButton" onclick="StartAllVideos()">
+                            {% load static %} <img src="{% static "SimuMoleWeb/icon_play.png" %}" alt="Start">
+                            <p>Play</p>
+                        </button>
+
+                        <button type="submit" id="PauseButton" onclick="PauseAllVideos()">
+                            {% load static %} <img src="{% static "SimuMoleWeb/icon_pause.png" %}" alt="Pause">
+                            <p>Pause</p>
+                        </button>
+
+                        <button type="submit" id="RestartButton" onclick="restart()">
+                            {% load static %} <img src="{% static "SimuMoleWeb/icon_restart.png" %}" alt="Restart">
+                            <p>Restart</p>
+                        </button>
+
+                        <br>
+
+                        <button type="submit" id="MinusFiveButton" onclick="minusFive()">
+                            {% load static %} <img src="{% static "SimuMoleWeb/icon_backward.png" %}" alt="Backward">
+                            <p>-5 frames</p>
+                        </button>
+
+                        <button type="submit" id="PlusFiveButton" onclick="plusFive()">
+                            {% load static %} <img src="{% static "SimuMoleWeb/icon_forward.png" %}" alt="Restart">
+                            <p>+5 frames</p>
+                        </button>
+
+                        <button type="submit" class="gray_button" id="FullControl" onclick="GetFullControl()">
+                            Full Control
+                        </button>
+
+                        <button type="submit" class="gray_button" id="LessControl" onclick="GetLessControl()">
+                            Less Control
+                        </button>
+                    </td>
+
+                    {#............................#}
+                    {# main video                 #}
+                    {#............................#}
+                    <td id="big_video_cell" colspan="4">
+
+                        <video id="big_video" loop muted>
+                            <source src="" type="video/mp4">
+                            Your browser does not support HTML5 video.
+                        </video>
+
+                    </td>
+
+                </tr>
+
+                <tr>
+                    {#............................#}
+                    {# 6 more videos              #}
+                    {#............................#}
+
+                    <td>
+                        <video id="video_1" width="175" height="150" loop muted onclick="play_big(this.id)">
+                            <source src="" type="video/mp4">
+                            Your browser does not support HTML5 video.
+                        </video>
+                    </td>
+                    <td>
+                        <video id="video_2" width="175" height="150" loop muted onclick="play_big(this.id)">
+                            <source src="" type="video/mp4">
+                            Your browser does not support HTML5 video.
+                        </video>
+                    </td>
+                    <td>
+                        <video id="video_3" width="175" height="150" loop muted onclick="play_big(this.id)">
+                            <source src="" type="video/mp4">
+                            Your browser does not support HTML5 video.
+                        </video>
+                    </td>
+                    <td>
+                        <video id="video_4" width="175" height="150" loop muted onclick="play_big(this.id)">
+                            <source src="" type="video/mp4">
+                            Your browser does not support HTML5 video.
+                        </video>
+                    </td>
+                    <td>
+                        <video id="video_5" width="175" height="150" loop muted onclick="play_big(this.id)">
+                            <source src="" type="video/mp4">
+                            Your browser does not support HTML5 video.
+                        </video>
+                    </td>
+                    <td>
+                        <video id="video_6" width="175" height="150" loop muted onclick="play_big(this.id)">
+                            <source src="" type="video/mp4">
+                            Your browser does not support HTML5 video.
+                        </video>
+                    </td>
+
+                </tr>
+
+            </table>
+
         </div>
 
     </div>
@@ -204,97 +251,7 @@
     {#    </ul>#}
 
 
-{#    <table>#}
-{##}
-{#        <tr>#}
-{#            <td colspan="2">buttoms</td>#}
-{#            <td colspan="4">main</td>#}
-{#        </tr>#}
-{#        <tr>#}
-{#            <td>1</td>#}
-{#            <td>2</td>#}
-{#            <td>3</td>#}
-{#            <td>4</td>#}
-{#            <td>5</td>#}
-{#            <td>6</td>#}
-{#        </tr>#}
-{##}
-{#    </table>#}
 
-
-    {#............................#}
-    {# main video                 #}
-    {#............................#}
-    <video id="big_video" width="1100" height="400" loop muted>
-        <source src="" type="video/mp4">
-        Your browser does not support HTML5 video.
-    </video>
-
-    {#............................#}
-    {# 6 more videos              #}
-    {#............................#}
-    <video id="video_1" width="175" height="150" loop muted onclick="play_big(this.id)">
-        <source src="" type="video/mp4">
-        Your browser does not support HTML5 video.
-    </video>
-
-    <video id="video_2" width="175" height="150" loop muted onclick="play_big(this.id)">
-        <source src="" type="video/mp4">
-        Your browser does not support HTML5 video.
-    </video>
-
-    <video id="video_3" width="175" height="150" loop muted onclick="play_big(this.id)">
-        <source src="" type="video/mp4">
-        Your browser does not support HTML5 video.
-    </video>
-
-    <video id="video_4" width="175" height="150" loop muted onclick="play_big(this.id)">
-        <source src="" type="video/mp4">
-        Your browser does not support HTML5 video.
-    </video>
-
-    <video id="video_5" width="175" height="150" loop muted onclick="play_big(this.id)">
-        <source src="" type="video/mp4">
-        Your browser does not support HTML5 video.
-    </video>
-
-    <video id="video_6" width="175" height="150" loop muted onclick="play_big(this.id)">
-        <source src="" type="video/mp4">
-        Your browser does not support HTML5 video.
-    </video>
-
-    {#............................#}
-    {# buttons                    #}
-    {#............................#}
-    <button type="submit" class="buttonStyle" id="StartButton" onclick="StartAllVideos()">
-        {% load static %}
-        <img src="{% static "SimuMoleWeb/Start_button.png" %}" alt="Start" height="70" width="70"> play
-    </button>
-
-    <button type="submit" class="buttonStyle" id="PauseButton" onclick="PauseAllVideos()">
-        {% load static %}
-        <img src="{% static "SimuMoleWeb/Pause_button.png" %}" alt="Pause" height="70" width="70">
-    </button>
-
-    <button type="submit" class="buttonStyle" id="MinusFiveButton" onclick="minusFive()">
-        -5
-    </button>
-
-    <button type="submit" class="buttonStyle" id="PlusFiveButton" onclick="plusFive()">
-        +5
-    </button>
-
-    <button type="submit" class="buttonStyle" id="RestartButton" onclick="restart()">
-        Restart
-    </button>
-
-    <button type="submit" class="btn btn-primary" id="FullControl" onclick="GetFullControl()">
-        Full Control
-    </button>
-
-    <button type="submit" class="btn btn-primary" id="LessControl" onclick="GetLessControl()">
-        Less Control
-    </button>
 
 {% endblock %}
 
@@ -306,7 +263,7 @@
         {# the simulation building process is finished                  #}
         {################################################################}
 
-        init_video_path("/media/videos/");
+        let video_path = "unknown"
 
         hide_results(); // hide "simulation_is_ready" section as default
         const interval = setInterval(function () {
@@ -329,7 +286,8 @@
                             clearInterval(interval);
                             setTimeout(function () {
                                 show_results();
-                                init_video_path(data['video_path'])
+                                video_path = data['video_path'];
+                                init_video_path()
                             }, 1000); // do nothing during 1 seconds and display 'Done!'
                         }
                     }
@@ -361,7 +319,7 @@
             }
         }
 
-        function init_video_path(video_path) {
+        function init_video_path() {
             document.getElementById("big_video").setAttribute('src', video_path + 'video_1' + ".mp4");
             document.getElementById("video_1").setAttribute('src', video_path + 'video_1' + ".mp4");
             document.getElementById("video_2").setAttribute('src', video_path + 'video_2' + ".mp4");
@@ -469,8 +427,7 @@
         function play_big(video_id) {
             let big = document.getElementById("big_video");
             let video = document.getElementById(video_id);
-            let path = "/media/videos/"; // todo; fix!
-            big.setAttribute('src', path + video_id + ".mp4");
+            big.setAttribute('src', video_path + video_id + ".mp4");
             big.currentTime = video.currentTime;
             video.paused ? big.pause() : big.play();
         }
