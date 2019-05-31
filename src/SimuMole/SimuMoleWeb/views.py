@@ -5,7 +5,6 @@ from .models import UploadForm
 from django.http import HttpResponseRedirect, JsonResponse, HttpResponse
 from .forms import MultipuleFieldForm
 from django.urls import reverse
-from django.contrib import messages
 from django.shortcuts import render
 from django.core.files.storage import FileSystemStorage
 from django.conf import settings
@@ -13,6 +12,8 @@ import os
 import threading
 import fnmatch
 import shutil
+import zipfile
+from os.path import basename
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 from django.contrib import messages
@@ -63,6 +64,50 @@ def update_simulation_status(request):
     return JsonResponse(context)
 
 
+def download_pdb_dcd__create_zip(num_of_proteins, include_pdb_file, include_dcd_file):
+    files = []
+
+    if include_pdb_file:
+        file_name = ''
+        if num_of_proteins == '1':
+            file_name = '_1___movement.pdb'
+        if num_of_proteins == '2':
+            file_name = 'both___1___movement__2___movement.pdb'
+        files.append(os.path.join(settings.MEDIA_ROOT, 'files', file_name))
+    if include_dcd_file:
+        files.append(os.path.join(settings.MEDIA_ROOT, 'files', 'trajectory.dcd'))
+
+    zip_file = zipfile.ZipFile(os.path.join(settings.MEDIA_ROOT, 'files', "pdb_dcd.zip"), "w")
+    for f in files:
+        zip_file.write(f, basename(f))
+    zip_file.close()
+
+
+def download_pdb_dcd__zip(request):
+    num_of_proteins = request.GET.get('num_of_proteins')
+    include_pdb_file = (request.GET.get('pdb_file') == 'true')
+    include_dcd_file = (request.GET.get('dcd_file') == 'true')
+
+    download_pdb_dcd__create_zip(num_of_proteins, include_pdb_file, include_dcd_file)
+
+    return JsonResponse({})
+
+
+def download_pdb_dcd__email(request):
+    num_of_proteins = request.GET.get('num_of_proteins')
+    include_pdb_file = (request.GET.get('pdb_file') == 'true')
+    include_dcd_file = (request.GET.get('dcd_file') == 'true')
+    email = request.GET.get('email')
+
+    download_pdb_dcd__create_zip(num_of_proteins, include_pdb_file, include_dcd_file)
+
+    # todo: complete this function. need to send the mail
+
+    response = {'email': email}
+
+    return JsonResponse(response)
+
+
 ################################
 #   Create Simulation
 ################################
@@ -111,8 +156,10 @@ class SimulationWizard(CookieWizardView):
 
         x1, y1, z1 = dict_.get('x1', 0), dict_.get('y1', 0), dict_.get('z1', 0)
         degXY_1, degYZ_1 = dict_.get('degXY_1', 0), dict_.get('degYZ_1', 0)
+
+        temperature_scale = dict_.get('temperature_scale', '')
         temperature = dict_.get('temperature', '')
-        production_steps = dict_.get('production_steps', '')
+        time_step_number = dict_.get('time_step_number', '')
 
         clean_dict['num_of_proteins'] = num_of_proteins
         clean_dict['first_pdb_type'] = first_pdb_type
@@ -131,8 +178,9 @@ class SimulationWizard(CookieWizardView):
         clean_dict['degYZ_1'] = degYZ_1
         clean_dict['degXY_2'] = degXY_2
         clean_dict['degYZ_2'] = degYZ_2
+        clean_dict['temperature_scale'] = temperature_scale
         clean_dict['temperature'] = temperature
-        clean_dict['production_steps'] = production_steps
+        clean_dict['time_step_number'] = time_step_number
 
         return clean_dict
 
@@ -144,11 +192,9 @@ class SimulationWizard(CookieWizardView):
                        form_dict['x2'], form_dict['y2'], form_dict['z2'],
                        form_dict['degXY_1'], form_dict['degYZ_1'],
                        form_dict['degXY_2'], form_dict['degYZ_2'],
-                       form_dict['temperature'], form_dict['production_steps'])
+                       form_dict['temperature_scale'], form_dict['temperature'],
+                       form_dict['time_step_number'])
         s.create_simulation()
-
-        shutil.make_archive('dcd_pdbs_openmm', 'zip', temp)
-        shutil.move("dcd_pdbs_openmm.zip", "media/files/dcd_pdbs_openmm.zip")
 
     def done(self, form_list, **kwargs):
         """
@@ -202,8 +248,9 @@ class SimulationWizard(CookieWizardView):
         # SimulationForm2_SimulationParameters
         step_2_prev_data = self.storage.get_step_data('2')
         step_2_prev_data = {} if step_2_prev_data is None \
-            else {'temperature': step_2_prev_data.get('2-temperature'),
-                  'production_steps': step_2_prev_data.get('2-production_steps')}
+            else {'temperature_scale': step_2_prev_data.get('2-temperature_scale'),
+                  'temperature': step_2_prev_data.get('2-temperature'),
+                  'time_step_number': step_2_prev_data.get('2-time_step_number')}
 
         update_data = {**step_0_prev_data, **step_1_prev_data, **step_2_prev_data, **initial_data}
         return self.initial_dict.get(step, update_data)
