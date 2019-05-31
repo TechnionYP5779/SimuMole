@@ -3,6 +3,14 @@
 {% block content %}
 
     <style>
+
+        .error input, .error select, .errorlist {
+            color: red;
+            padding-bottom: 0px;
+        }
+
+        {# simulation status:  #}
+
         #simulation_status {
             font-weight: bold;
         }
@@ -10,42 +18,80 @@
         #simulation_status_during_run {
             white-space: pre;
         }
+
+        {# download PDB / DCD - via zip or email: #}
+
+        #download_pdb_dcd__zip_id, #download_pdb_dcd__email_id {
+            background-color: #e7574f;
+            color: black;
+            margin-bottom: 20px;
+            width: 200px;
+            margin-right: 10px;
+        }
+
     </style>
 
 
-    <title>Create Simulation - SimuMole</title>
+    <title>SimuMole: Create Simulation</title>
 
     <h1><strong>Create Your Simulation</strong></h1><br>
 
-
-    <h3>The status of your request:</h3>
-    <p id="simulation_status"> Processing your parameters...</p>
-    <p id="simulation_status_during_run"></p>
+    {################################################################}
+    {# simulation status                                            #}
+    {################################################################}
+    <div id="simulation_is_in_processing">
+        <h3>The status of your request:</h3>
+        <p id="simulation_status"> Processing your parameters...</p>
+        <p id="simulation_status_during_run"></p>
+        <br>
+    </div>
 
     {# this section appears only after the simulation is ready    #}
     <div id="simulation_is_ready">
 
+        {################################################################}
+        {# download PDB / DCD - via zip or email                        #}
+        {################################################################}
         <div>
-            <br>
-            <h3>Download pdb, dcd files and the OpenMM script:</h3>
-            <a href="/media/files/dcd_pdbs_openmm.zip">Link to download zip file</a>
+            <h3>Download PDB and DCD files</h3>
+            <form action="" method="post"> {% csrf_token %}
+                <p>Select which files to download:</p>
+
+                <input type="checkbox" id="pdb_file" onchange="download_pdb_dcd__hide_select_error()">PDB file<br>
+                <input type="checkbox" id="dcd_file" onchange="download_pdb_dcd__hide_select_error()">DCD file<br>
+
+                <p class="errorlist" id="download_pdb_dcd__select_error">Select one or more files of the above</p>
+
+                <button type="button" id="download_pdb_dcd__zip_id" onclick="download_pdb_dcd__zip()">
+                    Download as zip
+                </button>
+                <br>
+
+                <button type="button" id="download_pdb_dcd__email_id" onclick="download_pdb_dcd__email()">
+                    Download via email
+                </button>
+                <input type="text" id="email" placeholder="Enter email address"
+                       onchange="download_pdb_dcd__hide_email_error()"
+                       style="width: 25%;">
+                <p class="errorlist" id="download_pdb_dcd__email_error">Please provide an email
+                    address</p>
+                <br>
+
+            </form>
         </div>
 
+        {################################################################}
+        {# create the animation                                         #} {# todo: complete! #}
+        {################################################################}
         <div>
             <br>
-            <h3>Get the files by email:</h3>
-            <p> complete later...</p>
-        </div>
-
-        <div>
-            <br>
-            <h3>Create the animation:</h3>
+            <h3>Create the animation</h3>
             <p> complete later...</p>
         </div>
 
     </div>
 
-    {#    <h3>Your input parameters:</h3>#}
+    {#    <h3>Your input parameters</h3>#}
     {#    <ul>#}
     {#        {% for key, value in form_data.items %}#}
     {#            <li><strong>{{ key }}</strong> - {{ value }}</li>#}
@@ -58,13 +104,18 @@
 {% block extra_js %}
     <script>
 
+        {################################################################}
+        {# simulation status: hide "simulation_is_ready" section until  #}
+        {# the simulation building process is finished                  #}
+        {################################################################}
+
         hide_results(); // hide "simulation_is_ready" section as default
 
         const interval = setInterval(function () {
-            update_simulation_status_()
+            update_simulation_status_event()
         }, 4000); // unit of milliseconds
 
-        function update_simulation_status_() {
+        function update_simulation_status_event() {
             $.ajax({
                 url: '{% url 'update_simulation_status' %}',
                 type: "get",
@@ -78,7 +129,9 @@
                         document.getElementById('simulation_status').textContent = data['simulation_status'];
                         if (data['simulation_status'] === "Done!") {
                             clearInterval(interval);
-                            show_results()
+                            setTimeout(function () {
+                                show_results()
+                            }, 1000); // do nothing during 1 seconds and display 'Done!'
                         }
                     }
 
@@ -92,13 +145,13 @@
                     } else {
                         document.getElementById('simulation_status_during_run').textContent = ''
                     }
-
                 },
             });
         }
 
         function show_results() {
             if (document.getElementById('simulation_is_ready')) {
+                change_visibility_of_element("simulation_is_in_processing", 'hidden', 'none');
                 change_visibility_of_element("simulation_is_ready", '', '');
             }
         }
@@ -109,10 +162,107 @@
             }
         }
 
+        {################################################################}
+        {# download PDB / DCD - via zip or email                        #}
+        {################################################################}
+
+        hide_element("download_pdb_dcd__select_error", '');
+        hide_element("download_pdb_dcd__email_error", 'inline');
+
+        function download_pdb_dcd__zip() {
+            num_of_proteins = {{ form_data.num_of_proteins }};
+            const pdb_file = document.getElementById("pdb_file").checked;
+            const dcd_file = document.getElementById("dcd_file").checked;
+
+            if (pdb_file === false && dcd_file === false) {
+                show_element("download_pdb_dcd__select_error");
+                return
+            }
+
+            $.ajax({
+                url: '{% url 'download_pdb_dcd__zip' %}',
+                data: {'num_of_proteins': num_of_proteins, 'pdb_file': pdb_file, 'dcd_file': dcd_file},
+                dataType: 'json',
+                success: function (response) {
+                    location.href = "/media/files/pdb_dcd.zip"
+                }
+            });
+        }
+
+        function download_pdb_dcd__email() {
+            num_of_proteins = {{ form_data.num_of_proteins }};
+            const pdb_file = document.getElementById("pdb_file").checked;
+            const dcd_file = document.getElementById("dcd_file").checked;
+            const email = document.getElementById("email").value;
+
+            if ((pdb_file === false && dcd_file === false) || (email === '')) {
+                if (pdb_file === false && dcd_file === false) {
+                    show_element("download_pdb_dcd__select_error");
+                }
+                if (email === '') {
+                    show_element("download_pdb_dcd__email_error", 'inline');
+                }
+                return
+            }
+
+            $.ajax({
+                url: '{% url 'download_pdb_dcd__email' %}',
+                data: {'num_of_proteins': num_of_proteins, 'pdb_file': pdb_file, 'dcd_file': dcd_file, 'email': email},
+                dataType: 'json',
+                success:
+                    function (response) {
+                        console.log("download_pdb_email__zip: email=" + response['email']); // todo: complete!
+                    }
+            });
+        }
+
+        function download_pdb_dcd__hide_select_error() {
+            const pdb_file = document.getElementById("pdb_file").checked;
+            const dcd_file = document.getElementById("dcd_file").checked;
+            const error = document.getElementById("download_pdb_dcd__select_error");
+            const error_visibility = error.style.visibility;
+            if ((pdb_file === true || dcd_file === true) && (error_visibility === '')) {
+                hide_element("download_pdb_dcd__select_error", '')
+            }
+        }
+
+        function download_pdb_dcd__hide_email_error() {
+            const email = document.getElementById("email").value;
+            const error = document.getElementById("download_pdb_dcd__email_error");
+            const error_visibility = error.style.visibility;
+            if (email !== '' && error_visibility === '') {
+                hide_element("download_pdb_dcd__email_error", 'inline')
+            }
+        }
+
+        {################################################################}
+        {# show / hide HTML elements                                    #}
+        {################################################################}
+
         function change_visibility_of_element(element_id, visibility = '', display = '') {
             let element = document.getElementById(element_id);
             element.style.visibility = visibility;      // visibility = 'hidden' or ''
             element.style.display = display;            // display = 'none' or ''
+            change_visibility_of_label(element_id, visibility, display);
+        }
+
+        function change_visibility_of_label(for_input, visibility, display = '') {
+            let totalLabel = document.getElementsByTagName('label');
+            for (let l = 0; l < totalLabel.length; l++) {
+                let lbb = totalLabel[l].getAttribute('for');
+                if (lbb === for_input) {
+                    totalLabel[l].style.visibility = visibility;
+                    totalLabel[l].style.display = display;
+                }
+            }
+        }
+
+        function hide_element(element_id, display = 'none') {
+            change_visibility_of_element(element_id, 'hidden', display)
+        }
+
+        function show_element(element_id, display = '') {
+            change_visibility_of_element(element_id, '', display)
         }
 
     </script>

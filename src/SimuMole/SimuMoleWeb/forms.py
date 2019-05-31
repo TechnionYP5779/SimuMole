@@ -10,6 +10,10 @@ from SimuMoleScripts.fix_pdb import fix_pdb
 from SimuMoleScripts.transformations import get_atoms, get_atoms_string, translate_vecs, rotate_molecular
 import os
 
+################################
+#   Create Simulation
+################################
+
 do_checks_cnt = 0
 
 
@@ -236,7 +240,7 @@ class SimulationForm1_DetermineRelativePosition(forms.Form):
         data = {**self.initial, **cleaned_data}  # self.initial->from previous steps, cleaned_data->from current step
 
         for field in ['x1', 'y1', 'z1', 'x2', 'y2', 'z2', 'degXY_1', 'degYZ_1', 'degXY_2', 'degYZ_2']:
-            if self.cleaned_data[field] == '' or self.cleaned_data[field] is None:
+            if data[field] == '' or data[field] is None:
                 raise forms.ValidationError("All fields are required.")
 
         if not self.position_is_valid(data['x1'], data['y1'], data['z1'],
@@ -298,21 +302,39 @@ class SimulationForm1_DetermineRelativePosition(forms.Form):
 
 
 class SimulationForm2_SimulationParameters(forms.Form):
-    temperature = forms.FloatField(required=False, label='Enter temperature (Kelvin)')
-    production_steps = forms.IntegerField(required=False, label='Enter number of production steps (1000 = 1 frame)')
+    temperature_scale = forms.ChoiceField(
+        required=False,
+        label='Choose a temperature scale',
+        choices=[('kelvin', 'Kelvin (K)'), ('celsius', 'Celsius (°C)')],
+        widget=forms.RadioSelect, initial='celsius')
+    temperature = forms.FloatField(required=False, label='Enter temperature', initial=30)
 
-    # todo 7: add field of number of time steps (and also: size of every time step)
+    # time_step_duration = forms.FloatField(required=False,
+    #                                       label='Enter the duration of the time step (in fs/femto-second)',
+    #                                       initial=2.0) // todo: check if we can add this field
+    time_step_number = forms.IntegerField(required=False, label='Enter the number of time steps (frames)', initial=5)
 
     def clean(self):
         cleaned_data = super(SimulationForm2_SimulationParameters, self).clean()
         data = {**self.initial, **cleaned_data}  # self.initial->from previous steps, cleaned_data->from current step
 
-        for field in ['temperature', 'production_steps']:
-            if self.cleaned_data[field] == '' or self.cleaned_data[field] is None:
-                raise forms.ValidationError("All fields are required.")
+        errors = []
+        for field in ['temperature_scale', 'temperature', 'time_step_number']:
+            if data[field] == '' or data[field] is None:
+                errors.append(forms.ValidationError("All fields are required."))
+            else:
+                if field == 'time_step_number':  # the user type some value, therefore we can apply "int(str)"
+                    if int(data['time_step_number'] < 2):
+                        errors.append(forms.ValidationError("The minimum number of time steps is 2."))
 
+        if len(errors) != 0:
+            raise forms.ValidationError(errors)
         return cleaned_data
 
+
+################################
+#   File Upload
+################################
 
 class MultipuleFieldForm(forms.Form):
     file_field = forms.FileField(widget=forms.ClearableFileInput(attrs={'multiple': True}))
