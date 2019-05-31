@@ -9,7 +9,7 @@ simulation_status_during_run_path = dir_path + 'simulation_status_during_run.txt
 trajectory_path = dir_path + 'trajectory.dcd'
 
 
-def scr(input_coor_name, simu_steps, temperature):
+def scr(input_coor_name, temperature, time_step_number):
     pdb = app.PDBFile(input_coor_name)
     forcefield = app.ForceField('amber99sbildn.xml', 'tip3p.xml')
 
@@ -34,11 +34,10 @@ def scr(input_coor_name, simu_steps, temperature):
     simulation.reporters.append(app.DCDReporter(trajectory_path, 1000))
     simulation.reporters.append(
         app.StateDataReporter(simulation_status_during_run_path, 1000, progress=True, remainingTime=True,
-                              totalSteps=simu_steps, separator=','))
+                              totalSteps=time_step_number, separator=','))
 
     update_simulation_status('Running simulation...')
-    simulation.step(simu_steps)
-    print('Done!')
+    simulation.step(time_step_number)
 
     update_simulation_status('Done!')
 
