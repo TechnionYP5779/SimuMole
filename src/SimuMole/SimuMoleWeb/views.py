@@ -60,7 +60,9 @@ def update_simulation_status(request):
         else simulation_status_during_run_lines[-1]
     f.close()
 
-    context = {'simulation_status': simulation_status, 'simulation_status_during_run': simulation_status_during_run}
+    video_url = settings.MEDIA_URL + 'videos/'
+    context = {'simulation_status': simulation_status, 'simulation_status_during_run': simulation_status_during_run,
+               'video_path': video_url}
     return JsonResponse(context)
 
 
@@ -323,6 +325,7 @@ def file_upload(request):
         form = MultipuleFieldForm()
     return render(request, 'file_upload.html', {'form': form})
 
+
 ################################
 #   Display Video
 ################################
@@ -332,4 +335,3 @@ def display_video(request):
     # video_url = os.path.join(settings.MEDIA_ROOT, 'videos\\')
     video_url = settings.MEDIA_URL + 'videos/'
     return render(request, 'video_display.html', {'path': video_url})
-

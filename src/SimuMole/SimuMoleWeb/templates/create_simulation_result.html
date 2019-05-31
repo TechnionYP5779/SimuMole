@@ -9,7 +9,9 @@
             padding-bottom: 0px;
         }
 
-        {# simulation status:  #}
+        {################################################################}
+        {# simulation status                                            #}
+        {################################################################}
 
         #simulation_status {
             font-weight: bold;
@@ -19,7 +21,9 @@
             white-space: pre;
         }
 
-        {# download PDB / DCD - via zip or email: #}
+        {################################################################}
+        {# download PDB / DCD - via zip or email                        #}
+        {################################################################}
 
         #download_pdb_dcd__zip_id, #download_pdb_dcd__email_id {
             background-color: #e7574f;
@@ -27,6 +31,107 @@
             margin-bottom: 20px;
             width: 200px;
             margin-right: 10px;
+        }
+
+        {################################################################}
+        {# create the animation                                         #}
+        {################################################################}
+
+        table {
+            width: fit-content;
+            {#border: none;#}
+        }
+
+        td {
+            vertical-align: middle;
+            {#border: none;#}
+        }
+
+        {#///////////////////////////////////////#}
+
+        .buttonStyle {
+            font-size: 17px;
+            background: Transparent;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            padding: 0;
+            margin: 0;
+        }
+
+        #video_1 {
+            position: relative;
+        }
+
+        #video_2 {
+            position: relative;
+        }
+
+        #video_3 {
+            position: relative;
+        }
+
+        #video_4 {
+            position: relative;
+        }
+
+        #video_5 {
+            position: relative;
+        }
+
+        #video_6 {
+            position: relative;
+        }
+
+        #big_video {
+            position: relative;
+        }
+
+        #StartButton {
+            position: absolute;
+            left: 70px;
+            top: 380px;
+        }
+
+        #PauseButton {
+            position: absolute;
+            left: 70px;
+            top: 380px;
+            display: none;
+        }
+
+        #FullControl {
+            position: absolute;
+            left: 40px;
+            top: 520px;
+        }
+
+        #LessControl {
+            position: absolute;
+            left: 40px;
+            top: 520px;
+            display: none;
+        }
+
+        #MinusFiveButton {
+            position: absolute;
+            left: 70px;
+            top: 460px;
+            color: #E67E22;
+        }
+
+        #PlusFiveButton {
+            position: absolute;
+            left: 110px;
+            top: 460px;
+            color: #E67E22;
+        }
+
+        #RestartButton {
+            position: absolute;
+            left: 75px;
+            top: 490px;
+            color: #2980B9;
         }
 
     </style>
@@ -81,7 +186,7 @@
         </div>
 
         {################################################################}
-        {# create the animation                                         #} {# todo: complete! #}
+        {# create the animation                                         #}
         {################################################################}
         <div>
             <br>
@@ -99,6 +204,98 @@
     {#    </ul>#}
 
 
+{#    <table>#}
+{##}
+{#        <tr>#}
+{#            <td colspan="2">buttoms</td>#}
+{#            <td colspan="4">main</td>#}
+{#        </tr>#}
+{#        <tr>#}
+{#            <td>1</td>#}
+{#            <td>2</td>#}
+{#            <td>3</td>#}
+{#            <td>4</td>#}
+{#            <td>5</td>#}
+{#            <td>6</td>#}
+{#        </tr>#}
+{##}
+{#    </table>#}
+
+
+    {#............................#}
+    {# main video                 #}
+    {#............................#}
+    <video id="big_video" width="1100" height="400" loop muted>
+        <source src="" type="video/mp4">
+        Your browser does not support HTML5 video.
+    </video>
+
+    {#............................#}
+    {# 6 more videos              #}
+    {#............................#}
+    <video id="video_1" width="175" height="150" loop muted onclick="play_big(this.id)">
+        <source src="" type="video/mp4">
+        Your browser does not support HTML5 video.
+    </video>
+
+    <video id="video_2" width="175" height="150" loop muted onclick="play_big(this.id)">
+        <source src="" type="video/mp4">
+        Your browser does not support HTML5 video.
+    </video>
+
+    <video id="video_3" width="175" height="150" loop muted onclick="play_big(this.id)">
+        <source src="" type="video/mp4">
+        Your browser does not support HTML5 video.
+    </video>
+
+    <video id="video_4" width="175" height="150" loop muted onclick="play_big(this.id)">
+        <source src="" type="video/mp4">
+        Your browser does not support HTML5 video.
+    </video>
+
+    <video id="video_5" width="175" height="150" loop muted onclick="play_big(this.id)">
+        <source src="" type="video/mp4">
+        Your browser does not support HTML5 video.
+    </video>
+
+    <video id="video_6" width="175" height="150" loop muted onclick="play_big(this.id)">
+        <source src="" type="video/mp4">
+        Your browser does not support HTML5 video.
+    </video>
+
+    {#............................#}
+    {# buttons                    #}
+    {#............................#}
+    <button type="submit" class="buttonStyle" id="StartButton" onclick="StartAllVideos()">
+        {% load static %}
+        <img src="{% static "SimuMoleWeb/Start_button.png" %}" alt="Start" height="70" width="70"> play
+    </button>
+
+    <button type="submit" class="buttonStyle" id="PauseButton" onclick="PauseAllVideos()">
+        {% load static %}
+        <img src="{% static "SimuMoleWeb/Pause_button.png" %}" alt="Pause" height="70" width="70">
+    </button>
+
+    <button type="submit" class="buttonStyle" id="MinusFiveButton" onclick="minusFive()">
+        -5
+    </button>
+
+    <button type="submit" class="buttonStyle" id="PlusFiveButton" onclick="plusFive()">
+        +5
+    </button>
+
+    <button type="submit" class="buttonStyle" id="RestartButton" onclick="restart()">
+        Restart
+    </button>
+
+    <button type="submit" class="btn btn-primary" id="FullControl" onclick="GetFullControl()">
+        Full Control
+    </button>
+
+    <button type="submit" class="btn btn-primary" id="LessControl" onclick="GetLessControl()">
+        Less Control
+    </button>
+
 {% endblock %}
 
 {% block extra_js %}
@@ -109,8 +306,9 @@
         {# the simulation building process is finished                  #}
         {################################################################}
 
-        hide_results(); // hide "simulation_is_ready" section as default
+        init_video_path("/media/videos/");
 
+        hide_results(); // hide "simulation_is_ready" section as default
         const interval = setInterval(function () {
             update_simulation_status_event()
         }, 4000); // unit of milliseconds
@@ -130,7 +328,8 @@
                         if (data['simulation_status'] === "Done!") {
                             clearInterval(interval);
                             setTimeout(function () {
-                                show_results()
+                                show_results();
+                                init_video_path(data['video_path'])
                             }, 1000); // do nothing during 1 seconds and display 'Done!'
                         }
                     }
@@ -160,6 +359,16 @@
             if (document.getElementById('simulation_is_ready')) {
                 change_visibility_of_element("simulation_is_ready", 'hidden', 'none');
             }
+        }
+
+        function init_video_path(video_path) {
+            document.getElementById("big_video").setAttribute('src', video_path + 'video_1' + ".mp4");
+            document.getElementById("video_1").setAttribute('src', video_path + 'video_1' + ".mp4");
+            document.getElementById("video_2").setAttribute('src', video_path + 'video_2' + ".mp4");
+            document.getElementById("video_3").setAttribute('src', video_path + 'video_3' + ".mp4");
+            document.getElementById("video_4").setAttribute('src', video_path + 'video_4' + ".mp4");
+            document.getElementById("video_5").setAttribute('src', video_path + 'video_5' + ".mp4");
+            document.getElementById("video_6").setAttribute('src', video_path + 'video_6' + ".mp4");
         }
 
         {################################################################}
@@ -233,6 +442,78 @@
             if (email !== '' && error_visibility === '') {
                 hide_element("download_pdb_dcd__email_error", 'inline')
             }
+        }
+
+        {################################################################}
+        {# create the animation                                         #}
+        {################################################################}
+
+        function StartAllVideos() {
+            for (let i = 1; i <= 6; i++) {
+                document.getElementById("video_" + i).play();
+            }
+            document.getElementById("big_video").play();
+            document.getElementById("StartButton").style.display = "none";
+            document.getElementById("PauseButton").style.display = "initial";
+        }
+
+        function PauseAllVideos() {
+            for (let i = 1; i <= 6; i++) {
+                document.getElementById("video_" + i).pause()
+            }
+            document.getElementById("big_video").pause();
+            document.getElementById("StartButton").style.display = "initial";
+            document.getElementById("PauseButton").style.display = "none";
+        }
+
+        function play_big(video_id) {
+            let big = document.getElementById("big_video");
+            let video = document.getElementById(video_id);
+            let path = "/media/videos/"; // todo; fix!
+            big.setAttribute('src', path + video_id + ".mp4");
+            big.currentTime = video.currentTime;
+            video.paused ? big.pause() : big.play();
+        }
+
+        function GetFullControl() {
+            for (let i = 1; i <= 6; i++) {
+                document.getElementById("video_" + i).controls = true;
+            }
+            document.getElementById("LessControl").style.display = "initial";
+            document.getElementById("FullControl").style.display = "none";
+        }
+
+        function GetLessControl() {
+            for (let i = 1; i <= 6; i++) {
+                document.getElementById("video_" + i).controls = false;
+            }
+            document.getElementById("LessControl").style.display = "none";
+            document.getElementById("FullControl").style.display = "initial";
+        }
+
+        function minusFive() {
+            for (let i = 1; i <= 6; i++) {
+                let v = document.getElementById("video_" + i);
+                v.currentTime = v.currentTime <= 5 ? 0 : v.currentTime - 5;
+            }
+            let v = document.getElementById("big_video");
+            v.currentTime = v.currentTime <= 5 ? 0 : v.currentTime - 5;
+        }
+
+        function plusFive() {
+            for (let i = 1; i <= 6; i++) {
+                let v = document.getElementById("video_" + i);
+                v.currentTime = v.currentTime + 5 >= v.duration ? v.duration : v.currentTime + 5;
+            }
+            let v = document.getElementById("big_video");
+            v.currentTime = v.currentTime + 5 >= v.duration ? v.duration : v.currentTime + 5;
+        }
+
+        function restart() {
+            for (let i = 1; i <= 6; i++) {
+                document.getElementById("video_" + i).currentTime = 0;
+            }
+            document.getElementById("big_video").currentTime = 0;
         }
 
         {################################################################}
