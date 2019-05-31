@@ -2,7 +2,7 @@ from SimuMoleScripts.simulation_main_script import Simulation
 from SimuMoleScripts.uploaded_simulation import Uploaded_Simulation
 from formtools.wizard.views import CookieWizardView
 from .models import UploadForm
-from django.http import HttpResponseRedirect, JsonResponse, HttpResponse
+from django.http import HttpResponseRedirect, JsonResponse
 from .forms import MultipuleFieldForm
 from django.urls import reverse
 from django.shortcuts import render
@@ -10,8 +10,6 @@ from django.core.files.storage import FileSystemStorage
 from django.conf import settings
 import os
 import threading
-import fnmatch
-import shutil
 import zipfile
 from os.path import basename
 from django.core.files.storage import default_storage
@@ -107,6 +105,30 @@ def download_pdb_dcd__email(request):
 
     response = {'email': email}
 
+    return JsonResponse(response)
+
+
+def download_animation__create_zip():
+    files = []
+    for i in range(1, 7):
+        files.append(os.path.join(settings.MEDIA_ROOT, 'videos', 'video_{}.mp4'.format(str(i))))
+
+    zip_file = zipfile.ZipFile(os.path.join(settings.MEDIA_ROOT, 'files', "animations.zip"), "w")
+    for f in files:
+        zip_file.write(f, basename(f))
+    zip_file.close()
+
+
+def download_animation__zip(request):
+    download_animation__create_zip()
+    return JsonResponse({})
+
+
+def download_animation__email(request):
+    email = request.GET.get('email')
+    download_animation__create_zip()
+    # todo: complete this function. need to send the mail
+    response = {'email': email}
     return JsonResponse(response)
 
 
