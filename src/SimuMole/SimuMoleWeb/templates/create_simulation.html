@@ -56,6 +56,10 @@
             display: inline-block;
         }
 
+        #id_1-z1, #id_1-z2, #id_1-degYZ_1, #id_2-temperature {
+            margin-bottom: 20px;
+        }
+
     </style>
 
 
@@ -68,7 +72,7 @@
     {% if  wizard.steps.current  == '0' %}
         <h3>Determine the number of proteins and upload PDB files</h3>
     {% elif  wizard.steps.current == '1' %}
-        <h3>Determine the relative position between the proteins</h3>
+        <h3>Determine the relative position between the proteins (in Angstroms)</h3>
     {% elif  wizard.steps.current == '2' %}
         <h3>Set the parameters for the simulation</h3>
     {% endif %}
@@ -89,6 +93,10 @@
             {% endfor %}
         {% else %}
             {{ wizard.form.as_p }}
+        {% endif %}
+
+        {% if  wizard.steps.current == '2' %}
+            <p style="font-size: smaller">The duration of one time step is 2.0fs (fs/femtosecond = 10^-15 second)</p>
         {% endif %}
         <br>
 
