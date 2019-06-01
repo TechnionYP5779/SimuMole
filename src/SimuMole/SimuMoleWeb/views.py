@@ -5,19 +5,18 @@ from .models import UploadForm
 from django.http import HttpResponseRedirect, JsonResponse
 from .forms import MultipuleFieldForm
 from django.urls import reverse
-from django.contrib import messages
 from django.shortcuts import render
 from django.core.files.storage import FileSystemStorage
 from django.conf import settings
 import os
 import threading
-import shutil
+import zipfile
+from os.path import basename
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 from django.contrib import messages
 
 temp = 'media/files/'  # path to temp folder
-
 
 
 ################################
@@ -59,8 +58,78 @@ def update_simulation_status(request):
         else simulation_status_during_run_lines[-1]
     f.close()
 
-    context = {'simulation_status': simulation_status, 'simulation_status_during_run': simulation_status_during_run}
+    video_url = settings.MEDIA_URL + 'videos/'
+    context = {'simulation_status': simulation_status, 'simulation_status_during_run': simulation_status_during_run,
+               'video_path': video_url}
     return JsonResponse(context)
+
+
+def download_pdb_dcd__create_zip(num_of_proteins, include_pdb_file, include_dcd_file):
+    files = []
+
+    if include_pdb_file:
+        file_name = ''
+        if num_of_proteins == '1':
+            file_name = '_1___movement.pdb'
+        if num_of_proteins == '2':
+            file_name = 'both___1___movement__2___movement.pdb'
+        files.append(os.path.join(settings.MEDIA_ROOT, 'files', file_name))
+    if include_dcd_file:
+        files.append(os.path.join(settings.MEDIA_ROOT, 'files', 'trajectory.dcd'))
+
+    zip_file = zipfile.ZipFile(os.path.join(settings.MEDIA_ROOT, 'files', "pdb_dcd.zip"), "w")
+    for f in files:
+        zip_file.write(f, basename(f))
+    zip_file.close()
+
+
+def download_pdb_dcd__zip(request):
+    num_of_proteins = request.GET.get('num_of_proteins')
+    include_pdb_file = (request.GET.get('pdb_file') == 'true')
+    include_dcd_file = (request.GET.get('dcd_file') == 'true')
+
+    download_pdb_dcd__create_zip(num_of_proteins, include_pdb_file, include_dcd_file)
+
+    return JsonResponse({})
+
+
+def download_pdb_dcd__email(request):
+    num_of_proteins = request.GET.get('num_of_proteins')
+    include_pdb_file = (request.GET.get('pdb_file') == 'true')
+    include_dcd_file = (request.GET.get('dcd_file') == 'true')
+    email = request.GET.get('email')
+
+    download_pdb_dcd__create_zip(num_of_proteins, include_pdb_file, include_dcd_file)
+
+    # todo: complete this function. need to send the mail
+
+    response = {'email': email}
+
+    return JsonResponse(response)
+
+
+def download_animation__create_zip():
+    files = []
+    for i in range(1, 7):
+        files.append(os.path.join(settings.MEDIA_ROOT, 'videos', 'video_{}.mp4'.format(str(i))))
+
+    zip_file = zipfile.ZipFile(os.path.join(settings.MEDIA_ROOT, 'files', "animations.zip"), "w")
+    for f in files:
+        zip_file.write(f, basename(f))
+    zip_file.close()
+
+
+def download_animation__zip(request):
+    download_animation__create_zip()
+    return JsonResponse({})
+
+
+def download_animation__email(request):
+    email = request.GET.get('email')
+    download_animation__create_zip()
+    # todo: complete this function. need to send the mail
+    response = {'email': email}
+    return JsonResponse(response)
 
 
 ################################
@@ -111,8 +180,10 @@ class SimulationWizard(CookieWizardView):
 
         x1, y1, z1 = dict_.get('x1', 0), dict_.get('y1', 0), dict_.get('z1', 0)
         degXY_1, degYZ_1 = dict_.get('degXY_1', 0), dict_.get('degYZ_1', 0)
+
+        temperature_scale = dict_.get('temperature_scale', '')
         temperature = dict_.get('temperature', '')
-        production_steps = dict_.get('production_steps', '')
+        time_step_number = dict_.get('time_step_number', '')
 
         clean_dict['num_of_proteins'] = num_of_proteins
         clean_dict['first_pdb_type'] = first_pdb_type
@@ -131,8 +202,9 @@ class SimulationWizard(CookieWizardView):
         clean_dict['degYZ_1'] = degYZ_1
         clean_dict['degXY_2'] = degXY_2
         clean_dict['degYZ_2'] = degYZ_2
+        clean_dict['temperature_scale'] = temperature_scale
         clean_dict['temperature'] = temperature
-        clean_dict['production_steps'] = production_steps
+        clean_dict['time_step_number'] = time_step_number
 
         return clean_dict
 
@@ -144,7 +216,8 @@ class SimulationWizard(CookieWizardView):
                        form_dict['x2'], form_dict['y2'], form_dict['z2'],
                        form_dict['degXY_1'], form_dict['degYZ_1'],
                        form_dict['degXY_2'], form_dict['degYZ_2'],
-                       form_dict['temperature'], form_dict['production_steps'])
+                       form_dict['temperature_scale'], form_dict['temperature'],
+                       form_dict['time_step_number'])
         s.create_simulation()
 
     def done(self, form_list, **kwargs):
@@ -155,22 +228,6 @@ class SimulationWizard(CookieWizardView):
         form_data = [form.cleaned_data for form in form_list]
         form_dict = {k: v for d in form_data for k, v in d.items()}  # convert list of dictionaries to one dictionary
         form_dict = self.clean_form_dict(form_dict)
-
-        # todo 8: change parameter list
-        s = Simulation(form_dict['num_of_proteins'],
-                       form_dict['first_pdb_type'], form_dict['first_pdb_id'],
-                       form_dict['second_pdb_type'], form_dict['second_pdb_id'],
-                       form_dict['x1'], form_dict['y1'], form_dict['z1'],
-                       form_dict['x2'], form_dict['y2'], form_dict['z2'],
-                       form_dict['temperature'], form_dict['production_steps'])
-        shutil.make_archive('dcd_pdbs_openmm', 'zip', temp)
-        shutil.move("dcd_pdbs_openmm.zip", "media/files/dcd_pdbs_openmm.zip")
-
-        s.create_simulation()
-       
-    
-        return render(self.request, 'create_simulation_result.html', {'form_data': form_dict})
-
 
         # Create a new thread responsible for creating the simulation:
         t = threading.Thread(target=self.create_simulation_thread, args=(form_dict,))
@@ -208,13 +265,16 @@ class SimulationWizard(CookieWizardView):
         step_1_prev_data = {} if step_1_prev_data is None \
             else {'x1': step_1_prev_data.get('1-x1'), 'x2': step_1_prev_data.get('1-x2'),
                   'y1': step_1_prev_data.get('1-y1'), 'y2': step_1_prev_data.get('1-y2'),
-                  'z1': step_1_prev_data.get('1-z1'), 'z2': step_1_prev_data.get('1-z2')}
+                  'z1': step_1_prev_data.get('1-z1'), 'z2': step_1_prev_data.get('1-z2'),
+                  'degXY_1': step_1_prev_data.get('1-degXY_1'), 'degYZ_1': step_1_prev_data.get('1-degYZ_1'),
+                  'degXY_2': step_1_prev_data.get('1-degXY_2'), 'degYZ_2': step_1_prev_data.get('1-degYZ_2')}
 
         # SimulationForm2_SimulationParameters
         step_2_prev_data = self.storage.get_step_data('2')
         step_2_prev_data = {} if step_2_prev_data is None \
-            else {'temperature': step_2_prev_data.get('2-temperature'),
-                  'production_steps': step_2_prev_data.get('2-production_steps')}
+            else {'temperature_scale': step_2_prev_data.get('2-temperature_scale'),
+                  'temperature': step_2_prev_data.get('2-temperature'),
+                  'time_step_number': step_2_prev_data.get('2-time_step_number')}
 
         update_data = {**step_0_prev_data, **step_1_prev_data, **step_2_prev_data, **initial_data}
         return self.initial_dict.get(step, update_data)
@@ -233,10 +293,10 @@ def show_form1(wizard: CookieWizardView):
 #   File Upload
 ################################
 
-def file_upload(request):
+def file_upload_old_version(request):
     if request.method == "POST":
         file = UploadForm(request.POST, request.FILES)
-        if file.is_valid():	
+        if file.is_valid():
             file_name, file_extension = os.path.splitext(request.FILES['file'].name)
             file_extension = file_extension.lower()
             # allowing only pdb files
@@ -251,7 +311,8 @@ def file_upload(request):
         file = UploadForm()
     return render(request, 'file_upload.html', {'form': file})
 
-def my_file_upload(request):
+
+def file_upload(request):
     messages.info(request, "Upload only 1 dcd file and 1 pdb file - both required")
     pdb_count = 0
     dcd_count = 0
@@ -262,26 +323,26 @@ def my_file_upload(request):
         files = request.FILES.getlist('file_field')
         if form.is_valid():
             for f in files:
-                i+=1
+                i += 1
                 file_name, file_extension = os.path.splitext(f.name)
                 file_extension = file_extension.lower()
                 # allowing only pdb and dcd files
                 if file_extension == '.pdb':
-                    pdb_count+=1
+                    pdb_count += 1
                 elif file_extension == '.dcd':
-                    dcd_count+=1
+                    dcd_count += 1
                 files_arr.append(f)
             if (pdb_count == 1) and (dcd_count == 1) and (i == 2):
-                path = default_storage.save('files/' + files_arr[0].name , ContentFile(files_arr[0].read()))
+                path = default_storage.save('files/' + files_arr[0].name, ContentFile(files_arr[0].read()))
                 tmp_file = os.path.join(settings.MEDIA_ROOT, path)
-                path = default_storage.save('files/' + files_arr[1].name , ContentFile(files_arr[1].read()))
+                path = default_storage.save('files/' + files_arr[1].name, ContentFile(files_arr[1].read()))
                 tmp_file = os.path.join(settings.MEDIA_ROOT, path)
                 messages.success(request, 'Files Uploaded Successfully - Simulation will open now')
                 sim = Uploaded_Simulation(files_arr[0].name, files_arr[1].name)
-                sim.run_simulation()				
+                sim.run_simulation()
             else:
                 messages.error(request, "Failed - Upload only 1 dcd file and 1 pdb file.")
-                return HttpResponseRedirect(reverse('my_file_upload'))
+                return HttpResponseRedirect(reverse('file_upload'))
     else:
         form = MultipuleFieldForm()
     return render(request, 'file_upload.html', {'form': form})
