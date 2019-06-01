@@ -15,7 +15,7 @@ class Simulation:
 
     def __init__(self, num_of_proteins, first_pdb_type, first_pdb_id, second_pdb_type, second_pdb_id,
                  x1, y1, z1, x2, y2, z2, degXY_1, degYZ_1, degXY_2, degYZ_2, temperature_scale, temperature,
-                 time_step_number):
+                 time_step_number, user_rand):
 
         self.cmd = None
 
@@ -36,7 +36,7 @@ class Simulation:
         self.degYZ_1 = float(degYZ_1)
         self.degXY_2 = float(degXY_2)
         self.degYZ_2 = float(degYZ_2)
-
+        self.user_rand = user_rand
         self.temperature_scale = temperature_scale
         self.temperature = \
             float(temperature) if temperature_scale == 'kelvin' \
@@ -60,24 +60,24 @@ class Simulation:
             # STEP 2: fix positions
             filename_1_movement = filename_1 + '__movement'
             filename_2_movement = filename_2 + '__movement'
-            translate_pdb(temp + filename_1 + pdb, temp + filename_1_movement + pdb, self.x1, self.y1, self.z1,
+            translate_pdb(temp + self.user_rand + filename_1 + pdb, temp + self.user_rand + filename_1_movement + pdb, self.x1, self.y1, self.z1,
                           self.degXY_1, self.degYZ_1)
-            translate_pdb(temp + filename_2 + pdb, temp + filename_2_movement + pdb, self.x2, self.y2, self.z2,
+            translate_pdb(temp + self.user_rand + filename_2 + pdb, temp + self.user_rand + filename_2_movement + pdb, self.x2, self.y2, self.z2,
                           self.degXY_2, self.degYZ_2)
 
             # STEP 2.5: fix pdb
-            fix_pdb(temp + filename_1_movement + pdb)
-            fix_pdb(temp + filename_2_movement + pdb)
+            fix_pdb(temp + self.user_rand + filename_1_movement + pdb)
+            fix_pdb(temp + self.user_rand + filename_2_movement + pdb)
 
             # STEP 3: merge to single pdb file
             self.save_pdbs_in_one_pdb(filename_1_movement, filename_2_movement)
 
             # STEP 3.5: fix pdb
-            fix_pdb(temp + "both__" + filename_1_movement + '_' + filename_2_movement + pdb)
+            fix_pdb(temp + self.user_rand + "both__" + filename_1_movement + '_' + filename_2_movement + pdb)
 
             # STEP 4: use OpenMM
-            input_coor_name = temp + "both__" + filename_1_movement + '_' + filename_2_movement + pdb
-            scr(input_coor_name, self.temperature, self.time_step_number)
+            input_coor_name = temp + self.user_rand + "both__" + filename_1_movement + '_' + filename_2_movement + pdb
+            scr(input_coor_name, self.temperature, self.time_step_number, self.user_rand)
 
         else:
             # STEP 1: load input pdb
@@ -86,20 +86,20 @@ class Simulation:
 
             # STEP 2: fix positions
             filename_1_movement = filename_1 + '__movement'
-            translate_pdb(temp + filename_1 + pdb, temp + filename_1_movement + pdb, self.x1, self.y1, self.z1,
+            translate_pdb(temp + self.user_rand + filename_1 + pdb, temp + self.user_rand + filename_1_movement + pdb, self.x1, self.y1, self.z1,
                           self.degXY_1, self.degYZ_1)
 
             # STEP 2.5: fix pdb
-            fix_pdb(temp + filename_1_movement + pdb)
+            fix_pdb(temp + self.user_rand + filename_1_movement + pdb)
 
             # STEP 3: use OpenMM
-            input_coor_name = temp + filename_1_movement + pdb
-            scr(input_coor_name, self.temperature, self.time_step_number)
+            input_coor_name = temp + self.user_rand + filename_1_movement + pdb
+            scr(input_coor_name, self.temperature, self.time_step_number, self.user_rand)
 
         # save the DCD file using PyMOL
         self.cmd.reinitialize()
         self.cmd.load(input_coor_name)
-        self.cmd.load(temp + 'trajectory.dcd')
+        self.cmd.load(temp + self.user_rand + 'trajectory.dcd')
         # self.cmd.quit() # todo: need to close PyMol window
 
     def clear_simulation(self):  # todo: complete this! delete all temporary files
@@ -112,23 +112,23 @@ class Simulation:
 
         self.cmd.load("https://files.rcsb.org/download/" + pdb_id + pdb)
         self.cmd.zoom()
-        self.cmd.save(temp + name_of_file)
+        self.cmd.save(temp + self.user_rand + name_of_file)
 
     def save_pdbs_in_one_pdb(self, filename_1, filename_2):
         self.cmd.reinitialize()
         sleep(0.5)
 
-        self.cmd.load(temp + filename_1 + pdb)
-        self.cmd.load(temp + filename_2 + pdb)
+        self.cmd.load(temp + self.user_rand + filename_1 + pdb)
+        self.cmd.load(temp + self.user_rand + filename_2 + pdb)
         self.cmd.zoom()
-        self.cmd.save(temp + "both__" + filename_1 + '_' + filename_2 + pdb)
+        self.cmd.save(temp + self.user_rand + "both__" + filename_1 + '_' + filename_2 + pdb)
 
     @staticmethod
     def merge_pdbs_by_copy(filename_1, filename_2, do_fix=True):
-        merged_pdb = temp + "both__" + filename_1 + "_" + filename_2 + pdb
+        merged_pdb = temp + self.user_rand + "both__" + filename_1 + "_" + filename_2 + pdb
         merged_file = open(merged_pdb, 'w')
-        file1 = open(temp + filename_1 + pdb)
-        file2 = open(temp + filename_2 + pdb)
+        file1 = open(temp + self.user_rand + filename_1 + pdb)
+        file2 = open(temp + self.user_rand + filename_2 + pdb)
         for line in file1:
             if not (line.startswith('MASTER') or line.startswith('END')):
                 merged_file.write(line)

@@ -11,13 +11,16 @@ from django.conf import settings
 import os
 import threading
 import zipfile
+import random
+import string
 from os.path import basename
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 from django.contrib import messages
 
 temp = 'media/files/'  # path to temp folder
-
+user_rand =  ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(8))
+os.mkdir(temp + user_rand)
 
 ################################
 #   Home, News, Contact, About
@@ -138,7 +141,7 @@ def download_animation__email(request):
 
 class SimulationWizard(CookieWizardView):
     template_name = 'create_simulation.html'
-
+    
     # file_storage:
     file_storage = FileSystemStorage(location=os.path.join(settings.MEDIA_ROOT, 'files'))
 
@@ -217,7 +220,7 @@ class SimulationWizard(CookieWizardView):
                        form_dict['degXY_1'], form_dict['degYZ_1'],
                        form_dict['degXY_2'], form_dict['degYZ_2'],
                        form_dict['temperature_scale'], form_dict['temperature'],
-                       form_dict['time_step_number'])
+                       form_dict['time_step_number'], user_rand + '/')
         s.create_simulation()
 
     def done(self, form_list, **kwargs):
