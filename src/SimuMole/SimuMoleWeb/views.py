@@ -74,8 +74,8 @@ def download_pdb_dcd__create_zip(num_of_proteins, include_pdb_file, include_dcd_
         files.append(os.path.join(settings.MEDIA_ROOT, 'files', 'trajectory.dcd'))
 
     zip_file = zipfile.ZipFile(os.path.join(settings.MEDIA_ROOT, 'files', "pdb_dcd.zip"), "w")
-    for f in files:
-        zip_file.write(f, basename(f))
+    for file, file_name in zip(files, ['pdc.pdb', 'dcd.dcd']):
+        zip_file.write(file, file_name)
     zip_file.close()
 
 
