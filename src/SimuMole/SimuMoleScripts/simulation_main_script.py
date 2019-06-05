@@ -100,6 +100,8 @@ class Simulation:
         self.cmd.reinitialize()
         self.cmd.load(input_coor_name)
         self.cmd.load(temp + 'trajectory.dcd')
+		# create movies in media/movies folder 
+		create_movies_from_different_angles(8)
         # self.cmd.quit() # todo: need to close PyMol window
 
     def clear_simulation(self):  # todo: complete this! delete all temporary files
@@ -143,8 +145,7 @@ class Simulation:
 	
 	#	*FUNCTION IS ASSUMING TRAJECTORY AND PDB FILES ARE LOADED*
 	#	input: number of movies (angles) to auto generate, and initial camera x,y,z rotation values
-    #   number of angles should be divided by 3, if that's not the case, it will be rounded to the closet higher number
-    #   that does
+    #   number of movie produced will be (roundDown((num_of_angles)^(1^3)))^3 , so pick a good number (8 for example)
     # output: num_of_angles auto generated movies from different angles
     def create_movies_from_different_angles(self, num_of_angles, x_init_rot = 0, y_init_rot = 0, z_init_rot = 0):
         self.cmd.reinitialize()
