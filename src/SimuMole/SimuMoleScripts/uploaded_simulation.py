@@ -16,7 +16,7 @@ def pdb_and_dcd_match(pdb_file_name, dcd_file_name):  # todo: remove gui
 
 
 def create_animations():
-    # for now, only open pymol window:
+    # for now, only open pymol window: #todo: create the animations instead of only open PyMOL
     pymol.finish_launching(['pymol', '-q'])  # pymol: -q quiet launch, -c no gui, -e fullscreen
     cmd = pymol.cmd
     cmd.reinitialize()
