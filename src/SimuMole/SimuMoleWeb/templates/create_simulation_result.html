@@ -184,7 +184,7 @@
                     <td id="big_video_cell" colspan="4">
 
                         <video id="big_video" loop muted>
-                            <source src="" type="video/mp4">
+                            <source src="" type="video/mpg">
                             Your browser does not support HTML5 video.
                         </video>
 
@@ -199,37 +199,37 @@
 
                     <td>
                         <video id="video_1" width="175" height="150" loop muted onclick="play_big(this.id)">
-                            <source src="" type="video/mp4">
+                            <source src="" type="video/mpg">
                             Your browser does not support HTML5 video.
                         </video>
                     </td>
                     <td>
                         <video id="video_2" width="175" height="150" loop muted onclick="play_big(this.id)">
-                            <source src="" type="video/mp4">
+                            <source src="" type="video/mpg">
                             Your browser does not support HTML5 video.
                         </video>
                     </td>
                     <td>
                         <video id="video_3" width="175" height="150" loop muted onclick="play_big(this.id)">
-                            <source src="" type="video/mp4">
+                            <source src="" type="video/mpg">
                             Your browser does not support HTML5 video.
                         </video>
                     </td>
                     <td>
                         <video id="video_4" width="175" height="150" loop muted onclick="play_big(this.id)">
-                            <source src="" type="video/mp4">
+                            <source src="" type="video/mpg">
                             Your browser does not support HTML5 video.
                         </video>
                     </td>
                     <td>
                         <video id="video_5" width="175" height="150" loop muted onclick="play_big(this.id)">
-                            <source src="" type="video/mp4">
+                            <source src="" type="video/mpg">
                             Your browser does not support HTML5 video.
                         </video>
                     </td>
                     <td>
                         <video id="video_6" width="175" height="150" loop muted onclick="play_big(this.id)">
-                            <source src="" type="video/mp4">
+                            <source src="" type="video/mpg">
                             Your browser does not support HTML5 video.
                         </video>
                     </td>
@@ -275,7 +275,7 @@
         {# the simulation building process is finished                  #}
         {################################################################}
 
-        let video_path = "unknown";
+        let video_path = "media/videos";
 
         hide_results(); // hide "simulation_is_ready" section as default
         const interval = setInterval(function () {
@@ -332,13 +332,13 @@
         }
 
         function init_video_path() {
-            document.getElementById("big_video").setAttribute('src', video_path + 'video_1' + ".mp4");
-            document.getElementById("video_1").setAttribute('src', video_path + 'video_1' + ".mp4");
-            document.getElementById("video_2").setAttribute('src', video_path + 'video_2' + ".mp4");
-            document.getElementById("video_3").setAttribute('src', video_path + 'video_3' + ".mp4");
-            document.getElementById("video_4").setAttribute('src', video_path + 'video_4' + ".mp4");
-            document.getElementById("video_5").setAttribute('src', video_path + 'video_5' + ".mp4");
-            document.getElementById("video_6").setAttribute('src', video_path + 'video_6' + ".mp4");
+            document.getElementById("big_video").setAttribute('src', video_path + 'video_1' + ".mpg");
+            document.getElementById("video_1").setAttribute('src', video_path + 'video_1' + ".mpg");
+            document.getElementById("video_2").setAttribute('src', video_path + 'video_2' + ".mpg");
+            document.getElementById("video_3").setAttribute('src', video_path + 'video_3' + ".mpg");
+            document.getElementById("video_4").setAttribute('src', video_path + 'video_4' + ".mpg");
+            document.getElementById("video_5").setAttribute('src', video_path + 'video_5' + ".mpg");
+            document.getElementById("video_6").setAttribute('src', video_path + 'video_6' + ".mpg");
         }
 
         {################################################################}
@@ -441,7 +441,7 @@
         function play_big(video_id) {
             let big = document.getElementById("big_video");
             let video = document.getElementById(video_id);
-            big.setAttribute('src', video_path + video_id + ".mp4");
+            big.setAttribute('src', video_path + video_id + ".mpg");
             big.currentTime = video.currentTime;
             video.paused ? big.pause() : big.play();
         }

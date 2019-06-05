@@ -163,7 +163,7 @@ class Simulation:
         self.cmd.do("set max_threads, 1")
         rot_in_each_axis = math.pow(num_of_angles, 1 / 3)
         delta_rot = 360 / rot_in_each_axis
-        i = 0
+        i = 1
         self.cmd.do("axes")
         for x in range(0, int(rot_in_each_axis)):
             for y in range(0, int(rot_in_each_axis)):
@@ -175,7 +175,7 @@ class Simulation:
                     self.cmd.sync()
                     self.cmd.do("turn z, " + str((delta_rot * z)))
                     self.cmd.sync()
-                    self.cmd.do("movie.produce media/videos/movie" + str(i) + ".mpg, quality = 90,preserve=0")
+                    self.cmd.do("movie.produce media/videos/video_" + str(i) + ".mpg, quality = 90,preserve=0")
                     self.cmd.sync()
                     sleep(3)  # Sleep might not be a solution, but without it the commands run too fast and make errors. Attempting to use the sync command on 'produce' doesnt seem to work.
                     self.cmd.do("turn z, " + str((-1*delta_rot * z)))  # resets the turns

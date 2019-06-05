@@ -241,6 +241,7 @@ class SimulationWizard(CookieWizardView):
             f.write("")
 
         # Render 'create_simulation_result.html' without waiting until the simulation is complete:
+        t.join()  # wait until thread is complete
         return render(self.request, 'create_simulation_result.html', {'form_data': form_dict})
 
     def get_form_initial(self, step):
