@@ -2,11 +2,27 @@
 {% block content %}
     <title>SimuMole: Upload PDB & DCD</title>
 
-    <div style="padding:40px;margin:40px;border:1px solid #ccc">
-        <h1>File Upload</h1>
-        <form action="#" method="post" enctype="multipart/form-data">
-            {% csrf_token %} {{ form }}
-            <input type="submit" value="Upload"/>
-        </form>
-    </div>
+    <style>
+
+        .error input, .error select, .errorlist {
+            color: red;
+            padding-bottom: 30px;
+        }
+
+        #blue-button {
+            background-color: #5e88e7;
+            color: black;
+            margin-bottom: 20px;
+        }
+
+    </style>
+
+    <h1><strong>Upload PDB and DCD files</strong></h1><br>
+
+    <form action="" method="post" enctype="multipart/form-data"> {% csrf_token %}
+        {{ form.as_p }}
+        <br>
+        <input id="blue-button" type="submit" value="Upload" class="btn btn-primary"/>
+    </form>
+
 {% endblock %}

@@ -1,15 +1,24 @@
 import pymol
-import os
+
 temp = 'media/files/'  # path to temp folder
 
-class Uploaded_Simulation:
-    def __init__(self, pdb_file_name, dcd_file_name):
-        self.cmd = None
-        self.pdb_file_name = pdb_file_name
-        self.dcd_file_name = dcd_file_name
 
-    def run_simulation(self):
-        pymol.finish_launching(['pymol', '-q'])  # pymol: -q quiet launch, -c no gui, -e fullscreen
-        self.cmd = pymol.cmd
-        self.cmd.load(temp + self.pdb_file_name)
-        self.cmd.load(temp + self.dcd_file_name)
+def pdb_and_dcd_match(pdb_file_name, dcd_file_name):  # todo: remove gui
+    pymol.finish_launching(['pymol', '-q'])  # pymol: -q quiet launch, -c no gui, -e fullscreen
+    cmd = pymol.cmd
+    try:
+        cmd.reinitialize()
+        cmd.load(temp + pdb_file_name)
+        cmd.load_traj(temp + dcd_file_name)
+        return True
+    except:
+        return False
+
+
+def create_animations():
+    # for now, only open pymol window:
+    pymol.finish_launching(['pymol', '-q'])  # pymol: -q quiet launch, -c no gui, -e fullscreen
+    cmd = pymol.cmd
+    cmd.reinitialize()
+    cmd.load(temp + "file_upload_pdb.pdb")
+    cmd.load(temp + "file_upload_dcd.dcd")

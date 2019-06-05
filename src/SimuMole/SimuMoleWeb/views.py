@@ -1,10 +1,9 @@
 from SimuMoleScripts.simulation_main_script import Simulation
-from SimuMoleScripts.uploaded_simulation import Uploaded_Simulation
+from SimuMoleScripts.uploaded_simulation import create_animations
+from .forms import UploadFiles
+
 from formtools.wizard.views import CookieWizardView
-from .models import UploadForm
-from django.http import HttpResponseRedirect, JsonResponse
-from .forms import MultipuleFieldForm
-from django.urls import reverse
+from django.http import JsonResponse
 from django.shortcuts import render
 from django.core.files.storage import FileSystemStorage
 from django.conf import settings
@@ -12,9 +11,6 @@ import os
 import threading
 import zipfile
 from os.path import basename
-from django.core.files.storage import default_storage
-from django.core.files.base import ContentFile
-from django.contrib import messages
 
 temp = 'media/files/'  # path to temp folder
 
@@ -290,59 +286,14 @@ def show_form1(wizard: CookieWizardView):
 
 
 ################################
-#   File Upload
+#   Upload PDB & DCD
 ################################
 
-def file_upload_old_version(request):
-    if request.method == "POST":
-        file = UploadForm(request.POST, request.FILES)
-        if file.is_valid():
-            file_name, file_extension = os.path.splitext(request.FILES['file'].name)
-            file_extension = file_extension.lower()
-            # allowing only pdb files
-            if file_extension == '.pdb':
-                messages.success(request, 'File Uploaded Successfully')
-                file.save()
-                return HttpResponseRedirect(reverse('file_upload'))
-            else:  # Should never be called, since we added FileExtensionValidator on the Upload model.
-                messages.error(request, 'Upload failed: file extension has to be \'pdb\'.')
-
-    else:
-        file = UploadForm()
-    return render(request, 'file_upload.html', {'form': file})
-
-
-def file_upload(request):
-    messages.info(request, "Upload only 1 dcd file and 1 pdb file - both required")
-    pdb_count = 0
-    dcd_count = 0
-    i = 0
-    files_arr = []
-    if request.method == "POST":
-        form = MultipuleFieldForm(request.POST, request.FILES)
-        files = request.FILES.getlist('file_field')
+def upload_files(request):
+    if request.method == 'POST':
+        form = UploadFiles(request.POST, request.FILES)
         if form.is_valid():
-            for f in files:
-                i += 1
-                file_name, file_extension = os.path.splitext(f.name)
-                file_extension = file_extension.lower()
-                # allowing only pdb and dcd files
-                if file_extension == '.pdb':
-                    pdb_count += 1
-                elif file_extension == '.dcd':
-                    dcd_count += 1
-                files_arr.append(f)
-            if (pdb_count == 1) and (dcd_count == 1) and (i == 2):
-                path = default_storage.save('files/' + files_arr[0].name, ContentFile(files_arr[0].read()))
-                tmp_file = os.path.join(settings.MEDIA_ROOT, path)
-                path = default_storage.save('files/' + files_arr[1].name, ContentFile(files_arr[1].read()))
-                tmp_file = os.path.join(settings.MEDIA_ROOT, path)
-                messages.success(request, 'Files Uploaded Successfully - Simulation will open now')
-                sim = Uploaded_Simulation(files_arr[0].name, files_arr[1].name)
-                sim.run_simulation()
-            else:
-                messages.error(request, "Failed - Upload only 1 dcd file and 1 pdb file.")
-                return HttpResponseRedirect(reverse('file_upload'))
+            create_animations()
     else:
-        form = MultipuleFieldForm()
+        form = UploadFiles()
     return render(request, 'file_upload.html', {'form': form})
