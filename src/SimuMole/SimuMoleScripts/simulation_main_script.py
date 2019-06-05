@@ -140,3 +140,39 @@ class Simulation:
         merged_file.close()
         if do_fix:
             fix_pdb(merged_pdb)
+	
+	#	*FUNCTION IS ASSUMING TRAJECTORY AND PDB FILES ARE LOADED*
+	#	input: number of movies (angles) to auto generate, and initial camera x,y,z rotation values
+    #   number of angles should be divided by 3, if that's not the case, it will be rounded to the closet higher number
+    #   that does
+    # output: num_of_angles auto generated movies from different angles
+    def create_movies_from_different_angles(self, num_of_angles, x_init_rot = 0, y_init_rot = 0, z_init_rot = 0):
+        self.cmd.reinitialize()
+        sleep(0.5)
+        self.cmd.do("orient")
+        self.cmd.do("zoom complete = 1")
+        self.cmd.do("turn x, "+str(x_init_rot))
+        self.cmd.do("turn y, " + str(y_init_rot))
+        self.cmd.do("turn z, " + str(z_init_rot))
+        self.cmd.do("as cartoon")
+        self.cmd.do("preset.pretty(selection='all')")
+        self.cmd.do("smooth")
+        self.cmd.do("set max_threads, 1")
+        rot_in_each_axis = math.pow(num_of_angles, 1/3)
+        delta_rot = 360/rot_in_each_axis
+        i=0
+        for x in range (0, int(rot_in_each_axis)):
+            for y in range(0, int(rot_in_each_axis)):
+                for z in range(0, int(rot_in_each_axis)):
+					self.cmd.do("orient")
+					self.cmd.sync()
+					self.cmd.do("turn x, " + str((delta_rot*x)))
+					self.cmd.sync()
+					self.cmd.do("turn y, " + str((delta_rot * y)))
+					self.cmd.sync()
+                    self.cmd.do("turn z, " + str((delta_rot * z)))
+                    self.cmd.sync()
+                    self.cmd.do("movie.produce media/videos/movie"+str(i)+".mpg, quality = 90,preserve=0") 
+                    self.cmd.sync()
+                    sleep(3) # Sleep might not be a solution, but without it the commands run too fast and make errors. Attempting to use the sync command on 'produce' doesnt seem to work.
+                    i=i+1
