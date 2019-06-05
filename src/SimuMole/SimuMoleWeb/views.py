@@ -237,7 +237,10 @@ class SimulationWizard(CookieWizardView):
             f.write("")
 
         # Render 'create_simulation_result.html' without waiting until the simulation is complete:
-        return render(self.request, 'create_simulation_result.html', {'form_data': form_dict})
+        return render(self.request, 'create_simulation_result.html',
+                      {'form_data': form_dict, 'num_of_proteins': form_dict['num_of_proteins'],
+                       'previous_page': 'create_simulation',
+                       'video_path': settings.MEDIA_URL + 'videos/'})  # todo: change "video_path"
 
     def get_form_initial(self, step):
         """
@@ -294,6 +297,10 @@ def upload_files(request):
         form = UploadFiles(request.POST, request.FILES)
         if form.is_valid():
             create_animations()
+            return render(request, 'create_simulation_result.html',
+                          {'video_path': settings.MEDIA_URL + 'videos/',  # todo: change "video_path"
+                           'previous_page': "upload_files",
+                           'num_of_proteins': 0})  # num_of_proteins is irrelevant
     else:
         form = UploadFiles()
     return render(request, 'file_upload.html', {'form': form})
