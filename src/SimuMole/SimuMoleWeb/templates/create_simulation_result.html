@@ -311,7 +311,8 @@
                     // simulation_status:
                     if (data['simulation_status'] !== "") {
                         document.getElementById('simulation_status').textContent = data['simulation_status'];
-                        if (data['simulation_status'] === "Done!") {
+                        let simulation_status = data['simulation_status'];
+                        if (simulation_status === "Done!") {
                             clearInterval(interval);
                             setTimeout(function () {
                                 change_visibility_of_element("simulation_status_section", 'hidden', 'none');
@@ -320,6 +321,8 @@
                                 video_path = data['video_path'];
                                 init_video_path()
                             }, 1000); // do nothing during 1 seconds and display 'Done!'
+                        } else if (simulation_status.startsWith("An error occurred")) {
+                            clearInterval(interval);
                         }
                     }
 
