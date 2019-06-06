@@ -345,7 +345,7 @@
         {# Initial layout of the page                                   #}
         {################################################################}
         previous_page = "{{ previous_page }}";
-        if (previous_page === 'create_simulation') {
+        if (previous_page === 'create_simulation' || previous_page === 'upload_files') {
             change_visibility_of_element("simulation_status_section", 'visible', '');
             change_visibility_of_element("download_pdb_dcd_section", 'hidden', 'none');
             change_visibility_of_element("animations_section", 'hidden', 'none');
@@ -364,7 +364,7 @@
 
 
         let interval = "";
-        if (previous_page === 'create_simulation') {
+        if (previous_page === 'create_simulation' ||previous_page === 'upload_files') {
             interval = setInterval(function () {
                 update_simulation_status_event()
             }, 4000); // unit of milliseconds
