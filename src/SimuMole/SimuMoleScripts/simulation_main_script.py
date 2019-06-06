@@ -4,11 +4,14 @@ import os
 
 from .fix_pdb import fix_pdb
 from .basicTrajectoryBuilder import scr
+from .basicTrajectoryBuilder import update_simulation_status
 from .transformations import translate_pdb
 from .OpenMM_scriptBuilder import create_openmm_script, openMMbuilder
 
 temp = 'media/files/'  # path to temp folder
 pdb = '.pdb'  # pdb suffix
+
+import math
 
 
 class Simulation:
@@ -46,10 +49,8 @@ class Simulation:
     def create_simulation(self):
         pymol.finish_launching(['pymol', '-q'])  # pymol: -q quiet launch, -c no gui, -e fullscreen
         self.cmd = pymol.cmd
-
         filename_1 = '_1_'
         filename_2 = '_2_'
-
         if self.num_of_proteins == '2':
             # STEP 1: load input pdb
             if self.first_pdb_type == 'by_id':
@@ -111,8 +112,12 @@ class Simulation:
             return
 
         # create the animations:
-        # todo: complete here this part
+        self.update_simulation_status('Creates the animations')
+        self.create_movies_from_different_angles(8) # create movies in media/movies folder
+       
+        # complete simulation:
         self.update_simulation_status('Done!')
+        # self.cmd.quit() # todo: need to close PyMol window
 
     @staticmethod
     def update_simulation_status(status):
@@ -159,3 +164,48 @@ class Simulation:
         merged_file.close()
         if do_fix:
             fix_pdb(merged_pdb)
+
+    #	*FUNCTION IS ASSUMING TRAJECTORY AND PDB FILES ARE LOADED*
+    #	input: number of movies (angles) to auto generate, and initial camera x,y,z rotation values
+    #   number of movie produced will be (roundDown((num_of_angles)^(1^3)))^3 , so pick a good number (8 for example)
+    # output: num_of_angles auto generated movies from different angles
+    def create_movies_from_different_angles(self, num_of_angles, x_init_rot=0, y_init_rot=0, z_init_rot=0):
+        # self.cmd.reinitialize()
+        sleep(0.5)
+        self.cmd.do("run SimuMoleScripts/axes.txt")
+        self.cmd.do("orient")
+        self.cmd.do("zoom complete = 1")
+        self.cmd.do("turn x, " + str(x_init_rot))
+        self.cmd.do("turn y, " + str(y_init_rot))
+        self.cmd.do("turn z, " + str(z_init_rot))
+        self.cmd.do("as cartoon")
+        self.cmd.do("preset.pretty(selection='all')")
+        self.cmd.do("smooth")
+        self.cmd.do("set max_threads, 1")
+        rot_in_each_axis = math.pow(num_of_angles, 1 / 3)
+        delta_rot = 360 / rot_in_each_axis
+        i = 1
+        self.cmd.do("axes")
+        self.cmd.do("reset")
+        angels = [(0, 0, 0), (90, 0, 0), (180, 0, 0), (270, 0, 0), (0, 0, 0), (0, 90, 0), (0, 180, 0), (0, 270, 0),
+                  (0, 0, 0), (0, 0, 90), (0, 0, 180), (0, 0, 270)]
+        for x, y, z in angels:
+            x, y, z = str(x), str(y), str(z)
+            self.cmd.sync()
+            self.cmd.do("turn x, " + x)
+            self.cmd.sync()
+            self.cmd.do("turn y, " + y)
+            self.cmd.sync()
+            self.cmd.do("turn z, " + z)
+            self.cmd.sync()
+            self.cmd.do("movie.produce media/videos/video_" + str(i) + ".mp4, quality = 90,preserve=0")
+            self.cmd.sync()
+            sleep(3)  # Sleep might not be a solution, but without it the commands run too fast and make errors.
+            #  Attempting to use the sync command on 'produce' doesnt seem to work.
+            self.cmd.do("turn z, " + "-" + z)  # resets the turns
+            self.cmd.sync()
+            self.cmd.do("turn y, " + "-" + y)
+            self.cmd.sync()
+            self.cmd.do("turn x, " + "-" + x)
+            self.cmd.sync()
+            i = i + 1
