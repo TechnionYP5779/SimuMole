@@ -39,8 +39,6 @@ def scr(input_coor_name, temperature, time_step_number):
     update_simulation_status('Running simulation...')
     simulation.step(time_step_number)
 
-    update_simulation_status('Done!')
-
 
 def update_simulation_status(status):
     with open(simulation_status_path, "w+") as f:

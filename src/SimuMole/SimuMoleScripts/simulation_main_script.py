@@ -94,13 +94,32 @@ class Simulation:
 
             # STEP 3: use OpenMM
             input_coor_name = temp + filename_1_movement + pdb
-            scr(input_coor_name, self.temperature, self.time_step_number)
+            try:
+                scr(input_coor_name, self.temperature, self.time_step_number)
+            except:
+                self.update_simulation_status(
+                    'An error occurred while creating the simulation. Please try again later.')
+                return
 
         # save the DCD file using PyMOL
-        self.cmd.reinitialize()
-        self.cmd.load(input_coor_name)
-        self.cmd.load(temp + 'trajectory.dcd')
-        # self.cmd.quit() # todo: need to close PyMol window
+        try:
+            self.cmd.reinitialize()
+            self.cmd.load(input_coor_name)
+            self.cmd.load_traj(temp + 'trajectory.dcd')
+        except:  # mainly for "pymol.CmdException"
+            self.update_simulation_status('An error occurred while creating the simulation. Please try again later.')
+            return
+
+        # create the animations:
+        # todo: complete here this part
+        self.update_simulation_status('Done!')
+
+    @staticmethod
+    def update_simulation_status(status):
+        dir_path = 'media/files/'
+        simulation_status_path = dir_path + 'simulation_status.txt'
+        with open(simulation_status_path, "w+") as f:
+            f.write(status)
 
     def clear_simulation(self):  # todo: complete this! delete all temporary files
         # os.remove('path/to/files')
