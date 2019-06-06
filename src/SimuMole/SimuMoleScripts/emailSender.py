@@ -35,7 +35,7 @@ def send_email(receiver, file_name):
 
 def send_file_attached(receiver, file_name):
     message = MIMEMultipart("alternative")
-    message["Subject"] = "The files you requested are ready"
+    message["Subject"] = "SimuMole: the files you requested are ready"
     message["From"] = sender
     message["To"] = receiver
     message.attach(MIMEText("The files you requested are attached to this email "
@@ -61,7 +61,7 @@ def send_file_link(receiver, file_name):
     expiration_date = (datetime.datetime.now() + datetime.timedelta(days=7)).strftime('%Y-%m-%d %H:00:00')
 
     message = MIMEMultipart("alternative")
-    message["Subject"] = "The files you requested are ready"
+    message["Subject"] = "SimuMole: the files you requested are ready"
     message["From"] = sender
     message["To"] = receiver
     message.attach(MIMEText("The files you requested are too large to be sent through email.\n"

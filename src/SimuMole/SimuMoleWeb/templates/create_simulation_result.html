@@ -10,6 +10,12 @@
             margin-bottom: 0;
         }
 
+        .success_message {
+            color: #5e88e7;
+            padding-bottom: 0;
+            margin-bottom: 0;
+        }
+
         {################################################################}
         {# simulation status                                            #}
         {################################################################}
@@ -104,7 +110,9 @@
             <input type="checkbox" id="pdb_file" onchange="download_pdb_dcd__hide_select_error()">PDB file<br>
             <input type="checkbox" id="dcd_file" onchange="download_pdb_dcd__hide_select_error()">DCD file<br>
 
-            <p class="errorlist" id="download_pdb_dcd__select_error">Select one or more files of the above</p>
+            <p class="errorlist" id="download_pdb_dcd__select_error">
+                Select one or more files of the above
+            </p>
 
             {#............................#}
             {# download buttons           #}
@@ -119,7 +127,15 @@
             </button>
             <input type="text" id="download_pdb_dcd__email" placeholder="Enter email address"
                    onchange="download_pdb_dcd__hide_email_error()" style="width: 25%;">
-            <p class="errorlist" id="download_pdb_dcd__email_error">Please provide an email address</p>
+            <p class="errorlist" id="download_pdb_dcd__email_error">
+                Please provide an email address
+            </p>
+            <p class="errorlist" id="download_pdb_dcd__wrong_email_error">
+                An error occurred while sending the email. Please provide a valid email address.
+            </p>
+            <p class="success_message" id="download_pdb_dcd__successful_sending">
+                The email was sent successfully. Please check your inbox
+            </p>
             <br>
 
         </form>
@@ -248,7 +264,15 @@
         </button>
         <input type="text" id="download_animation__email" placeholder="Enter email address"
                onchange="download_animation__hide_email_error()" style="width: 25%;">
-        <p class="errorlist" id="download_animation__email_error">Please provide an email address</p>
+        <p class="errorlist" id="download_animation__email_error">
+            Please provide an email address
+        </p>
+        <p class="errorlist" id="download_animation__wrong_email_error">
+            An error occurred while sending the email. Please provide a valid email address.
+        </p>
+        <p class="success_message" id="download_animation__successful_sending">
+            The email was sent successfully. Please check your inbox
+        </p>
         <br>
 
     </div>
@@ -355,7 +379,9 @@
         {################################################################}
 
         hide_element("download_pdb_dcd__select_error", '');
-        hide_element("download_pdb_dcd__email_error", 'inline');
+        hide_element("download_pdb_dcd__email_error", 'none');
+        hide_element("download_pdb_dcd__wrong_email_error", 'none');
+        hide_element("download_pdb_dcd__successful_sending", 'none');
 
         function download_pdb_dcd__zip_event() {
             num_of_proteins = {{ num_of_proteins }};
@@ -399,9 +425,16 @@
                 dataType: 'json',
                 success:
                     function (response) {
-                        console.log("download_pdb_email__zip: email=" + response['email']); // todo: complete!
+                        let email_success = response['email_success'];
+                        if (email_success === 'true') {
+                            show_element("download_pdb_dcd__successful_sending", 'inline');
+                        }
+                        else if (email_success === 'false') {
+                            show_element("download_pdb_dcd__wrong_email_error", 'inline');
+                        }
                     }
-            });
+            })
+            ;
         }
 
         function download_pdb_dcd__hide_select_error() {
@@ -416,10 +449,22 @@
 
         function download_pdb_dcd__hide_email_error() {
             const email = document.getElementById("download_pdb_dcd__email").value;
-            const error = document.getElementById("download_pdb_dcd__email_error");
-            const error_visibility = error.style.visibility;
-            if (email !== '' && error_visibility === '') {
-                hide_element("download_pdb_dcd__email_error", 'inline')
+
+            const email_error = document.getElementById("download_pdb_dcd__email_error");
+            const email_error_visibility = email_error.style.visibility;
+            if (email !== '' && email_error_visibility === '') {
+                hide_element("download_pdb_dcd__email_error", 'none')
+            }
+            const wrong_email_error = document.getElementById("download_pdb_dcd__wrong_email_error");
+            const wrong_email_error_visibility = wrong_email_error.style.visibility;
+            if (email !== '' && wrong_email_error_visibility === '') {
+                hide_element("download_pdb_dcd__wrong_email_error", 'none')
+            }
+
+            const successful_sending = document.getElementById("download_pdb_dcd__successful_sending");
+            const successful_sending_visibility = successful_sending.style.visibility;
+            if (email !== '' && successful_sending_visibility === '') {
+                hide_element("download_pdb_dcd__successful_sending", 'none')
             }
         }
 
@@ -497,7 +542,9 @@
         }
 
         {# download animation - via zip or email                        #}
-        hide_element("download_animation__email_error", 'inline');
+        hide_element("download_animation__email_error", 'none');
+        hide_element("download_animation__wrong_email_error", 'none');
+        hide_element("download_animation__successful_sending", 'none');
 
         function download_animation__zip_event() {
             $.ajax({
@@ -524,17 +571,35 @@
                 dataType: 'json',
                 success:
                     function (response) {
-                        console.log("download_animation_email__zip: email=" + response['email']); // todo: complete!
+                        let email_success = response['email_success'];
+                        if (email_success === 'true') {
+                            show_element("download_animation__successful_sending", 'inline');
+                        }
+                        else if (email_success === 'false') {
+                            show_element("download_animation__wrong_email_error", 'inline');
+                        }
                     }
             });
         }
 
         function download_animation__hide_email_error() {
             const email = document.getElementById("download_animation__email").value;
-            const error = document.getElementById("download_animation__email_error");
-            const error_visibility = error.style.visibility;
-            if (email !== '' && error_visibility === '') {
-                hide_element("download_animation__email_error", 'inline')
+
+            const email_error = document.getElementById("download_animation__email_error");
+            const email_error_visibility = email_error.style.visibility;
+            if (email !== '' && email_error_visibility === '') {
+                hide_element("download_animation__email_error", 'none')
+            }
+            const wrong_email_error = document.getElementById("download_animation__wrong_email_error");
+            const wrong_email_error_visibility = wrong_email_error.style.visibility;
+            if (email !== '' && wrong_email_error_visibility === '') {
+                hide_element("download_animation__wrong_email_error", 'none')
+            }
+
+            const successful_sending = document.getElementById("download_animation__successful_sending");
+            const successful_sending_visibility = successful_sending.style.visibility;
+            if (email !== '' && successful_sending_visibility === '') {
+                hide_element("download_animation__successful_sending", 'none')
             }
         }
 

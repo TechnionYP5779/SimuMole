@@ -1,5 +1,7 @@
 from SimuMoleScripts.simulation_main_script import Simulation
 from SimuMoleScripts.uploaded_simulation import create_animations
+from SimuMoleScripts.emailSender import send_email
+
 from .forms import UploadFiles
 
 from formtools.wizard.views import CookieWizardView
@@ -95,11 +97,12 @@ def download_pdb_dcd__email(request):
     include_dcd_file = (request.GET.get('dcd_file') == 'true')
     email = request.GET.get('email')
 
-    download_pdb_dcd__create_zip(num_of_proteins, include_pdb_file, include_dcd_file)
-
-    # todo: complete this function. need to send the mail
-
-    response = {'email': email}
+    response = {'email_success': 'true'}
+    try:
+        download_pdb_dcd__create_zip(num_of_proteins, include_pdb_file, include_dcd_file)
+        send_email(email, "pdb_dcd.zip")
+    except Exception as e:
+        response = {'email_success': 'false'}
 
     return JsonResponse(response)
 
@@ -122,9 +125,13 @@ def download_animation__zip(request):
 
 def download_animation__email(request):
     email = request.GET.get('email')
-    download_animation__create_zip()
-    # todo: complete this function. need to send the mail
-    response = {'email': email}
+
+    response = {'email_success': 'true'}
+    try:
+        download_animation__create_zip()
+        send_email(email, "animations.zip")
+    except:
+        response = {'email_success': 'false'}
     return JsonResponse(response)
 
 
