@@ -4,6 +4,7 @@ import os
 
 from .fix_pdb import fix_pdb
 from .basicTrajectoryBuilder import scr
+from .basicTrajectoryBuilder import update_simulation_status
 from .transformations import translate_pdb
 from .OpenMM_scriptBuilder import create_openmm_script, openMMbuilder
 
@@ -50,7 +51,6 @@ class Simulation:
         self.cmd = pymol.cmd
         filename_1 = '_1_'
         filename_2 = '_2_'
-
         if self.num_of_proteins == '2':
             # STEP 1: load input pdb
             if self.first_pdb_type == 'by_id':
@@ -103,6 +103,7 @@ class Simulation:
         self.cmd.load(temp + 'trajectory.dcd')
         # create movies in media/movies folder
         self.create_movies_from_different_angles(8)
+        update_simulation_status('Done!')  # TODO: change it to something else
         # self.cmd.quit() # todo: need to close PyMol window
 
     def clear_simulation(self):  # todo: complete this! delete all temporary files
@@ -175,7 +176,7 @@ class Simulation:
                     self.cmd.sync()
                     self.cmd.do("turn z, " + str((delta_rot * z)))
                     self.cmd.sync()
-                    self.cmd.do("movie.produce media/videos/video_" + str(i) + ".mpg, quality = 90,preserve=0")
+                    self.cmd.do("movie.produce media/videos/video_" + str(i) + ".mp4, quality = 90,preserve=0")
                     self.cmd.sync()
                     sleep(3)  # Sleep might not be a solution, but without it the commands run too fast and make errors. Attempting to use the sync command on 'produce' doesnt seem to work.
                     self.cmd.do("turn z, " + str((-1*delta_rot * z)))  # resets the turns
