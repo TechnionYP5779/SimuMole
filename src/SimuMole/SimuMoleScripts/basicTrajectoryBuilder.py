@@ -38,8 +38,6 @@ def scr(input_coor_name, temperature, time_step_number):
 
     update_simulation_status('Running simulation...')
     simulation.step(time_step_number)
-    # TODO: uncomment it, for the moment it is now in the end of simulation_main_script:
-    # update_simulation_status('Done!')
 
 
 def update_simulation_status(status):

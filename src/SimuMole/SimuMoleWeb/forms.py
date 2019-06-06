@@ -8,6 +8,8 @@ from django.conf import settings
 from SimuMoleScripts.basicTrajectoryBuilder import scr_for_checks
 from SimuMoleScripts.fix_pdb import fix_pdb
 from SimuMoleScripts.transformations import get_atoms, get_atoms_string, translate_vecs, rotate_molecular
+from SimuMoleScripts.uploaded_simulation import pdb_and_dcd_match
+
 import os
 
 ################################
@@ -333,8 +335,43 @@ class SimulationForm2_SimulationParameters(forms.Form):
 
 
 ################################
-#   File Upload
+#   Upload PDB & DCD
 ################################
 
-class MultipuleFieldForm(forms.Form):
-    file_field = forms.FileField(widget=forms.ClearableFileInput(attrs={'multiple': True}))
+class UploadFiles(forms.Form):
+    pdb_file = forms.FileField(required=True, label='Upload a PDB file')
+    dcd_file = forms.FileField(required=True, label='Upload a DCD file')
+
+    def clean(self):
+        errors = []
+
+        # pdb_file
+        pdb_file: UploadedFile = self.cleaned_data['pdb_file']
+        file_name, file_extension = os.path.splitext(str(pdb_file))
+        if file_extension.lower() != '.pdb':
+            errors.append(forms.ValidationError("The PDB file format is incorrect"))
+
+        # dcd_file
+        dcd_file: UploadedFile = self.cleaned_data['dcd_file']
+        file_name, file_extension = os.path.splitext(str(dcd_file))
+        if file_extension.lower() != '.dcd':
+            errors.append(forms.ValidationError("The DCD file format is incorrect"))
+
+        if len(errors) != 0:
+            raise forms.ValidationError(errors)
+
+        # save files (only after checking that their format is correct)
+        self.save_file(pdb_file, "file_upload_pdb.pdb")
+        self.save_file(dcd_file, "file_upload_dcd.dcd")
+
+        # check match between the files
+        if not pdb_and_dcd_match("file_upload_pdb.pdb", "file_upload_dcd.dcd"):
+            raise forms.ValidationError("The PDB file does not match the DCD file (the number of atoms is different)")
+
+    @staticmethod
+    def save_file(file: UploadedFile, filename: str):
+        path = os.path.join(settings.MEDIA_ROOT, 'files')
+        file_storage = FileSystemStorage(location=path)
+
+        file_storage.delete(filename)  # delete existing file with same name
+        file_storage.save(filename, file)  # save existing file

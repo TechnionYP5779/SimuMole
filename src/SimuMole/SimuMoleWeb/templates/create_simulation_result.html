@@ -10,6 +10,12 @@
             margin-bottom: 0;
         }
 
+        .success_message {
+            color: #5e88e7;
+            padding-bottom: 0;
+            margin-bottom: 0;
+        }
+
         {################################################################}
         {# simulation status                                            #}
         {################################################################}
@@ -76,39 +82,38 @@
     </style>
 
 
-    <title>SimuMole: Create Simulation</title>
+    <title>SimuMole: Download Simulation</title>
 
-    <h1><strong>Create Your Simulation</strong></h1><br>
+    <h1><strong>Examine Your Simulation</strong></h1><br>
 
     {################################################################}
     {# simulation status                                            #}
     {################################################################}
-    <div id="simulation_is_in_processing">
-        <h3>The status of your request</h3>
+    <div id="simulation_status_section">
+        <h2>The status of your request</h2>
         <p id="simulation_status"> Processing your parameters...</p>
         <p id="simulation_status_during_run"></p>
         <br>
     </div>
 
-    {# this section appears only after the simulation is ready    #}
-    <div id="simulation_is_ready">
+    {################################################################}
+    {# download PDB / DCD - via zip or email                        #}
+    {################################################################}
+    <div id="download_pdb_dcd_section">
+        <h2>Download PDB and DCD files</h2>
+        <form action="" method="post"> {% csrf_token %}
+            <p>Select which files to download:</p>
 
-        {################################################################}
-        {# download PDB / DCD - via zip or email                        #}
-        {################################################################}
-        <div>
-            <h2>Download PDB and DCD files</h2>
-            <form action="" method="post"> {% csrf_token %}
-                <p>Select which files to download:</p>
+            {#............................#}
+            {# file checkbox              #}
+            {#............................#}
+            <input type="checkbox" id="pdb_file" onchange="download_pdb_dcd__hide_select_error()">PDB file<br>
+            <input type="checkbox" id="dcd_file" onchange="download_pdb_dcd__hide_select_error()">DCD file<br>
 
-                {#............................#}
-                {# file checkbox              #}
-                {#............................#}
-                <input type="checkbox" id="pdb_file" onchange="download_pdb_dcd__hide_select_error()">PDB file<br>
-                <input type="checkbox" id="dcd_file" onchange="download_pdb_dcd__hide_select_error()">DCD file<br>
-
-                <p class="errorlist" id="download_pdb_dcd__select_error">Select one or more files of the above</p>
-
+            <p class="errorlist" id="download_pdb_dcd__select_error">
+                Select one or more files of the above
+            </p>
+          
                 {#............................#}
                 {# download buttons           #}
                 {#............................#}
@@ -293,22 +298,166 @@
             {#............................#}
             {# download buttons           #}
             {#............................#}
-            <button type="button" id="download_animation__zip_id" onclick="download_animation__zip_event()">
+            <button type="button" id="download_pdb_dcd__zip_id" onclick="download_pdb_dcd__zip_event()">
                 Download as zip
             </button>
             <br>
 
-            <button type="button" id="download_animation__email_id" onclick="download_animation__email_event()">
+            <button type="button" id="download_pdb_dcd__email_id" onclick="download_pdb_dcd__email_event()">
                 Download via email
             </button>
-            <input type="text" id="download_animation__email" placeholder="Enter email address"
-                   onchange="download_animation__hide_email_error()" style="width: 25%;">
-            <p class="errorlist" id="download_animation__email_error">Please provide an email address</p>
+            <input type="text" id="download_pdb_dcd__email" placeholder="Enter email address"
+                   onchange="download_pdb_dcd__hide_email_error()" style="width: 25%;">
+            <p class="errorlist" id="download_pdb_dcd__email_error">
+                Please provide an email address
+            </p>
+            <p class="errorlist" id="download_pdb_dcd__wrong_email_error">
+                An error occurred while sending the email. Please provide a valid email address.
+            </p>
+            <p class="success_message" id="download_pdb_dcd__successful_sending">
+                The email was sent successfully. Please check your inbox
+            </p>
             <br>
 
-        </div>
+        </form>
+    </div>
+
+    {################################################################}
+    {# create the animation                                         #}
+    {################################################################}
+    <div id="animations_section">
+        <h2>Download animations</h2>
+
+        <table>
+
+            <tr>
+
+                {#............................#}
+                {# buttons                    #}
+                {#............................#}
+                <td id="button_cell" colspan="2">
+                    <button type="submit" id="StartButton" onclick="StartAllVideos()">
+                        {% load static %} <img src="{% static "SimuMoleWeb/icon_play.png" %}" alt="Start">
+                        <p>Play</p>
+                    </button>
+
+                    <button type="submit" id="PauseButton" onclick="PauseAllVideos()">
+                        {% load static %} <img src="{% static "SimuMoleWeb/icon_pause.png" %}" alt="Pause">
+                        <p>Pause</p>
+                    </button>
+
+                    <button type="submit" id="RestartButton" onclick="restart()">
+                        {% load static %} <img src="{% static "SimuMoleWeb/icon_restart.png" %}" alt="Restart">
+                        <p>Restart</p>
+                    </button>
+
+                    <br>
+
+                    <button type="submit" id="MinusFiveButton" onclick="minusFive()">
+                        {% load static %} <img src="{% static "SimuMoleWeb/icon_backward.png" %}" alt="Backward">
+                        <p>-5 frames</p>
+                    </button>
+
+                    <button type="submit" id="PlusFiveButton" onclick="plusFive()">
+                        {% load static %} <img src="{% static "SimuMoleWeb/icon_forward.png" %}" alt="Restart">
+                        <p>+5 frames</p>
+                    </button>
+
+                    <button type="submit" class="gray_button" id="FullControl" onclick="GetFullControl()">
+                        Full Control
+                    </button>
+
+                    <button type="submit" class="gray_button" id="LessControl" onclick="GetLessControl()">
+                        Less Control
+                    </button>
+                </td>
+
+                {#............................#}
+                {# main video                 #}
+                {#............................#}
+                <td id="big_video_cell" colspan="4">
+
+                    <video id="big_video" loop muted>
+                        <source src="" type="video/mp4">
+                        Your browser does not support HTML5 video.
+                    </video>
+
+                </td>
+
+            </tr>
+
+            <tr>
+                {#............................#}
+                {# 6 more videos              #}
+                {#............................#}
+
+                <td>
+                    <video id="video_1" width="175" height="150" loop muted onclick="play_big(this.id)">
+                        <source src="" type="video/mp4">
+                        Your browser does not support HTML5 video.
+                    </video>
+                </td>
+                <td>
+                    <video id="video_2" width="175" height="150" loop muted onclick="play_big(this.id)">
+                        <source src="" type="video/mp4">
+                        Your browser does not support HTML5 video.
+                    </video>
+                </td>
+                <td>
+                    <video id="video_3" width="175" height="150" loop muted onclick="play_big(this.id)">
+                        <source src="" type="video/mp4">
+                        Your browser does not support HTML5 video.
+                    </video>
+                </td>
+                <td>
+                    <video id="video_4" width="175" height="150" loop muted onclick="play_big(this.id)">
+                        <source src="" type="video/mp4">
+                        Your browser does not support HTML5 video.
+                    </video>
+                </td>
+                <td>
+                    <video id="video_5" width="175" height="150" loop muted onclick="play_big(this.id)">
+                        <source src="" type="video/mp4">
+                        Your browser does not support HTML5 video.
+                    </video>
+                </td>
+                <td>
+                    <video id="video_6" width="175" height="150" loop muted onclick="play_big(this.id)">
+                        <source src="" type="video/mp4">
+                        Your browser does not support HTML5 video.
+                    </video>
+                </td>
+
+            </tr>
+
+        </table>
+
+        {#............................#}
+        {# download buttons           #}
+        {#............................#}
+        <button type="button" id="download_animation__zip_id" onclick="download_animation__zip_event()">
+            Download as zip
+        </button>
+        <br>
+
+        <button type="button" id="download_animation__email_id" onclick="download_animation__email_event()">
+            Download via email
+        </button>
+        <input type="text" id="download_animation__email" placeholder="Enter email address"
+               onchange="download_animation__hide_email_error()" style="width: 25%;">
+        <p class="errorlist" id="download_animation__email_error">
+            Please provide an email address
+        </p>
+        <p class="errorlist" id="download_animation__wrong_email_error">
+            An error occurred while sending the email. Please provide a valid email address.
+        </p>
+        <p class="success_message" id="download_animation__successful_sending">
+            The email was sent successfully. Please check your inbox
+        </p>
+        <br>
 
     </div>
+
 
     {#    <h3>Your input parameters</h3>#}
     {#    <ul>#}
@@ -323,16 +472,37 @@
     <script>
 
         {################################################################}
-        {# simulation status: hide "simulation_is_ready" section until  #}
-        {# the simulation building process is finished                  #}
+        {# Initial layout of the page                                   #}
         {################################################################}
+        previous_page = "{{ previous_page }}";
+        if (previous_page === 'create_simulation') {
+            change_visibility_of_element("simulation_status_section", 'visible', '');
+            change_visibility_of_element("download_pdb_dcd_section", 'hidden', 'none');
+            change_visibility_of_element("animations_section", 'hidden', 'none');
+        } else if (previous_page === 'upload_files') {
+            change_visibility_of_element("simulation_status_section", 'hidden', 'none');
+            change_visibility_of_element("download_pdb_dcd_section", 'hidden', 'none');
+            change_visibility_of_element("animations_section", 'visible', '');
+        }
 
         let video_path = "media/videos";
 
-        hide_results(); // hide "simulation_is_ready" section as default
-        const interval = setInterval(function () {
-            update_simulation_status_event()
-        }, 4000); // unit of milliseconds
+        {################################################################}
+        {# simulation status: hide "download_pdb_dcd" and "animations"  #}
+        {# sections until the simulation building process is finished   #}
+        {################################################################}
+
+
+        let interval = "";
+        if (previous_page === 'create_simulation') {
+            interval = setInterval(function () {
+                update_simulation_status_event()
+            }, 4000); // unit of milliseconds
+        }
+        else if (previous_page === 'upload_files') { // the simulation already ready
+            video_path = "{{ video_path }}";
+            init_video_path()
+        }
 
         function update_simulation_status_event() {
             $.ajax({
@@ -346,13 +516,18 @@
                     // simulation_status:
                     if (data['simulation_status'] !== "") {
                         document.getElementById('simulation_status').textContent = data['simulation_status'];
-                        if (data['simulation_status'] === "Done!") {
+                        let simulation_status = data['simulation_status'];
+                        if (simulation_status === "Done!") {
                             clearInterval(interval);
                             setTimeout(function () {
-                                show_results();
+                                change_visibility_of_element("simulation_status_section", 'hidden', 'none');
+                                change_visibility_of_element("download_pdb_dcd_section", 'visible', '');
+                                change_visibility_of_element("animations_section", 'visible', '');
                                 video_path = data['video_path'];
                                 init_video_path()
                             }, 1000); // do nothing during 1 seconds and display 'Done!'
+                        } else if (simulation_status.startsWith("An error occurred")) {
+                            clearInterval(interval);
                         }
                     }
 
@@ -368,19 +543,6 @@
                     }
                 },
             });
-        }
-
-        function show_results() {
-            if (document.getElementById('simulation_is_ready')) {
-                change_visibility_of_element("simulation_is_in_processing", 'hidden', 'none');
-                change_visibility_of_element("simulation_is_ready", '', '');
-            }
-        }
-
-        function hide_results() {
-            if (document.getElementById('simulation_is_ready')) {
-                change_visibility_of_element("simulation_is_ready", 'hidden', 'none');
-            }
         }
 
         function init_video_path() {
@@ -404,10 +566,12 @@
         {################################################################}
 
         hide_element("download_pdb_dcd__select_error", '');
-        hide_element("download_pdb_dcd__email_error", 'inline');
+        hide_element("download_pdb_dcd__email_error", 'none');
+        hide_element("download_pdb_dcd__wrong_email_error", 'none');
+        hide_element("download_pdb_dcd__successful_sending", 'none');
 
         function download_pdb_dcd__zip_event() {
-            num_of_proteins = {{ form_data.num_of_proteins }};
+            num_of_proteins = {{ num_of_proteins }};
             const pdb_file = document.getElementById("pdb_file").checked;
             const dcd_file = document.getElementById("dcd_file").checked;
 
@@ -427,7 +591,7 @@
         }
 
         function download_pdb_dcd__email_event() {
-            num_of_proteins = {{ form_data.num_of_proteins }};
+            num_of_proteins = {{ num_of_proteins }};
             const pdb_file = document.getElementById("pdb_file").checked;
             const dcd_file = document.getElementById("dcd_file").checked;
             const email = document.getElementById("download_pdb_dcd__email").value;
@@ -448,9 +612,16 @@
                 dataType: 'json',
                 success:
                     function (response) {
-                        console.log("download_pdb_email__zip: email=" + response['email']); // todo: complete!
+                        let email_success = response['email_success'];
+                        if (email_success === 'true') {
+                            show_element("download_pdb_dcd__successful_sending", 'inline');
+                        }
+                        else if (email_success === 'false') {
+                            show_element("download_pdb_dcd__wrong_email_error", 'inline');
+                        }
                     }
-            });
+            })
+            ;
         }
 
         function download_pdb_dcd__hide_select_error() {
@@ -465,10 +636,22 @@
 
         function download_pdb_dcd__hide_email_error() {
             const email = document.getElementById("download_pdb_dcd__email").value;
-            const error = document.getElementById("download_pdb_dcd__email_error");
-            const error_visibility = error.style.visibility;
-            if (email !== '' && error_visibility === '') {
-                hide_element("download_pdb_dcd__email_error", 'inline')
+
+            const email_error = document.getElementById("download_pdb_dcd__email_error");
+            const email_error_visibility = email_error.style.visibility;
+            if (email !== '' && email_error_visibility === '') {
+                hide_element("download_pdb_dcd__email_error", 'none')
+            }
+            const wrong_email_error = document.getElementById("download_pdb_dcd__wrong_email_error");
+            const wrong_email_error_visibility = wrong_email_error.style.visibility;
+            if (email !== '' && wrong_email_error_visibility === '') {
+                hide_element("download_pdb_dcd__wrong_email_error", 'none')
+            }
+
+            const successful_sending = document.getElementById("download_pdb_dcd__successful_sending");
+            const successful_sending_visibility = successful_sending.style.visibility;
+            if (email !== '' && successful_sending_visibility === '') {
+                hide_element("download_pdb_dcd__successful_sending", 'none')
             }
         }
 
@@ -546,7 +729,9 @@
         }
 
         {# download animation - via zip or email                        #}
-        hide_element("download_animation__email_error", 'inline');
+        hide_element("download_animation__email_error", 'none');
+        hide_element("download_animation__wrong_email_error", 'none');
+        hide_element("download_animation__successful_sending", 'none');
 
         function download_animation__zip_event() {
             $.ajax({
@@ -573,17 +758,35 @@
                 dataType: 'json',
                 success:
                     function (response) {
-                        console.log("download_animation_email__zip: email=" + response['email']); // todo: complete!
+                        let email_success = response['email_success'];
+                        if (email_success === 'true') {
+                            show_element("download_animation__successful_sending", 'inline');
+                        }
+                        else if (email_success === 'false') {
+                            show_element("download_animation__wrong_email_error", 'inline');
+                        }
                     }
             });
         }
 
         function download_animation__hide_email_error() {
             const email = document.getElementById("download_animation__email").value;
-            const error = document.getElementById("download_animation__email_error");
-            const error_visibility = error.style.visibility;
-            if (email !== '' && error_visibility === '') {
-                hide_element("download_animation__email_error", 'inline')
+
+            const email_error = document.getElementById("download_animation__email_error");
+            const email_error_visibility = email_error.style.visibility;
+            if (email !== '' && email_error_visibility === '') {
+                hide_element("download_animation__email_error", 'none')
+            }
+            const wrong_email_error = document.getElementById("download_animation__wrong_email_error");
+            const wrong_email_error_visibility = wrong_email_error.style.visibility;
+            if (email !== '' && wrong_email_error_visibility === '') {
+                hide_element("download_animation__wrong_email_error", 'none')
+            }
+
+            const successful_sending = document.getElementById("download_animation__successful_sending");
+            const successful_sending_visibility = successful_sending.style.visibility;
+            if (email !== '' && successful_sending_visibility === '') {
+                hide_element("download_animation__successful_sending", 'none')
             }
         }
 
