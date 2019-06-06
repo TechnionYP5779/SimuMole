@@ -166,23 +166,26 @@ class Simulation:
         delta_rot = 360 / rot_in_each_axis
         i = 1
         self.cmd.do("axes")
-        for x in range(0, int(rot_in_each_axis)):
-            for y in range(0, int(rot_in_each_axis)):
-                for z in range(0, int(rot_in_each_axis)):
-                    self.cmd.sync()
-                    self.cmd.do("turn x, " + str((delta_rot * x)))
-                    self.cmd.sync()
-                    self.cmd.do("turn y, " + str((delta_rot * y)))
-                    self.cmd.sync()
-                    self.cmd.do("turn z, " + str((delta_rot * z)))
-                    self.cmd.sync()
-                    self.cmd.do("movie.produce media/videos/video_" + str(i) + ".mp4, quality = 90,preserve=0")
-                    self.cmd.sync()
-                    sleep(3)  # Sleep might not be a solution, but without it the commands run too fast and make errors. Attempting to use the sync command on 'produce' doesnt seem to work.
-                    self.cmd.do("turn z, " + str((-1*delta_rot * z)))  # resets the turns
-                    self.cmd.sync()
-                    self.cmd.do("turn y, " + str((-1*delta_rot * y)))
-                    self.cmd.sync()
-                    self.cmd.do("turn x, " + str((-1*delta_rot * x)))
-                    self.cmd.sync()
-                    i = i + 1
+        self.cmd.do("reset")
+        angels = [(0, 0, 0), (90, 0, 0), (180, 0, 0), (270, 0, 0), (0, 0, 0), (0, 90, 0), (0, 180, 0), (0, 270, 0),
+                  (0, 0, 0), (0, 0, 90), (0, 0, 180), (0, 0, 270)]
+        for x, y, z in angels:
+            x, y, z = str(x), str(y), str(z)
+            self.cmd.sync()
+            self.cmd.do("turn x, " + x)
+            self.cmd.sync()
+            self.cmd.do("turn y, " + y)
+            self.cmd.sync()
+            self.cmd.do("turn z, " + z)
+            self.cmd.sync()
+            self.cmd.do("movie.produce media/videos/video_" + str(i) + ".mp4, quality = 90,preserve=0")
+            self.cmd.sync()
+            sleep(3)  # Sleep might not be a solution, but without it the commands run too fast and make errors.
+            #  Attempting to use the sync command on 'produce' doesnt seem to work.
+            self.cmd.do("turn z, " + "-" + z)  # resets the turns
+            self.cmd.sync()
+            self.cmd.do("turn y, " + "-" + y)
+            self.cmd.sync()
+            self.cmd.do("turn x, " + "-" + x)
+            self.cmd.sync()
+            i = i + 1
