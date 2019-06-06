@@ -161,7 +161,24 @@
 
             <tr>
                 {#............................#}
-                {# 4 more videos              #}
+                {# 1 more videos              #}
+                {#............................#}
+                <td>base:</td>
+                <td></td>
+                <td>
+                    <video id="video_0" width="175" height="150" loop muted onclick="play_big(this.id)">
+                        <source src="" type="video/mp4">
+                        Your browser does not support HTML5 video.
+                    </video>
+                </td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+
+            <tr>
+                {#............................#}
+                {# 3 more videos              #}
                 {#............................#}
                 <td>X axis:</td>
                 <td></td>
@@ -184,19 +201,22 @@
                     </video>
                 </td>
                 <td>
-                    <video id="video_4" width="175" height="150" loop muted onclick="play_big(this.id)">
-                        <source src="" type="video/mp4">
-                        Your browser does not support HTML5 video.
-                    </video>
+
                 </td>
             </tr>
 
             <tr>
                 {#............................#}
-                {# 4 more videos              #}
+                {# 3 more videos              #}
                 {#............................#}
                 <td>Y axis:</td>
                 <td></td>
+                <td>
+                    <video id="video_4" width="175" height="150" loop muted onclick="play_big(this.id)">
+                        <source src="" type="video/mp4">
+                        Your browser does not support HTML5 video.
+                    </video>
+                </td>
                 <td>
                     <video id="video_5" width="175" height="150" loop muted onclick="play_big(this.id)">
                         <source src="" type="video/mp4">
@@ -210,6 +230,17 @@
                     </video>
                 </td>
                 <td>
+
+                </td>
+            </tr>
+
+            <tr>
+                {#............................#}
+                {# 3 more videos              #}
+                {#............................#}
+                <td>Z axis:</td>
+                <td></td>
+                <td>
                     <video id="video_7" width="175" height="150" loop muted onclick="play_big(this.id)">
                         <source src="" type="video/mp4">
                         Your browser does not support HTML5 video.
@@ -221,14 +252,6 @@
                         Your browser does not support HTML5 video.
                     </video>
                 </td>
-            </tr>
-
-            <tr>
-                {#............................#}
-                {# 4 more videos              #}
-                {#............................#}
-                <td>Z axis:</td>
-                <td></td>
                 <td>
                     <video id="video_9" width="175" height="150" loop muted onclick="play_big(this.id)">
                         <source src="" type="video/mp4">
@@ -236,22 +259,7 @@
                     </video>
                 </td>
                 <td>
-                    <video id="video_10" width="175" height="150" loop muted onclick="play_big(this.id)">
-                        <source src="" type="video/mp4">
-                        Your browser does not support HTML5 video.
-                    </video>
-                </td>
-                <td>
-                    <video id="video_11" width="175" height="150" loop muted onclick="play_big(this.id)">
-                        <source src="" type="video/mp4">
-                        Your browser does not support HTML5 video.
-                    </video>
-                </td>
-                <td>
-                    <video id="video_12" width="175" height="150" loop muted onclick="play_big(this.id)">
-                        <source src="" type="video/mp4">
-                        Your browser does not support HTML5 video.
-                    </video>
+
                 </td>
             </tr>
 
@@ -381,7 +389,8 @@
         }
 
         function init_video_path() {
-            document.getElementById("big_video").setAttribute('src', video_path + 'video_1' + ".mp4");
+            document.getElementById("big_video").setAttribute('src', video_path + 'video_0' + ".mp4");
+            document.getElementById("video_0").setAttribute('src', video_path + 'video_0' + ".mp4");
             document.getElementById("video_1").setAttribute('src', video_path + 'video_1' + ".mp4");
             document.getElementById("video_2").setAttribute('src', video_path + 'video_2' + ".mp4");
             document.getElementById("video_3").setAttribute('src', video_path + 'video_3' + ".mp4");
@@ -391,9 +400,6 @@
             document.getElementById("video_7").setAttribute('src', video_path + 'video_7' + ".mp4");
             document.getElementById("video_8").setAttribute('src', video_path + 'video_8' + ".mp4");
             document.getElementById("video_9").setAttribute('src', video_path + 'video_9' + ".mp4");
-            document.getElementById("video_10").setAttribute('src', video_path + 'video_10' + ".mp4");
-            document.getElementById("video_11").setAttribute('src', video_path + 'video_11' + ".mp4");
-            document.getElementById("video_12").setAttribute('src', video_path + 'video_12' + ".mp4");
         }
 
         {################################################################}
@@ -512,7 +518,7 @@
         {################################################################}
 
         function StartAllVideos() {
-            for (let i = 1; i <= 12; i++) {
+            for (let i = 0; i <= 9; i++) {
                 document.getElementById("video_" + i).play();
             }
             document.getElementById("big_video").play();
@@ -521,7 +527,7 @@
         }
 
         function PauseAllVideos() {
-            for (let i = 1; i <= 12; i++) {
+            for (let i = 0; i <= 9; i++) {
                 document.getElementById("video_" + i).pause()
             }
             document.getElementById("big_video").pause();
@@ -538,7 +544,7 @@
         }
 
         function GetFullControl() {
-            for (let i = 1; i <= 12; i++) {
+            for (let i = 0; i <= 9; i++) {
                 document.getElementById("video_" + i).controls = true;
             }
             document.getElementById("LessControl").style.display = "initial";
@@ -546,7 +552,7 @@
         }
 
         function GetLessControl() {
-            for (let i = 1; i <= 12; i++) {
+            for (let i = 0; i <= 9; i++) {
                 document.getElementById("video_" + i).controls = false;
             }
             document.getElementById("LessControl").style.display = "none";
@@ -554,7 +560,7 @@
         }
 
         function minusFive() {
-            for (let i = 1; i <= 12; i++) {
+            for (let i = 0; i <= 9; i++) {
                 let v = document.getElementById("video_" + i);
                 v.currentTime = v.currentTime <= 5 ? 0 : v.currentTime - 5;
             }
@@ -563,7 +569,7 @@
         }
 
         function plusFive() {
-            for (let i = 1; i <= 12; i++) {
+            for (let i = 0; i <= 9; i++) {
                 let v = document.getElementById("video_" + i);
                 v.currentTime = v.currentTime + 5 >= v.duration ? v.duration : v.currentTime + 5;
             }
@@ -572,7 +578,7 @@
         }
 
         function restart() {
-            for (let i = 1; i <= 12; i++) {
+            for (let i = 0; i <= 9; i++) {
                 document.getElementById("video_" + i).currentTime = 0;
             }
             document.getElementById("big_video").currentTime = 0;

@@ -86,7 +86,7 @@ def download__create_zip(num_of_proteins, include_pdb_file, include_dcd_file, in
         files_names.append('dcd.dcd')
 
     if include_animations_files:
-        for i in range(1, 13):
+        for i in range(0, 10):
             video_name = 'video_{}.mp4'.format(str(i))
             files.append(os.path.join(settings.MEDIA_ROOT, 'videos', video_name))
             files_names.append(video_name)

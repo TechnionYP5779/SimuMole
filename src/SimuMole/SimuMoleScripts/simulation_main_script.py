@@ -167,9 +167,12 @@ def create_movies_from_different_angles(cmd):
     cmd.do("axes")
     cmd.do("reset")
 
-    i = 1
-    angels = [(0, 0, 0), (90, 0, 0), (180, 0, 0), (270, 0, 0), (0, 0, 0), (0, 90, 0), (0, 180, 0), (0, 270, 0),
-              (0, 0, 0), (0, 0, 90), (0, 0, 180), (0, 0, 270)]
+    i = 0
+    angels = [(0, 0, 0),
+              (90, 0, 0), (180, 0, 0), (270, 0, 0),  # X axis
+              (0, 90, 0), (0, 180, 0), (0, 270, 0),  # Y axis
+              (0, 0, 90), (0, 0, 180), (0, 0, 270),  # Z axis
+              ]
     for x, y, z in angels:
         update_simulation_status('Creates the animations ({} of {})'.format(i, len(angels)))
         x, y, z = str(x), str(y), str(z)
