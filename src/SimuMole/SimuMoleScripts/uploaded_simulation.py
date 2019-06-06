@@ -1,5 +1,6 @@
 import pymol
 from .simulation_main_script import create_movies_from_different_angles
+from .basicTrajectoryBuilder import update_simulation_status
 
 temp = 'media/files/'  # path to temp folder
 
@@ -36,10 +37,3 @@ def create_animations():
     # complete simulation:
     update_simulation_status('Done!')
     # self.cmd.quit() # todo: need to close PyMol window
-
-
-def update_simulation_status(status):
-    dir_path = temp
-    simulation_status_path = dir_path + 'simulation_status.txt'
-    with open(simulation_status_path, "w+") as f:
-        f.write(status)

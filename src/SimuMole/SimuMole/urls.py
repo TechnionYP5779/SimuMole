@@ -21,10 +21,8 @@ urlpatterns = [
 
                   path('update_simulation_status/', views.update_simulation_status, name='update_simulation_status'),
 
-                  path('download_pdb_dcd__zip/', views.download_pdb_dcd__zip, name='download_pdb_dcd__zip'),
-                  path('download_pdb_dcd__email/', views.download_pdb_dcd__email, name='download_pdb_dcd__email'),
-                  path('download_animation__zip/', views.download_animation__zip, name='download_animation__zip'),
-                  path('download_animation__email/', views.download_animation__email, name='download_animation__email'),
+                  path('download__zip/', views.download__zip, name='download__zip'),
+                  path('download__email/', views.download__email, name='download__email'),
 
                   path('upload/', views.upload_files, name='upload_files'),
 

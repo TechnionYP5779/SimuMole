@@ -62,76 +62,70 @@ def update_simulation_status(request):
     return JsonResponse(context)
 
 
-def download_pdb_dcd__create_zip(num_of_proteins, include_pdb_file, include_dcd_file):
+def download__create_zip(num_of_proteins, include_pdb_file, include_dcd_file, include_animations_files, previous_page):
     files = []
+    files_names = []
 
     if include_pdb_file:
-        file_name = ''
-        if num_of_proteins == '1':
-            file_name = '_1___movement.pdb'
-        if num_of_proteins == '2':
-            file_name = 'both___1___movement__2___movement.pdb'
-        files.append(os.path.join(settings.MEDIA_ROOT, 'files', file_name))
-    if include_dcd_file:
-        files.append(os.path.join(settings.MEDIA_ROOT, 'files', 'trajectory.dcd'))
+        if previous_page == 'create_simulation':
+            file_name = ''
+            if num_of_proteins == '1':
+                file_name = '_1___movement.pdb'
+            if num_of_proteins == '2':
+                file_name = 'both___1___movement__2___movement.pdb'
+            files.append(os.path.join(settings.MEDIA_ROOT, 'files', file_name))
+        if previous_page == 'upload_files':
+            files.append(os.path.join(settings.MEDIA_ROOT, 'files', 'file_upload_pdb.pdb'))
+        files_names.append('pdb.pdb')
 
-    zip_file = zipfile.ZipFile(os.path.join(settings.MEDIA_ROOT, 'files', "pdb_dcd.zip"), "w")
-    for file, file_name in zip(files, ['pdc.pdb', 'dcd.dcd']):
+    if include_dcd_file:
+        if previous_page == 'create_simulation':
+            files.append(os.path.join(settings.MEDIA_ROOT, 'files', 'trajectory.dcd'))
+        if previous_page == 'upload_files':
+            files.append(os.path.join(settings.MEDIA_ROOT, 'files', 'file_upload_dcd.dcd'))
+        files_names.append('dcd.dcd')
+
+    if include_animations_files:
+        for i in range(1, 13):
+            video_name = 'video_{}.mp4'.format(str(i))
+            files.append(os.path.join(settings.MEDIA_ROOT, 'videos', video_name))
+            files_names.append(video_name)
+
+    zip_file = zipfile.ZipFile(os.path.join(settings.MEDIA_ROOT, 'files', "SimuMole_output.zip"), "w")
+    for file, file_name in zip(files, files_names):
         zip_file.write(file, file_name)
     zip_file.close()
 
 
-def download_pdb_dcd__zip(request):
+def download__zip(request):
     num_of_proteins = request.GET.get('num_of_proteins')
     include_pdb_file = (request.GET.get('pdb_file') == 'true')
     include_dcd_file = (request.GET.get('dcd_file') == 'true')
+    include_animations_files = (request.GET.get('animation_files') == 'true')
+    previous_page = request.GET.get('previous_page')
 
-    download_pdb_dcd__create_zip(num_of_proteins, include_pdb_file, include_dcd_file)
+    download__create_zip(num_of_proteins, include_pdb_file, include_dcd_file, include_animations_files, previous_page)
 
     return JsonResponse({})
 
 
-def download_pdb_dcd__email(request):
+def download__email(request):
     num_of_proteins = request.GET.get('num_of_proteins')
     include_pdb_file = (request.GET.get('pdb_file') == 'true')
     include_dcd_file = (request.GET.get('dcd_file') == 'true')
+    include_animations_files = (request.GET.get('animation_files') == 'true')
+    previous_page = request.GET.get('previous_page')
+
     email = request.GET.get('email')
 
     response = {'email_success': 'true'}
     try:
-        download_pdb_dcd__create_zip(num_of_proteins, include_pdb_file, include_dcd_file)
-        send_email(email, "pdb_dcd.zip")
+        download__create_zip(num_of_proteins, include_pdb_file, include_dcd_file, include_animations_files,
+                             previous_page)
+        send_email(email, "SimuMole_output.zip")
     except Exception as e:
         response = {'email_success': 'false'}
 
-    return JsonResponse(response)
-
-
-def download_animation__create_zip():
-    files = []
-    for i in range(1, 13):
-        files.append(os.path.join(settings.MEDIA_ROOT, 'videos', 'video_{}.mp4'.format(str(i))))
-
-    zip_file = zipfile.ZipFile(os.path.join(settings.MEDIA_ROOT, 'files', "animations.zip"), "w")
-    for f in files:
-        zip_file.write(f, basename(f))
-    zip_file.close()
-
-
-def download_animation__zip(request):
-    download_animation__create_zip()
-    return JsonResponse({})
-
-
-def download_animation__email(request):
-    email = request.GET.get('email')
-
-    response = {'email_success': 'true'}
-    try:
-        download_animation__create_zip()
-        send_email(email, "animations.zip")
-    except:
-        response = {'email_success': 'false'}
     return JsonResponse(response)
 
 

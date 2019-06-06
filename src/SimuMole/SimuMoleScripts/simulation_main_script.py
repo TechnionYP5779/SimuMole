@@ -1,17 +1,12 @@
 from time import sleep
 import pymol
-import os
 
 from .fix_pdb import fix_pdb
-from .basicTrajectoryBuilder import scr
-from .basicTrajectoryBuilder import update_simulation_status
+from .basicTrajectoryBuilder import scr, update_simulation_status
 from .transformations import translate_pdb
-from .OpenMM_scriptBuilder import create_openmm_script, openMMbuilder
 
 temp = 'media/files/'  # path to temp folder
 pdb = '.pdb'  # pdb suffix
-
-import math
 
 
 class Simulation:
@@ -98,8 +93,7 @@ class Simulation:
             try:
                 scr(input_coor_name, self.temperature, self.time_step_number)
             except:
-                self.update_simulation_status(
-                    'An error occurred while creating the simulation. Please try again later.')
+                update_simulation_status('An error occurred while creating the simulation. Please try again later.')
                 return
 
         # save the DCD file using PyMOL
@@ -108,23 +102,16 @@ class Simulation:
             self.cmd.load(input_coor_name)
             self.cmd.load_traj(temp + 'trajectory.dcd')
         except:  # mainly for "pymol.CmdException"
-            self.update_simulation_status('An error occurred while creating the simulation. Please try again later.')
+            update_simulation_status('An error occurred while creating the simulation. Please try again later.')
             return
 
         # create the animations:
-        self.update_simulation_status('Creates the animations')
+        update_simulation_status('Creates the animations')
         create_movies_from_different_angles(self.cmd)  # create movies in media/movies folder
 
         # complete simulation:
-        self.update_simulation_status('Done!')
+        update_simulation_status('Done!')
         # self.cmd.quit() # todo: need to close PyMol window
-
-    @staticmethod
-    def update_simulation_status(status):
-        dir_path = 'media/files/'
-        simulation_status_path = dir_path + 'simulation_status.txt'
-        with open(simulation_status_path, "w+") as f:
-            f.write(status)
 
     def clear_simulation(self):  # todo: complete this! delete all temporary files
         # os.remove('path/to/files')
@@ -184,6 +171,7 @@ def create_movies_from_different_angles(cmd):
     angels = [(0, 0, 0), (90, 0, 0), (180, 0, 0), (270, 0, 0), (0, 0, 0), (0, 90, 0), (0, 180, 0), (0, 270, 0),
               (0, 0, 0), (0, 0, 90), (0, 0, 180), (0, 0, 270)]
     for x, y, z in angels:
+        update_simulation_status('Creates the animations ({} of {})'.format(i, len(angels)))
         x, y, z = str(x), str(y), str(z)
         cmd.sync()
         cmd.do("turn x, " + x)
