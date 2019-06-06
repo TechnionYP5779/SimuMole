@@ -109,7 +109,7 @@ def download_pdb_dcd__email(request):
 
 def download_animation__create_zip():
     files = []
-    for i in range(1, 7):
+    for i in range(1, 13):
         files.append(os.path.join(settings.MEDIA_ROOT, 'videos', 'video_{}.mp4'.format(str(i))))
 
     zip_file = zipfile.ZipFile(os.path.join(settings.MEDIA_ROOT, 'files', "animations.zip"), "w")
