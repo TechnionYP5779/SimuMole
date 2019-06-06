@@ -26,6 +26,7 @@ size_limit = 10 * megabyte
 
 
 def send_email(receiver, file_name):
+    file_name = "./media/files/" + file_name
     size = os.stat(file_name).st_size
     if size < size_limit:
         send_file_attached(receiver, file_name)
@@ -66,7 +67,7 @@ def send_file_link(receiver, file_name):
     message["To"] = receiver
     message.attach(MIMEText("The files you requested are too large to be sent through email.\n"
                             "Thus you can download the files from the following link: " + url + "\n"
-                            "The link is only valid until " + expiration_date +
+                                                                                                "The link is only valid until " + expiration_date +
                             ", so please download your files before then.\n\n"
                             "Thank you for using SimuMole.", "plain"))
 
