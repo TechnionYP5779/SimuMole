@@ -128,7 +128,7 @@ def download__email(request):
         download__create_zip(num_of_proteins, include_pdb_file, include_dcd_file, include_animations_files,
                              previous_page)
         send_email(email, "SimuMole_output.zip")
-    except Exception as e:
+    except Exception:
         response = {'email_success': 'false'}
 
     return JsonResponse(response)
@@ -155,7 +155,8 @@ class SimulationWizard(CookieWizardView):
         get dictionary that represent the form data, and return clean dictionary data (without contradictions)
         """
         clean_dict = {}
-        first_pdb_type, first_pdb_id, first_pdb_file, second_pdb_type, second_pdb_id, second_pdb_file = '', '', '', '', '', ''
+        first_pdb_type, first_pdb_id, first_pdb_file = '', '', ''
+        second_pdb_type, second_pdb_id, second_pdb_file = '', '', ''
         x1, y1, z1, x2, y2, z2 = '0', '0', '0', '0', '0', '0'
         degXY_1, degYZ_1, degXY_2, degYZ_2 = '0', '0', '0', '0'
 

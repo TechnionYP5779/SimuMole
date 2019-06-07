@@ -65,7 +65,7 @@ class SimulationForm0_LoadPdb(forms.Form):
 
     def clean(self):
         cleaned_data = super(SimulationForm0_LoadPdb, self).clean()
-        data = {**self.initial, **cleaned_data}  # self.initial->from previous steps, cleaned_data->from current step
+        # data = {**self.initial, **cleaned_data}  # self.initial->from previous steps, cleaned_data->from current step
         SimulationForm0_LoadPdb.update_cnt()
         return cleaned_data
 

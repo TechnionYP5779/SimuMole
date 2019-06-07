@@ -65,11 +65,12 @@ def send_file_link(receiver, file_name):
     message["Subject"] = "SimuMole: the files you requested are ready"
     message["From"] = sender
     message["To"] = receiver
-    message.attach(MIMEText("The files you requested are too large to be sent through email.\n"
-                            "Thus you can download the files from the following link: " + url + "\n"
-                                                                                                "The link is only valid until " + expiration_date +
-                            ", so please download your files before then.\n\n"
-                            "Thank you for using SimuMole.", "plain"))
+    message.attach(MIMEText("The files you requested are too large to be sent through email.\n" +
+                            "Thus you can download the files from the following link: " + url + "\n" +
+                            "The link is only valid until " + expiration_date +
+                            ", so please download your files before then.\n\n" +
+                            "Thank you for using SimuMole.",
+                            "plain"))
 
     context = ssl.create_default_context()
 

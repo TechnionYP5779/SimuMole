@@ -37,8 +37,7 @@ class Simulation:
 
         self.temperature_scale = temperature_scale
         self.temperature = \
-            float(temperature) if temperature_scale == 'kelvin' \
-                else (float(temperature) + 273.15)
+            float(temperature) if temperature_scale == 'kelvin' else (float(temperature) + 273.15)
         self.time_step_number = (int(time_step_number) - 1) * 1000
 
     def create_simulation(self):
@@ -157,7 +156,7 @@ class Simulation:
 # output: 3*3 + 1 auto generated movies from different angles
 def create_movies_from_different_angles(cmd):
     sleep(0.5)
-    cmd.do("run SimuMoleScripts/axes.txt")
+    cmd.do("run SimuMoleScripts/axes.py")
     cmd.do("orient")
     cmd.do("zoom complete = 1")
     cmd.do("as cartoon")
@@ -174,7 +173,7 @@ def create_movies_from_different_angles(cmd):
               (0, 0, 90), (0, 0, 180), (0, 0, 270),  # Z axis
               ]
     for x, y, z in angels:
-        update_simulation_status('Creates the animations ({} of {})'.format(i, len(angels)))
+        update_simulation_status('Creates the animations ({} of {})'.format(i + 1, len(angels)))
         x, y, z = str(x), str(y), str(z)
         cmd.sync()
         cmd.do("turn x, " + x)

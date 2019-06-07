@@ -327,7 +327,7 @@
         {################################################################}
         {# Initial layout of the page                                   #}
         {################################################################}
-        let previous_page = "{{ previous_page }}";
+        {#let previous_page = "{{ previous_page }}";#}
         let video_path = "{{ video_path }}";
 
         change_visibility_of_element("simulation_status_section", 'visible', '');
@@ -427,7 +427,7 @@
                     'previous_page': "{{ previous_page }}",
                 },
                 dataType: 'json',
-                success: function (response) {
+                success: function () {
                     location.href = "/media/files/SimuMole_output.zip"
                 }
             });
