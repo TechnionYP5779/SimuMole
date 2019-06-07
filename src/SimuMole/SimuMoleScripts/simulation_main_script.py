@@ -1,17 +1,12 @@
 from time import sleep
 import pymol
-import os
 
 from .fix_pdb import fix_pdb
-from .basicTrajectoryBuilder import scr
-from .basicTrajectoryBuilder import update_simulation_status
+from .basicTrajectoryBuilder import scr, update_simulation_status
 from .transformations import translate_pdb
-from .OpenMM_scriptBuilder import create_openmm_script, openMMbuilder
 
 temp = 'media/files/'  # path to temp folder
 pdb = '.pdb'  # pdb suffix
-
-import math
 
 
 class Simulation:
@@ -98,8 +93,7 @@ class Simulation:
             try:
                 scr(input_coor_name, self.temperature, self.time_step_number)
             except:
-                self.update_simulation_status(
-                    'An error occurred while creating the simulation. Please try again later.')
+                update_simulation_status('An error occurred while creating the simulation. Please try again later.')
                 return
 
         # save the DCD file using PyMOL
@@ -108,23 +102,16 @@ class Simulation:
             self.cmd.load(input_coor_name)
             self.cmd.load_traj(temp + 'trajectory.dcd')
         except:  # mainly for "pymol.CmdException"
-            self.update_simulation_status('An error occurred while creating the simulation. Please try again later.')
+            update_simulation_status('An error occurred while creating the simulation. Please try again later.')
             return
 
         # create the animations:
-        self.update_simulation_status('Creates the animations')
-        self.create_movies_from_different_angles(8) # create movies in media/movies folder
-       
-        # complete simulation:
-        self.update_simulation_status('Done!')
-        # self.cmd.quit() # todo: need to close PyMol window
+        update_simulation_status('Creates the animations')
+        create_movies_from_different_angles(self.cmd)  # create movies in media/movies folder
 
-    @staticmethod
-    def update_simulation_status(status):
-        dir_path = 'media/files/'
-        simulation_status_path = dir_path + 'simulation_status.txt'
-        with open(simulation_status_path, "w+") as f:
-            f.write(status)
+        # complete simulation:
+        update_simulation_status('Done!')
+        # self.cmd.quit() # todo: need to close PyMol window
 
     def clear_simulation(self):  # todo: complete this! delete all temporary files
         # os.remove('path/to/files')
@@ -165,47 +152,45 @@ class Simulation:
         if do_fix:
             fix_pdb(merged_pdb)
 
-    #	*FUNCTION IS ASSUMING TRAJECTORY AND PDB FILES ARE LOADED*
-    #	input: number of movies (angles) to auto generate, and initial camera x,y,z rotation values
-    #   number of movie produced will be (roundDown((num_of_angles)^(1^3)))^3 , so pick a good number (8 for example)
-    # output: num_of_angles auto generated movies from different angles
-    def create_movies_from_different_angles(self, num_of_angles, x_init_rot=0, y_init_rot=0, z_init_rot=0):
-        # self.cmd.reinitialize()
-        sleep(0.5)
-        self.cmd.do("run SimuMoleScripts/axes.txt")
-        self.cmd.do("orient")
-        self.cmd.do("zoom complete = 1")
-        self.cmd.do("turn x, " + str(x_init_rot))
-        self.cmd.do("turn y, " + str(y_init_rot))
-        self.cmd.do("turn z, " + str(z_init_rot))
-        self.cmd.do("as cartoon")
-        self.cmd.do("preset.pretty(selection='all')")
-        self.cmd.do("smooth")
-        self.cmd.do("set max_threads, 1")
-        rot_in_each_axis = math.pow(num_of_angles, 1 / 3)
-        delta_rot = 360 / rot_in_each_axis
-        i = 1
-        self.cmd.do("axes")
-        self.cmd.do("reset")
-        angels = [(0, 0, 0), (90, 0, 0), (180, 0, 0), (270, 0, 0), (0, 0, 0), (0, 90, 0), (0, 180, 0), (0, 270, 0),
-                  (0, 0, 0), (0, 0, 90), (0, 0, 180), (0, 0, 270)]
-        for x, y, z in angels:
-            x, y, z = str(x), str(y), str(z)
-            self.cmd.sync()
-            self.cmd.do("turn x, " + x)
-            self.cmd.sync()
-            self.cmd.do("turn y, " + y)
-            self.cmd.sync()
-            self.cmd.do("turn z, " + z)
-            self.cmd.sync()
-            self.cmd.do("movie.produce media/videos/video_" + str(i) + ".mp4, quality = 90,preserve=0")
-            self.cmd.sync()
-            sleep(3)  # Sleep might not be a solution, but without it the commands run too fast and make errors.
-            #  Attempting to use the sync command on 'produce' doesnt seem to work.
-            self.cmd.do("turn z, " + "-" + z)  # resets the turns
-            self.cmd.sync()
-            self.cmd.do("turn y, " + "-" + y)
-            self.cmd.sync()
-            self.cmd.do("turn x, " + "-" + x)
-            self.cmd.sync()
-            i = i + 1
+
+# FUNCTION IS ASSUMING TRAJECTORY AND PDB FILES ARE LOADED
+# output: 3*3 + 1 auto generated movies from different angles
+def create_movies_from_different_angles(cmd):
+    sleep(0.5)
+    cmd.do("run SimuMoleScripts/axes.txt")
+    cmd.do("orient")
+    cmd.do("zoom complete = 1")
+    cmd.do("as cartoon")
+    cmd.do("preset.pretty(selection='all')")
+    cmd.do("smooth")
+    cmd.do("set max_threads, 1")
+    cmd.do("axes")
+    cmd.do("reset")
+
+    i = 0
+    angels = [(0, 0, 0),
+              (90, 0, 0), (180, 0, 0), (270, 0, 0),  # X axis
+              (0, 90, 0), (0, 180, 0), (0, 270, 0),  # Y axis
+              (0, 0, 90), (0, 0, 180), (0, 0, 270),  # Z axis
+              ]
+    for x, y, z in angels:
+        update_simulation_status('Creates the animations ({} of {})'.format(i, len(angels)))
+        x, y, z = str(x), str(y), str(z)
+        cmd.sync()
+        cmd.do("turn x, " + x)
+        cmd.sync()
+        cmd.do("turn y, " + y)
+        cmd.sync()
+        cmd.do("turn z, " + z)
+        cmd.sync()
+        cmd.do("movie.produce media/videos/video_" + str(i) + ".mp4, quality = 90,preserve=0")
+        cmd.sync()
+        sleep(3)  # Sleep might not be a solution, but without it the commands run too fast and make errors.
+        #           Attempting to use the sync command on 'produce' doesnt seem to work.
+        cmd.do("turn z, " + "-" + z)  # resets the turns
+        cmd.sync()
+        cmd.do("turn y, " + "-" + y)
+        cmd.sync()
+        cmd.do("turn x, " + "-" + x)
+        cmd.sync()
+        i = i + 1
