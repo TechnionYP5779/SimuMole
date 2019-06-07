@@ -12,7 +12,6 @@ from django.conf import settings
 import os
 import threading
 import zipfile
-from os.path import basename
 
 temp = 'media/files/'  # path to temp folder
 
@@ -86,11 +85,17 @@ def download__create_zip(num_of_proteins, include_pdb_file, include_dcd_file, in
         files_names.append('dcd.dcd')
 
     if include_animations_files:
-        for i in range(0, 10):
+        angels = [(0, 0, 0),
+                  (90, 0, 0), (180, 0, 0), (270, 0, 0),  # X axis
+                  (0, 90, 0), (0, 180, 0), (0, 270, 0),  # Y axis
+                  (0, 0, 90), (0, 0, 180), (0, 0, 270), ]  # Z axis
+        for i, (x, y, z) in zip(range(0, 10), angels):
             video_name = 'video_{}.mp4'.format(str(i))
             files.append(os.path.join(settings.MEDIA_ROOT, 'videos', video_name))
-            files_names.append(video_name)
+            video_name_at_download = 'video_{}__X{}_Y{}_Z{}.mp4'.format(str(i), str(x), str(y), str(z))
+            files_names.append(video_name_at_download)
 
+    print(files_names)
     zip_file = zipfile.ZipFile(os.path.join(settings.MEDIA_ROOT, 'files', "SimuMole_output.zip"), "w")
     for file, file_name in zip(files, files_names):
         zip_file.write(file, file_name)

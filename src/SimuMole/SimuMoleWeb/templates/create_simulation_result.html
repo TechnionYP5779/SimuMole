@@ -105,10 +105,42 @@
 
             <tr>
 
-                {#............................#}
-                {# buttons                    #}
-                {#............................#}
-                <td id="button_cell" colspan="2">
+                <td></td>
+
+                <td>
+                    <p>(x,y,z)=(0,90,0)</p>
+                    <video id="video_4" width="175" height="150" loop muted onclick="play_big(this.id)">
+                        <source src="" type="video/mp4">
+                        Your browser does not support HTML5 video.
+                    </video>
+                </td>
+
+                <td>
+                    <p>(x,y,z)=(0,180,0)</p>
+                    <video id="video_5" width="175" height="150" loop muted onclick="play_big(this.id)">
+                        <source src="" type="video/mp4">
+                        Your browser does not support HTML5 video.
+                    </video>
+                </td>
+
+                <td>
+                    <p>(x,y,z)=(0,270,0)</p>
+                    <video id="video_6" width="175" height="150" loop muted onclick="play_big(this.id)">
+                        <source src="" type="video/mp4">
+                        Your browser does not support HTML5 video.
+                    </video>
+                </td>
+
+                <td></td>
+
+            </tr>
+
+            <tr>
+
+                <td rowspan="2" id="button_cell" style="width: 300px">
+                    {#............................#}
+                    {# buttons                    #}
+                    {#............................#}
                     <button type="submit" id="StartButton" onclick="StartAllVideos()">
                         {% load static %} <img src="{% static "SimuMoleWeb/icon_play.png" %}" alt="Start">
                         <p>Play</p>
@@ -145,122 +177,87 @@
                     </button>
                 </td>
 
-                {#............................#}
-                {# main video                 #}
-                {#............................#}
-                <td id="big_video_cell" colspan="4">
-
-                    <video id="big_video" loop muted>
-                        <source src="" type="video/mp4">
-                        Your browser does not support HTML5 video.
-                    </video>
-
-                </td>
-
-            </tr>
-
-            <tr>
-                {#............................#}
-                {# 1 more videos              #}
-                {#............................#}
-                <td>base:</td>
-                <td></td>
-                <td>
-                    <video id="video_0" width="175" height="150" loop muted onclick="play_big(this.id)">
+                <td colspan="3" rowspan="3" id="big_video_cell">
+                    {#............................#}
+                    {# main video                 #}
+                    {#............................#}
+                    <video id="big_video" width="750" loop muted>
                         <source src="" type="video/mp4">
                         Your browser does not support HTML5 video.
                     </video>
                 </td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
 
-            <tr>
-                {#............................#}
-                {# 3 more videos              #}
-                {#............................#}
-                <td>X axis:</td>
-                <td></td>
                 <td>
+                    <p>(x,y,z)=(90,0,0)</p>
                     <video id="video_1" width="175" height="150" loop muted onclick="play_big(this.id)">
                         <source src="" type="video/mp4">
                         Your browser does not support HTML5 video.
                     </video>
                 </td>
+
+            </tr>
+
+            <tr>
+
                 <td>
+                    <p>(x,y,z)=(180,0,0)</p>
                     <video id="video_2" width="175" height="150" loop muted onclick="play_big(this.id)">
                         <source src="" type="video/mp4">
                         Your browser does not support HTML5 video.
                     </video>
                 </td>
+
+            </tr>
+
+            <tr>
                 <td>
+                    <video id="video_0" width="175" height="150" loop muted onclick="play_big(this.id)">
+                        <source src="" type="video/mp4">
+                        Your browser does not support HTML5 video.
+                    </video>
+                    <p>(x,y,z)=(0,0,0)</p>
+                </td>
+
+                <td>
+                    <p>(x,y,z)=(270,0,0)</p>
                     <video id="video_3" width="175" height="150" loop muted onclick="play_big(this.id)">
                         <source src="" type="video/mp4">
                         Your browser does not support HTML5 video.
                     </video>
                 </td>
-                <td>
 
-                </td>
             </tr>
 
             <tr>
-                {#............................#}
-                {# 3 more videos              #}
-                {#............................#}
-                <td>Y axis:</td>
-                <td></td>
-                <td>
-                    <video id="video_4" width="175" height="150" loop muted onclick="play_big(this.id)">
-                        <source src="" type="video/mp4">
-                        Your browser does not support HTML5 video.
-                    </video>
-                </td>
-                <td>
-                    <video id="video_5" width="175" height="150" loop muted onclick="play_big(this.id)">
-                        <source src="" type="video/mp4">
-                        Your browser does not support HTML5 video.
-                    </video>
-                </td>
-                <td>
-                    <video id="video_6" width="175" height="150" loop muted onclick="play_big(this.id)">
-                        <source src="" type="video/mp4">
-                        Your browser does not support HTML5 video.
-                    </video>
-                </td>
-                <td>
 
-                </td>
-            </tr>
-
-            <tr>
-                {#............................#}
-                {# 3 more videos              #}
-                {#............................#}
-                <td>Z axis:</td>
                 <td></td>
+
                 <td>
                     <video id="video_7" width="175" height="150" loop muted onclick="play_big(this.id)">
                         <source src="" type="video/mp4">
                         Your browser does not support HTML5 video.
                     </video>
+                    <p>(x,y,z)=(0,0,90)</p>
                 </td>
+
                 <td>
                     <video id="video_8" width="175" height="150" loop muted onclick="play_big(this.id)">
                         <source src="" type="video/mp4">
                         Your browser does not support HTML5 video.
                     </video>
+                    <p>(x,y,z)=(0,0,180)</p>
                 </td>
+
                 <td>
                     <video id="video_9" width="175" height="150" loop muted onclick="play_big(this.id)">
                         <source src="" type="video/mp4">
                         Your browser does not support HTML5 video.
                     </video>
+                    <p>(x,y,z)=(0,0,270)</p>
                 </td>
-                <td>
 
-                </td>
+                <td></td>
+
             </tr>
 
         </table>
@@ -351,8 +348,6 @@
             $.ajax({
                 url: '{% url 'update_simulation_status' %}',
                 type: "get",
-                cache: true,
-                timeout: 30000,
                 dataType: 'json',
                 success: function (data) {
 
