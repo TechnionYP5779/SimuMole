@@ -182,6 +182,8 @@ def create_movies_from_different_angles(cmd):
         cmd.sync()
         cmd.do("turn z, " + z)
         cmd.sync()
+        cmd.do("zoom complete = 1")
+        cmd.sync()
         cmd.do("movie.produce media/videos/video_" + str(i) + ".mp4, quality = 90,preserve=0")
         cmd.sync()
         sleep(3)  # Sleep might not be a solution, but without it the commands run too fast and make errors.
