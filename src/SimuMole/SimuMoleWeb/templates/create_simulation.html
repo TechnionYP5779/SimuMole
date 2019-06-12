@@ -8,9 +8,10 @@
 
 {% block content %}
 
-    <title>Create Simulation - SimuMole</title>
+    <title>SimuMole: Create Simulation</title>
 
     <style>
+
         .error input, .error select, .errorlist {
             color: red;
             padding-bottom: 30px;
@@ -19,12 +20,46 @@
         #gray-button {
             background-color: #e7e7e7;
             color: black;
+            margin-bottom: 20px;
         }
 
         #blue-button {
             background-color: #5e88e7;
             color: black;
+            margin-bottom: 20px;
         }
+
+        @keyframes spinner {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .spinner:before {
+            content: '';
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid #e7e7e7;
+            border-top-color: #07d;
+            border-bottom-color: #07d;
+            animation: spinner .8s ease infinite;
+            display: inline-block;
+        }
+
+        #spinner-image {
+            display: inline-block;
+            margin-right: 5px;
+        }
+
+        #spinner-text {
+            display: inline-block;
+        }
+
+        #id_1-z1, #id_1-z2, #id_1-degYZ_1, #id_2-temperature {
+            margin-bottom: 20px;
+        }
+
     </style>
 
 
@@ -37,7 +72,7 @@
     {% if  wizard.steps.current  == '0' %}
         <h3>Determine the number of proteins and upload PDB files</h3>
     {% elif  wizard.steps.current == '1' %}
-        <h3>Determine the relative position between the proteins</h3>
+        <h3>Determine the relative position between the proteins (in Angstroms)</h3>
     {% elif  wizard.steps.current == '2' %}
         <h3>Set the parameters for the simulation</h3>
     {% endif %}
@@ -59,26 +94,41 @@
         {% else %}
             {{ wizard.form.as_p }}
         {% endif %}
+
+        {% if  wizard.steps.current == '2' %}
+            <p style="font-size: smaller">The duration of one time step is 2.0fs (fs/femtosecond = 10^-15 second)</p>
+        {% endif %}
         <br>
 
         <!-- "Next" and "Submit" buttons -->
         {% if wizard.steps.current == wizard.steps.last %}
-            <input id="blue-button" type="submit" value="Submit" class="btn btn-primary"/>
+            <input onclick="show_loading_spinner()" id="blue-button" type="submit" value="Submit"
+                   class="btn btn-primary"/>
         {% else %}
-            <input id="blue-button" type="submit" value="Next" class="btn btn-primary"/>
+            <input onclick="show_loading_spinner()" id="blue-button" type="submit" value="Next"
+                   class="btn btn-primary"/>
         {% endif %}
 
         <!-- "Return To Start" and "Previous" buttons -->
         {% if wizard.steps.prev %}
-            <button formnovalidate="formnovalidate" id="gray-button" name="wizard_goto_step" type="submit"
+            <button onclick="show_loading_spinner()" formnovalidate="formnovalidate" id="gray-button"
+                    name="wizard_goto_step" type="submit"
                     value="{{ wizard.steps.prev }}" class="btn">
                 {% trans "Previous" %}
             </button>
-            <button formnovalidate="formnovalidate" id="gray-button" name="wizard_goto_step" type="submit"
+            <button onclick="show_loading_spinner()" formnovalidate="formnovalidate" id="gray-button"
+                    name="wizard_goto_step" type="submit"
                     value="{{ wizard.steps.first }}" class="btn">
                 {% trans "Return To Start" %}
             </button>
         {% endif %}
+
+
+        <!-- loading spinner -->
+        <div id="loading_spinner">
+            <div class="spinner" id="spinner-image"></div>
+            <div id="spinner-text"><p>Loading...</p></div>
+        </div>
 
     </form>
 
@@ -86,6 +136,25 @@
 
 {% block extra_js %}
     <script type="text/javascript">
+
+        // show/hide the loading spinner:
+
+        hide_loading_spinner(); // hide spinner as default#
+
+        function show_loading_spinner() {
+            let num_of_proteins_1 = document.getElementById('id_0-num_of_proteins_0');
+            let num_of_proteins_2 = document.getElementById('id_0-num_of_proteins_1');
+            if (num_of_proteins_1 && num_of_proteins_2) { // the user is currently filling form 0
+                if (num_of_proteins_1.checked || num_of_proteins_2.checked)
+                    change_visibility_of_element("loading_spinner", '', '');
+            } else
+                change_visibility_of_element("loading_spinner", '', '');
+        }
+
+        function hide_loading_spinner() {
+            change_visibility_of_element("loading_spinner", 'hidden', 'none');
+        }
+
 
         // form0 - show/hide the fields "first pdb" and "second pdb":
 
@@ -131,7 +200,7 @@
                 show_element('id_0-first_pdb_type_0');
                 show_element('id_0-first_pdb_type_1');
 
-                hide_element('id_0-first_pdb_id', 'none')
+                hide_element('id_0-first_pdb_id', 'none');
                 hide_element('id_0-first_pdb_file', 'none');
 
                 hide_element('id_0-second_pdb_type');
@@ -218,7 +287,7 @@
         }
 
         function hide_errorlist() {
-            let errors = document.getElementsByClassName("errorlist")
+            let errors = document.getElementsByClassName("errorlist");
             for (let l = 0; l < errors.length; l++) {
                 errors[l].style.display = 'none';
             }
