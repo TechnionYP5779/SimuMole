@@ -307,7 +307,7 @@ dd {
 4.0 Forms
 --------------------------------------------------------------*/
 input, textarea {
-	-webkit-border-radius: 0px;
+	-webkit-border-radius: 0;
 }
 input[type="text"],
 input[type="url"],
@@ -364,7 +364,7 @@ button {
 	padding: 5px 25px;
 	cursor: pointer;
 	background-color: #80abc8;
-	border: 0px;
+	border: 0;
 	-webkit-border-radius: 3px;
 	-moz-border-radius: 3px;
 	border-radius: 3px;
@@ -1287,7 +1287,7 @@ body.wide {
 	max-width: 100%;
 }
 #header-logo-image img {
-	margin-bottom: 0px;
+	margin-bottom: 0;
 	max-height: 60px;
 	height: auto;
 	width: auto;
@@ -1407,11 +1407,11 @@ img.header-image {
 	float: left;
 	width: 48.18181818%;
 	margin: 0 3.63636363% 0 0;
-	padding: 0px 0px 30px;
+	padding: 0 0 30px;
 }
 .tg-one-half-last {
 	float: right;
-	margin: 0px;
+	margin: 0;
 }
 
 /* Three Column */
@@ -1432,7 +1432,7 @@ img.header-image {
 	margin: 0 2.72727272% 0 0;
 }
 .tg-one-fourth-last {
-	margin: 0px;
+	margin: 0;
 }
 
 /*
@@ -1903,7 +1903,7 @@ iframe#wp-custom-header-video {
 	 margin: auto;
 	 width: 62px;
 	 height: 50px;
-	 font: 0px/0 a;
+	 font: 0/0 a;
 	 -moz-transition: all 0.5s;
 	 -o-transition: all 0.5s;
 	 -webkit-transition: all 0.5s;

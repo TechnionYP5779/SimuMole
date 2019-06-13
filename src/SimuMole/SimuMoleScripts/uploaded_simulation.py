@@ -1,15 +1,39 @@
 import pymol
-import os
+from .simulation_main_script import create_movies_from_different_angles
+from .basicTrajectoryBuilder import update_simulation_status
+
 temp = 'media/files/'  # path to temp folder
 
-class Uploaded_Simulation:
-    def __init__(self, pdb_file_name, dcd_file_name):
-        self.cmd = None
-        self.pdb_file_name = pdb_file_name
-        self.dcd_file_name = dcd_file_name
 
-    def run_simulation(self):
-        pymol.finish_launching(['pymol', '-q'])  # pymol: -q quiet launch, -c no gui, -e fullscreen
-        self.cmd = pymol.cmd
-        self.cmd.load(temp + self.pdb_file_name)
-        self.cmd.load(temp + self.dcd_file_name)
+def pdb_and_dcd_match(pdb_file_name, dcd_file_name):  # todo: remove gui
+    pymol.finish_launching(['pymol', '-q'])  # pymol: -q quiet launch, -c no gui, -e fullscreen
+    cmd = pymol.cmd
+    try:
+        cmd.reinitialize()
+        cmd.load(temp + pdb_file_name)
+        cmd.load_traj(temp + dcd_file_name)
+        return True
+    except:
+        return False
+
+
+def create_animations():
+    # for now, only open pymol window: #todo: create the animations instead of only open PyMOL
+    pymol.finish_launching(['pymol', '-q'])  # pymol: -q quiet launch, -c no gui, -e fullscreen
+    cmd = pymol.cmd
+    try:
+        cmd.reinitialize()
+        cmd.load(temp + "file_upload_pdb.pdb")
+        cmd.load_traj(temp + "file_upload_dcd.dcd")
+    except:  # mainly for "pymol.CmdException"
+        update_simulation_status(
+            'An error occurred while creating the simulation. Please try again later.')  # todo: change error message!
+        return
+
+    # create the animations:
+    update_simulation_status('Creates the animations')
+    create_movies_from_different_angles(cmd)  # create movies in media/movies folder
+
+    # complete simulation:
+    update_simulation_status('Done!')
+    # self.cmd.quit() # todo: need to close PyMol window

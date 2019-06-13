@@ -200,7 +200,7 @@
                 show_element('id_0-first_pdb_type_0');
                 show_element('id_0-first_pdb_type_1');
 
-                hide_element('id_0-first_pdb_id', 'none')
+                hide_element('id_0-first_pdb_id', 'none');
                 hide_element('id_0-first_pdb_file', 'none');
 
                 hide_element('id_0-second_pdb_type');
@@ -287,7 +287,7 @@
         }
 
         function hide_errorlist() {
-            let errors = document.getElementsByClassName("errorlist")
+            let errors = document.getElementsByClassName("errorlist");
             for (let l = 0; l < errors.length; l++) {
                 errors[l].style.display = 'none';
             }

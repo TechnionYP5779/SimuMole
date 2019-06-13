@@ -10,7 +10,7 @@ trajectory_path = dir_path
 traj_dcd = 'trajectory.dcd'
 
 
-def scr(input_coor_name, temperature, time_step_number, user_rand):
+def scr(input_coor_name, temperature, time_step_number):
     pdb = app.PDBFile(input_coor_name)
     forcefield = app.ForceField('amber99sbildn.xml', 'tip3p.xml')
 
@@ -32,15 +32,13 @@ def scr(input_coor_name, temperature, time_step_number, user_rand):
     update_simulation_status('Equilibrating...')
     simulation.step(100)
 
-    simulation.reporters.append(app.DCDReporter(trajectory_path + user_rand + traj_dcd, 1000))
+    simulation.reporters.append(app.DCDReporter(trajectory_path + traj_dcd, 1000))
     simulation.reporters.append(
         app.StateDataReporter(simulation_status_during_run_path, 1000, progress=True, remainingTime=True,
                               totalSteps=time_step_number, separator=','))
 
     update_simulation_status('Running simulation...')
     simulation.step(time_step_number)
-
-    update_simulation_status('Done!')
 
 
 def update_simulation_status(status):
