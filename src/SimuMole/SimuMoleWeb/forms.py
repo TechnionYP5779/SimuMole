@@ -9,20 +9,22 @@ from SimuMoleScripts.basicTrajectoryBuilder import scr_for_checks
 from SimuMoleScripts.fix_pdb import fix_pdb
 from SimuMoleScripts.transformations import get_atoms, get_atoms_string, translate_vecs, rotate_molecular
 from SimuMoleScripts.uploaded_simulation import pdb_and_dcd_match
+from SimuMoleScripts.clean_status_csv import init_clean_status, read_clean_status, write_clean_status, \
+    same_form__SimulationForm0_LoadPdb, complete_cleaning__SimulationForm0_LoadPdb
 
 import os
+from os import path
 
 ################################
 #   Create Simulation
 ################################
 
 do_checks_cnt = 0
+dir_path = 'media/files/'
+clean_status_path = dir_path + 'clean_status.csv'
 
 
 class SimulationForm0_LoadPdb(forms.Form):
-    global do_checks
-    do_checks = True
-
     num_of_proteins = forms.ChoiceField(
         required=True,
         label='Choose whether to load one or two proteins',
@@ -53,23 +55,24 @@ class SimulationForm0_LoadPdb(forms.Form):
         file_storage.delete(filename)  # delete existing file with same name (due to clean_my_file previous calls)
         file_storage.save(filename, file)  # save existing file
 
-    @staticmethod
-    def update_cnt():
-        global do_checks_cnt
-        loop_amount = 9
-
-        if do_checks_cnt < loop_amount - 1:
-            do_checks_cnt += 1
-        else:
-            do_checks_cnt = 0
-
     def clean(self):
+        print("clean")
         cleaned_data = super(SimulationForm0_LoadPdb, self).clean()
-        # data = {**self.initial, **cleaned_data}  # self.initial->from previous steps, cleaned_data->from current step
-        SimulationForm0_LoadPdb.update_cnt()
+
+        # we already run "clean" and the form isn't changed:
+        if path.exists(clean_status_path) and same_form__SimulationForm0_LoadPdb(dir_path, cleaned_data):
+            if read_clean_status(dir_path, "SimulationForm0_LoadPdb") == "pass":
+                return cleaned_data
+            if complete_cleaning__SimulationForm0_LoadPdb(dir_path, cleaned_data):
+                write_clean_status(dir_path, "SimulationForm0_LoadPdb", "pass")
+                return cleaned_data
+        # this is the first time we run "clean":
+        else:
+            init_clean_status(dir_path, cleaned_data)
+
         return cleaned_data
 
-    # first pdb validation:
+    # ................. first pdb validation ................. #
 
     def clean_first_pdb_type(self):
         num_of_proteins = self.cleaned_data['num_of_proteins']
@@ -77,6 +80,12 @@ class SimulationForm0_LoadPdb(forms.Form):
         if num_of_proteins == '1' or num_of_proteins == '2':
             if first_pdb_type == '':
                 raise forms.ValidationError("This field is required.")
+
+        if not path.exists(clean_status_path) or read_clean_status(dir_path, "clean_first_pdb_type") == "pass":
+            return self.cleaned_data['first_pdb_type']
+
+        write_clean_status(dir_path, "first_pdb_type", str(first_pdb_type))
+        write_clean_status(dir_path, "clean_first_pdb_type", "pass")
         return first_pdb_type
 
     def clean_first_pdb_id(self):
@@ -88,7 +97,14 @@ class SimulationForm0_LoadPdb(forms.Form):
                 if first_pdb_id == '':
                     raise forms.ValidationError("This field is required.")
                 else:
-                    self.pdb_id_validation(first_pdb_id)
+                    if not path.exists(clean_status_path) or \
+                            read_clean_status(dir_path, "clean_first_pdb_id") == "pass" or \
+                            (read_clean_status(dir_path, "first_pdb_id") != str(self.cleaned_data['first_pdb_id'])):
+                        return first_pdb_id
+                    else:
+                        self.pdb_id_validation(first_pdb_id, "_1_.pdb")
+                        write_clean_status(dir_path, "first_pdb_id", str(first_pdb_id))
+                        write_clean_status(dir_path, "clean_first_pdb_id", "pass")
             return first_pdb_id
 
     def clean_first_pdb_file(self):
@@ -100,13 +116,18 @@ class SimulationForm0_LoadPdb(forms.Form):
                 if first_pdb_file == '':
                     raise forms.ValidationError("This field is required.")
                 else:
-                    pass
-                    # self.pdb_file_validation(first_pdb_file)
-                    # TODO: fix
+                    if not path.exists(clean_status_path) or \
+                            read_clean_status(dir_path, "clean_first_pdb_file") == "pass" or \
+                            (read_clean_status(dir_path, "first_pdb_file") != str(self.cleaned_data['first_pdb_file'])):
+                        return first_pdb_file
+                    else:
+                        self.pdb_file_validation("media/files/" + first_pdb_file.name)
+                        write_clean_status(dir_path, "first_pdb_file", str(first_pdb_file))
+                        write_clean_status(dir_path, "clean_first_pdb_file", "pass")
                 self.save_file(first_pdb_file, "_1_.pdb")
             return first_pdb_file
 
-    # second pdb validation:
+    # ................. second pdb validation ................. #
 
     def clean_second_pdb_type(self):
         num_of_proteins = self.cleaned_data['num_of_proteins']
@@ -114,6 +135,12 @@ class SimulationForm0_LoadPdb(forms.Form):
         if num_of_proteins == '2':
             if second_pdb_type == '':
                 raise forms.ValidationError("This field is required.")
+
+        if not path.exists(clean_status_path) or read_clean_status(dir_path, "clean_second_pdb_type") == "pass":
+            return second_pdb_type if num_of_proteins == '2' else ''
+
+        write_clean_status(dir_path, "second_pdb_type", str(second_pdb_type))
+        write_clean_status(dir_path, "clean_second_pdb_type", "pass")
         return second_pdb_type
 
     def clean_second_pdb_id(self):
@@ -125,7 +152,14 @@ class SimulationForm0_LoadPdb(forms.Form):
                 if second_pdb_id == '':
                     raise forms.ValidationError("This field is required.")
                 else:
-                    self.pdb_id_validation(second_pdb_id)
+                    if not path.exists(clean_status_path) or \
+                            read_clean_status(dir_path, "clean_second_pdb_id") == "pass" or \
+                            (read_clean_status(dir_path, "second_pdb_id") != str(self.cleaned_data['second_pdb_id'])):
+                        return second_pdb_id
+                    else:
+                        self.pdb_id_validation(second_pdb_id, "_2_.pdb")
+                        write_clean_status(dir_path, "second_pdb_id", str(second_pdb_id))
+                        write_clean_status(dir_path, "clean_second_pdb_id", "pass")
             return second_pdb_id
 
     def clean_second_pdb_file(self):
@@ -137,75 +171,75 @@ class SimulationForm0_LoadPdb(forms.Form):
                 if second_pdb_file == '':
                     raise forms.ValidationError("This field is required.")
                 else:
-                    pass
-                    # self.pdb_file_validation(second_pdb_file)
-                    # TODO: fix
+                    if not path.exists(clean_status_path) or \
+                            read_clean_status(dir_path, "clean_second_pdb_file") == "pass" or \
+                            (read_clean_status(dir_path, "first_second_file") !=
+                             str(self.cleaned_data['second_pdb_file'])):
+                        return second_pdb_type
+                    else:
+                        self.pdb_file_validation("media/files/" + second_pdb_file.name)
+                        write_clean_status(dir_path, "second_pdb_file", str(second_pdb_file))
+                        write_clean_status(dir_path, "clean_second_pdb_file", "pass")
                 self.save_file(second_pdb_file, "_2_.pdb")
             return second_pdb_file
 
-    # pdb validation checks:
+    # ................. pdb validation checks ................. #
 
-    def pdb_id_validation(self, pdb_id):
-        global do_checks_cnt
-        if do_checks_cnt != 0:
-            return
-
+    def pdb_id_validation(self, pdb_id, filename):
         if not self.pdb_id_exists(pdb_id):
             raise forms.ValidationError("invalid PDB id")
 
-        # if not self.pdb_id_valid(pdb_id):
-        #     raise forms.ValidationError("Protein not supported by OpenMM")
-        # TODO: fix
+        if not self.pdb_id_valid(pdb_id, filename):
+            raise forms.ValidationError("Protein not supported by OpenMM")
 
     def pdb_file_validation(self, pdb_id):
-        global do_checks_cnt
-        if do_checks_cnt != 0:
-            return
-
         if not self.pdb_file_valid(pdb_id):
             raise forms.ValidationError("Protein not supported by OpenMM")
 
     @staticmethod
     def pdb_id_exists(pdb_id):
+        print("......... pdb_id_exists")
         r = requests.get("https://files.rcsb.org/download/" + pdb_id + ".pdb").status_code
         if r == 404:
             return False
         return True
 
     @staticmethod
-    def download_pdb(pdb_id):
+    def download_pdb(pdb_id, filename):
         response = requests.get("https://files.rcsb.org/view/" + pdb_id + ".pdb")
-        pdb_file_name = "media/files/" + pdb_id + ".pdb"
+        pdb_file_name = "media/files/" + filename
         pdb_file = open(pdb_file_name, 'w')
         pdb_file.write(response.text)
         pdb_file.close()
         response.close()
         return pdb_file_name
 
-    '''
-    Checks whether a pdb id can be used in an openMM simulation by downloading the relevant file and testing it.
-    This function assumes the id is valid.
-    '''
-
     @staticmethod
-    def pdb_id_valid(pdb_id):
-        pdb_file_name = SimulationForm0_LoadPdb.download_pdb(pdb_id)
+    def pdb_id_valid(pdb_id, filename):
+        """
+        Checks whether a pdb id can be used in an openMM simulation by downloading the relevant file and testing it.
+        This function assumes the id is valid.
+        """
+        pdb_file_name = SimulationForm0_LoadPdb.download_pdb(pdb_id, filename)
         return SimulationForm0_LoadPdb.pdb_file_valid(pdb_file_name)
-
-    '''
-    Checks if the given file can be used in an openMM simulation.
-    If it can run without fixing then it returns true.
-    If it can run with fixing it will return true AND fix the file.
-    Otherwise it returns false.
-    '''
 
     @staticmethod
     def pdb_file_valid(pdb_file):
-        dcd_file = "media/files/very_good.dcd"
+        """
+        Checks if the given file can be used in an openMM simulation.
+        If it can run without fixing then it returns true.
+        If it can run with fixing it will return true AND fix the file.
+        Otherwise it returns false.
+        "pdb_file" == file name
+        """
+        print("......... pdb_file_valid by openmm")
+        dcd_file = "media/files/scr_for_checks.dcd"
+
         fix_not_needed = True
         try:
             scr_for_checks(pdb_file)
-        except Exception:
+        except Exception as e:
+            print("                    ! exp 1: {}".format(str(e)))
             fix_not_needed = False
         finally:
             if os.path.exists(dcd_file):
@@ -217,7 +251,8 @@ class SimulationForm0_LoadPdb(forms.Form):
         try:
             fix_pdb(pdb_file)
             scr_for_checks(pdb_file)
-        except Exception:
+        except Exception as e:
+            print("                    ! exp 2: {}".format(str(e)))
             return False
         finally:
             if os.path.exists(dcd_file):
