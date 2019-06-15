@@ -1,16 +1,14 @@
 import csv
 
 
-def print_clean_status(dir_path):
-    print("  0: " + read_clean_status(dir_path, 'SimulationForm0_LoadPdb'))
-    print("  1: " + read_clean_status(dir_path, 'SimulationForm1_DetermineRelativePosition'))
-    print("  2: " + read_clean_status(dir_path, 'SimulationForm2_SimulationParameters'))
+def print_clean_status(path):
+    print("  0: " + read_clean_status(path, 'SimulationForm0_LoadPdb'))
+    print("  1: " + read_clean_status(path, 'SimulationForm1_DetermineRelativePosition'))
+    print("  2: " + read_clean_status(path, 'SimulationForm2_SimulationParameters'))
 
 
-def init_clean_status(dir_path, cleaned_data):
-    clean_status_path = dir_path + 'clean_status.csv'
-
-    with open(clean_status_path, mode='w', newline='') as csv_file:
+def init_clean_status(path, cleaned_data={}):
+    with open(path, mode='w', newline='') as csv_file:
         # status: {pass, fail, unknown}
         fieldnames = ['form_name', 'status']
         writer = csv.DictWriter(csv_file, fieldnames=fieldnames, delimiter=',')
@@ -41,10 +39,8 @@ def init_clean_status(dir_path, cleaned_data):
         writer.writerow({'form_name': 'SimulationForm2_SimulationParameters', 'status': 'unknown'})
 
 
-def read_clean_status(dir_path, required_form_name):
-    clean_status_path = dir_path + 'clean_status.csv'
-
-    with open(clean_status_path) as csv_file:
+def read_clean_status(path, required_form_name):
+    with open(path) as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=',')
         line_count = 0
         for row in csv_reader:
@@ -58,13 +54,11 @@ def read_clean_status(dir_path, required_form_name):
             line_count += 1
 
 
-def write_clean_status(dir_path, required_form_name, required_status):
-    clean_status_path = dir_path + 'clean_status.csv'
-
-    with open(clean_status_path) as in_csv_file:
+def write_clean_status(path, required_form_name, required_status):
+    with open(path) as in_csv_file:
         reader = csv.reader(in_csv_file.readlines())
 
-    with open(clean_status_path, 'w', newline='') as out_in_csv_file:
+    with open(path, 'w', newline='') as out_in_csv_file:
         writer = csv.writer(out_in_csv_file)
         for line in reader:
             if line[0] == required_form_name:
@@ -75,27 +69,27 @@ def write_clean_status(dir_path, required_form_name, required_status):
         writer.writerows(reader)
 
 
-def same_form__SimulationForm0_LoadPdb(dir_path, cleaned_data):
-    return (read_clean_status(dir_path, 'num_of_proteins') == str(cleaned_data.get('num_of_proteins', '?'))) and \
-           (read_clean_status(dir_path, 'first_pdb_type') == str(cleaned_data.get('first_pdb_type', '?'))) and \
-           (read_clean_status(dir_path, 'first_pdb_id') == str(cleaned_data.get('first_pdb_id', '?'))) and \
-           (read_clean_status(dir_path, 'first_pdb_file') == str(cleaned_data.get('first_pdb_file', '?'))) and \
-           (read_clean_status(dir_path, 'second_pdb_type') == str(cleaned_data.get('second_pdb_type', '?'))) and \
-           (read_clean_status(dir_path, 'second_pdb_id') == str(cleaned_data.get('second_pdb_id', '?'))) and \
-           (read_clean_status(dir_path, 'second_pdb_file') == str(cleaned_data.get('second_pdb_file', '?')))
+def same_form__SimulationForm0_LoadPdb(path, cleaned_data):
+    return (read_clean_status(path, 'num_of_proteins') == str(cleaned_data.get('num_of_proteins', '?'))) and \
+           (read_clean_status(path, 'first_pdb_type') == str(cleaned_data.get('first_pdb_type', '?'))) and \
+           (read_clean_status(path, 'first_pdb_id') == str(cleaned_data.get('first_pdb_id', '?'))) and \
+           (read_clean_status(path, 'first_pdb_file') == str(cleaned_data.get('first_pdb_file', '?'))) and \
+           (read_clean_status(path, 'second_pdb_type') == str(cleaned_data.get('second_pdb_type', '?'))) and \
+           (read_clean_status(path, 'second_pdb_id') == str(cleaned_data.get('second_pdb_id', '?'))) and \
+           (read_clean_status(path, 'second_pdb_file') == str(cleaned_data.get('second_pdb_file', '?')))
 
 
-def complete_cleaning__SimulationForm0_LoadPdb(dir_path, cleaned_data):
+def complete_cleaning__SimulationForm0_LoadPdb(path, cleaned_data):
     num_of_proteins = cleaned_data['num_of_proteins']
     first_pdb_type = cleaned_data['first_pdb_type']
     second_pdb_type = cleaned_data['second_pdb_type']
 
-    clean_first_pdb_type = read_clean_status(dir_path, "clean_first_pdb_type") == "pass"
-    clean_first_pdb_id = read_clean_status(dir_path, "clean_first_pdb_id") == "pass"
-    clean_first_pdb_file = read_clean_status(dir_path, "clean_first_pdb_file") == "pass"
-    clean_second_pdb_type = read_clean_status(dir_path, "clean_second_pdb_type") == "pass"
-    clean_second_pdb_id = read_clean_status(dir_path, "clean_second_pdb_id") == "pass"
-    clean_second_pdb_file = read_clean_status(dir_path, "clean_second_pdb_file") == "pass"
+    clean_first_pdb_type = read_clean_status(path, "clean_first_pdb_type") == "pass"
+    clean_first_pdb_id = read_clean_status(path, "clean_first_pdb_id") == "pass"
+    clean_first_pdb_file = read_clean_status(path, "clean_first_pdb_file") == "pass"
+    clean_second_pdb_type = read_clean_status(path, "clean_second_pdb_type") == "pass"
+    clean_second_pdb_id = read_clean_status(path, "clean_second_pdb_id") == "pass"
+    clean_second_pdb_file = read_clean_status(path, "clean_second_pdb_file") == "pass"
 
     first_pdb_status = (first_pdb_type == 'by_id' and clean_first_pdb_id) or \
                        (first_pdb_type == 'by_file' and clean_first_pdb_file)

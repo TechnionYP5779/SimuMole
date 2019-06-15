@@ -19,9 +19,7 @@ from os import path
 #   Create Simulation
 ################################
 
-do_checks_cnt = 0
-dir_path = 'media/files/'
-clean_status_path = dir_path + 'clean_status.csv'
+clean_status_path = 'media/files/clean_status.csv'
 
 
 class SimulationForm0_LoadPdb(forms.Form):
@@ -56,19 +54,19 @@ class SimulationForm0_LoadPdb(forms.Form):
         file_storage.save(filename, file)  # save existing file
 
     def clean(self):
-        print("clean")
+        print("clean 0")
         cleaned_data = super(SimulationForm0_LoadPdb, self).clean()
 
         # we already run "clean" and the form isn't changed:
-        if path.exists(clean_status_path) and same_form__SimulationForm0_LoadPdb(dir_path, cleaned_data):
-            if read_clean_status(dir_path, "SimulationForm0_LoadPdb") == "pass":
+        if path.exists(clean_status_path) and same_form__SimulationForm0_LoadPdb(clean_status_path, cleaned_data):
+            if read_clean_status(clean_status_path, "SimulationForm0_LoadPdb") == "pass":
                 return cleaned_data
-            if complete_cleaning__SimulationForm0_LoadPdb(dir_path, cleaned_data):
-                write_clean_status(dir_path, "SimulationForm0_LoadPdb", "pass")
+            if complete_cleaning__SimulationForm0_LoadPdb(clean_status_path, cleaned_data):
+                write_clean_status(clean_status_path, "SimulationForm0_LoadPdb", "pass")
                 return cleaned_data
         # this is the first time we run "clean":
         else:
-            init_clean_status(dir_path, cleaned_data)
+            init_clean_status(clean_status_path, cleaned_data)
 
         return cleaned_data
 
@@ -81,11 +79,12 @@ class SimulationForm0_LoadPdb(forms.Form):
             if first_pdb_type == '':
                 raise forms.ValidationError("This field is required.")
 
-        if not path.exists(clean_status_path) or read_clean_status(dir_path, "clean_first_pdb_type") == "pass":
+        if not path.exists(clean_status_path) or \
+                read_clean_status(clean_status_path, "clean_first_pdb_type") == "pass":
             return self.cleaned_data['first_pdb_type']
 
-        write_clean_status(dir_path, "first_pdb_type", str(first_pdb_type))
-        write_clean_status(dir_path, "clean_first_pdb_type", "pass")
+        write_clean_status(clean_status_path, "first_pdb_type", str(first_pdb_type))
+        write_clean_status(clean_status_path, "clean_first_pdb_type", "pass")
         return first_pdb_type
 
     def clean_first_pdb_id(self):
@@ -98,13 +97,14 @@ class SimulationForm0_LoadPdb(forms.Form):
                     raise forms.ValidationError("This field is required.")
                 else:
                     if not path.exists(clean_status_path) or \
-                            read_clean_status(dir_path, "clean_first_pdb_id") == "pass" or \
-                            (read_clean_status(dir_path, "first_pdb_id") != str(self.cleaned_data['first_pdb_id'])):
+                            read_clean_status(clean_status_path, "clean_first_pdb_id") == "pass" or \
+                            (read_clean_status(clean_status_path, "first_pdb_id") != str(
+                                self.cleaned_data['first_pdb_id'])):
                         return first_pdb_id
                     else:
                         self.pdb_id_validation(first_pdb_id, "_1_.pdb")
-                        write_clean_status(dir_path, "first_pdb_id", str(first_pdb_id))
-                        write_clean_status(dir_path, "clean_first_pdb_id", "pass")
+                        write_clean_status(clean_status_path, "first_pdb_id", str(first_pdb_id))
+                        write_clean_status(clean_status_path, "clean_first_pdb_id", "pass")
             return first_pdb_id
 
     def clean_first_pdb_file(self):
@@ -117,13 +117,14 @@ class SimulationForm0_LoadPdb(forms.Form):
                     raise forms.ValidationError("This field is required.")
                 else:
                     if not path.exists(clean_status_path) or \
-                            read_clean_status(dir_path, "clean_first_pdb_file") == "pass" or \
-                            (read_clean_status(dir_path, "first_pdb_file") != str(self.cleaned_data['first_pdb_file'])):
+                            read_clean_status(clean_status_path, "clean_first_pdb_file") == "pass" or \
+                            (read_clean_status(clean_status_path, "first_pdb_file") !=
+                             str(self.cleaned_data['first_pdb_file'])):
                         return first_pdb_file
                     else:
                         self.pdb_file_validation("media/files/" + first_pdb_file.name)
-                        write_clean_status(dir_path, "first_pdb_file", str(first_pdb_file))
-                        write_clean_status(dir_path, "clean_first_pdb_file", "pass")
+                        write_clean_status(clean_status_path, "first_pdb_file", str(first_pdb_file))
+                        write_clean_status(clean_status_path, "clean_first_pdb_file", "pass")
                 self.save_file(first_pdb_file, "_1_.pdb")
             return first_pdb_file
 
@@ -136,11 +137,12 @@ class SimulationForm0_LoadPdb(forms.Form):
             if second_pdb_type == '':
                 raise forms.ValidationError("This field is required.")
 
-        if not path.exists(clean_status_path) or read_clean_status(dir_path, "clean_second_pdb_type") == "pass":
+        if not path.exists(clean_status_path) or \
+                read_clean_status(clean_status_path, "clean_second_pdb_type") == "pass":
             return second_pdb_type if num_of_proteins == '2' else ''
 
-        write_clean_status(dir_path, "second_pdb_type", str(second_pdb_type))
-        write_clean_status(dir_path, "clean_second_pdb_type", "pass")
+        write_clean_status(clean_status_path, "second_pdb_type", str(second_pdb_type))
+        write_clean_status(clean_status_path, "clean_second_pdb_type", "pass")
         return second_pdb_type
 
     def clean_second_pdb_id(self):
@@ -153,13 +155,14 @@ class SimulationForm0_LoadPdb(forms.Form):
                     raise forms.ValidationError("This field is required.")
                 else:
                     if not path.exists(clean_status_path) or \
-                            read_clean_status(dir_path, "clean_second_pdb_id") == "pass" or \
-                            (read_clean_status(dir_path, "second_pdb_id") != str(self.cleaned_data['second_pdb_id'])):
+                            read_clean_status(clean_status_path, "clean_second_pdb_id") == "pass" or \
+                            (read_clean_status(clean_status_path, "second_pdb_id") != str(
+                                self.cleaned_data['second_pdb_id'])):
                         return second_pdb_id
                     else:
                         self.pdb_id_validation(second_pdb_id, "_2_.pdb")
-                        write_clean_status(dir_path, "second_pdb_id", str(second_pdb_id))
-                        write_clean_status(dir_path, "clean_second_pdb_id", "pass")
+                        write_clean_status(clean_status_path, "second_pdb_id", str(second_pdb_id))
+                        write_clean_status(clean_status_path, "clean_second_pdb_id", "pass")
             return second_pdb_id
 
     def clean_second_pdb_file(self):
@@ -172,14 +175,14 @@ class SimulationForm0_LoadPdb(forms.Form):
                     raise forms.ValidationError("This field is required.")
                 else:
                     if not path.exists(clean_status_path) or \
-                            read_clean_status(dir_path, "clean_second_pdb_file") == "pass" or \
-                            (read_clean_status(dir_path, "first_second_file") !=
+                            read_clean_status(clean_status_path, "clean_second_pdb_file") == "pass" or \
+                            (read_clean_status(clean_status_path, "first_second_file") !=
                              str(self.cleaned_data['second_pdb_file'])):
                         return second_pdb_type
                     else:
                         self.pdb_file_validation("media/files/" + second_pdb_file.name)
-                        write_clean_status(dir_path, "second_pdb_file", str(second_pdb_file))
-                        write_clean_status(dir_path, "clean_second_pdb_file", "pass")
+                        write_clean_status(clean_status_path, "second_pdb_file", str(second_pdb_file))
+                        write_clean_status(clean_status_path, "clean_second_pdb_file", "pass")
                 self.save_file(second_pdb_file, "_2_.pdb")
             return second_pdb_file
 
