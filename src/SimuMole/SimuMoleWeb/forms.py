@@ -55,6 +55,12 @@ class SimulationForm0_LoadPdb(forms.Form):
         data = {**self.initial, **cleaned_data}  # self.initial->from previous steps, cleaned_data->from current step
 
         errors = []
+        first_id_exist, first_file_exist, second_id_exist, second_file_exist = False, False, False, False
+
+        # ....................................................................#
+        # check that the form structure is valid
+        # ("field is required" errors)
+        # ....................................................................#
 
         num_of_proteins = data.get('num_of_proteins', None)
         first_pdb_type = data.get('first_pdb_type', None)
@@ -73,9 +79,7 @@ class SimulationForm0_LoadPdb(forms.Form):
                 if (first_pdb_id is None) or (first_pdb_id == ''):
                     errors.append(forms.ValidationError("First protein: The 'by id' field is required."))
                 else:
-                    pdb_validation_result = self.pdb_id_validation(first_pdb_id, "_1_.pdb")
-                    if pdb_validation_result is not None:
-                        errors.append(forms.ValidationError("First protein: " + pdb_validation_result))
+                    first_id_exist = True
 
         # clean_first_pdb_file
         if first_pdb_type is not None:
@@ -84,10 +88,7 @@ class SimulationForm0_LoadPdb(forms.Form):
                 if (first_pdb_file is None) or (first_pdb_file == ''):
                     errors.append(forms.ValidationError("First protein: The 'by file' field is required."))
                 else:
-                    self.save_file(first_pdb_file, "_1_.pdb")
-                    pdb_validation_result = self.pdb_file_validation("media/files/" + "_1_.pdb")
-                    if pdb_validation_result is not None:
-                        errors.append(forms.ValidationError("First protein: " + pdb_validation_result))
+                    first_file_exist = True
 
         # clean_second_pdb_type
         if num_of_proteins == '2':
@@ -100,9 +101,7 @@ class SimulationForm0_LoadPdb(forms.Form):
                 if (second_pdb_id is None) or (second_pdb_id == ''):
                     errors.append(forms.ValidationError("Second protein: The 'by id' field is required."))
                 else:
-                    pdb_validation_result = self.pdb_id_validation(second_pdb_id, "_2_.pdb")
-                    if pdb_validation_result is not None:
-                        errors.append(forms.ValidationError("Second protein: " + pdb_validation_result))
+                    second_id_exist = True
 
         # clean_second_pdb_file
         if second_pdb_type is not None:
@@ -111,10 +110,33 @@ class SimulationForm0_LoadPdb(forms.Form):
                 if (second_pdb_file is None) or (second_pdb_file == ''):
                     errors.append(forms.ValidationError("Second protein: The 'by file' field is required."))
                 else:
-                    self.save_file(second_pdb_file, "_2_.pdb")
-                    pdb_validation_result = self.pdb_file_validation("media/files/" + "_2_.pdb")
-                    if pdb_validation_result is not None:
-                        errors.append(forms.ValidationError("Second protein: " + pdb_validation_result))
+                    second_file_exist = True
+
+        if len(errors) != 0:
+            raise forms.ValidationError(errors)
+
+        # ....................................................................#
+        # check that the input PDBs structure is valid
+        # ("Invalid PDB id" / "Protein not supported by OpenMM" errors)
+        # ....................................................................#
+        if first_id_exist:
+            pdb_validation_result = self.pdb_id_validation(first_pdb_id, "_1_.pdb")
+            if pdb_validation_result is not None:
+                errors.append(forms.ValidationError("First protein: " + pdb_validation_result))
+        if first_file_exist:
+            self.save_file(first_pdb_file, "_1_.pdb")
+            pdb_validation_result = self.pdb_file_validation("media/files/" + "_1_.pdb")
+            if pdb_validation_result is not None:
+                errors.append(forms.ValidationError("First protein: " + pdb_validation_result))
+        if second_id_exist:
+            pdb_validation_result = self.pdb_id_validation(second_pdb_id, "_2_.pdb")
+            if pdb_validation_result is not None:
+                errors.append(forms.ValidationError("Second protein: " + pdb_validation_result))
+        if second_file_exist:
+            self.save_file(second_pdb_file, "_2_.pdb")
+            pdb_validation_result = self.pdb_file_validation("media/files/" + "_2_.pdb")
+            if pdb_validation_result is not None:
+                errors.append(forms.ValidationError("Second protein: " + pdb_validation_result))
 
         if len(errors) != 0:
             raise forms.ValidationError(errors)
@@ -173,6 +195,7 @@ class SimulationForm0_LoadPdb(forms.Form):
         try:
             scr_for_checks(pdb_file_name)
         except Exception as e:
+            # print(str(e))
             fix_not_needed = False
         finally:
             if os.path.exists(dcd_file):
@@ -185,6 +208,7 @@ class SimulationForm0_LoadPdb(forms.Form):
             fix_pdb(pdb_file_name)
             scr_for_checks(pdb_file_name)
         except Exception as e:
+            print(str(e))
             return False
 
         return True
