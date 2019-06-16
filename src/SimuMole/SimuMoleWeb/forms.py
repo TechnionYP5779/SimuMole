@@ -7,10 +7,11 @@ from django.core.files.storage import FileSystemStorage
 from django.conf import settings
 from SimuMoleScripts.basicTrajectoryBuilder import scr_for_checks
 from SimuMoleScripts.fix_pdb import fix_pdb
-from SimuMoleScripts.transformations import get_atoms, get_atoms_string, translate_vecs, rotate_molecular
+from SimuMoleScripts.transformations import get_atoms, get_atoms_string, translate_vecs, rotate_molecular, translate_pdb
 from SimuMoleScripts.uploaded_simulation import pdb_and_dcd_match
 
 import os
+import pymol
 
 
 ################################
@@ -209,19 +210,41 @@ class SimulationForm1_DetermineRelativePosition(forms.Form):
             if data[field] == '' or data[field] is None:
                 raise forms.ValidationError("All fields are required.")
 
-        if not self.position_is_valid(data['x1'], data['y1'], data['z1'],
-                                      data['x2'], data['y2'], data['z2'],
-                                      data['degXY_1'], data['degYZ_1'], data['degXY_2'], data['degYZ_2'],
-                                      data['first_pdb_id'], data['second_pdb_id'], data['first_pdb_type'],
-                                      data['second_pdb_type'], data['first_pdb_file'], data['second_pdb_file']):
+        if not self.position_is_valid(data['x1'], data['y1'], data['z1'], data['x2'], data['y2'], data['z2'],
+                                      data['degXY_1'], data['degYZ_1'], data['degXY_2'], data['degYZ_2']):
             raise forms.ValidationError("Positions are not possible: The proteins collide with each other")
+
+        self.change_relative_position(data['x1'], data['y1'], data['z1'], data['x2'], data['y2'], data['z2'],
+                                      data['degXY_1'], data['degYZ_1'], data['degXY_2'], data['degYZ_2'])
 
         return cleaned_data
 
     @staticmethod
-    def position_is_valid(x1, y1, z1, x2, y2, z2, degXY_1, degYZ_1, degXY_2, degYZ_2,
-                          first_pdb_id, second_pdb_id, first_pdb_type, second_pdb_type,
-                          first_pdb_file, second_pdb_file):
+    def change_relative_position(x1, y1, z1, x2, y2, z2, degXY_1, degYZ_1, degXY_2, degYZ_2):
+        """
+        Save PDB file that represents the 2 PDB files after you change the positions and running pdb_fixer
+        """
+        # change positions
+        filename_1, filename_2, pdb, temp = '_1_', '_2_', '.pdb', 'media/files/'
+        filename_1_movement, filename_2_movement = filename_1 + '__movement', filename_2 + '__movement'
+        translate_pdb(temp + filename_1 + pdb, temp + filename_1_movement + pdb, x1, y1, z1, degXY_1, degYZ_1)
+        translate_pdb(temp + filename_2 + pdb, temp + filename_2_movement + pdb, x2, y2, z2, degXY_2, degYZ_2)
+
+        # fix pdb
+        fix_pdb(temp + filename_1_movement + pdb)
+        fix_pdb(temp + filename_2_movement + pdb)
+
+        # merge to single pdb file
+        pymol.finish_launching(['pymol', '-q'])  # pymol: -q quiet launch, -c no gui, -e fullscreen
+        cmd = pymol.cmd
+        cmd.reinitialize()
+        cmd.load(temp + filename_1_movement + pdb)
+        cmd.load(temp + filename_2_movement + pdb)
+        cmd.zoom()
+        cmd.save(temp + "both_1_2" + pdb)
+
+    @staticmethod
+    def position_is_valid(x1, y1, z1, x2, y2, z2, degXY_1, degYZ_1, degXY_2, degYZ_2):
         """
         check with PyMol that the proteins do not collide with each other
         """

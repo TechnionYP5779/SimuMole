@@ -47,12 +47,12 @@ def update_simulation_status(status):
 
 
 def scr_for_checks(input_coor_name, full_check=False):
-    forcefield = app.ForceField('amber96.xml', 'tip3p.xml')
     pdb = app.PDBFile(input_coor_name)
+    forcefield = app.ForceField('amber99sbildn.xml', 'tip3p.xml')
 
     # The following line causes an error (when we do not perform "fix pdb")
-    system = forcefield.createSystem(pdb.topology, nonbondedMethod=app.PME, nonbondedCutoff=1.0 * unit.nanometers,
-                                     constraints=app.HBonds, rigidWater=True, ewaldErrorTolerance=0.0005)
+    system = forcefield.createSystem(pdb.topology, nonbondedMethod=app.NoCutoff, constraints=app.HBonds,
+                                     rigidWater=True)
 
     if full_check:
         integrator = mm.LangevinIntegrator(300 * unit.kelvin, 1.0 / unit.picoseconds, 2.0 * unit.femtoseconds)
@@ -67,8 +67,9 @@ def scr_for_checks(input_coor_name, full_check=False):
         simulation.minimizeEnergy()
 
         simulation.context.setVelocitiesToTemperature(300 * unit.kelvin)
+
         # Equilibrating
-        # simulation.step(100)
+        simulation.step(100)
 
         simulation.reporters.append(app.DCDReporter('media/files/' + 'scr_for_checks.dcd', 1000))
 

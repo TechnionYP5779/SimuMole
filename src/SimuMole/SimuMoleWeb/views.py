@@ -54,9 +54,9 @@ def download__create_zip(num_of_proteins, include_pdb_file, include_dcd_file, in
         if previous_page == 'create_simulation':
             file_name = ''
             if num_of_proteins == '1':
-                file_name = '_1___movement.pdb'
+                file_name = '_1_.pdb'
             if num_of_proteins == '2':
-                file_name = 'both___1___movement__2___movement.pdb'
+                file_name = 'both_1_2.pdb'
             files.append(os.path.join(settings.MEDIA_ROOT, 'files', file_name))
         if previous_page == 'upload_files':
             files.append(os.path.join(settings.MEDIA_ROOT, 'files', 'file_upload_pdb.pdb'))
@@ -80,7 +80,6 @@ def download__create_zip(num_of_proteins, include_pdb_file, include_dcd_file, in
             video_name_at_download = 'video_{}__X{}_Y{}_Z{}.mp4'.format(str(i), str(x), str(y), str(z))
             files_names.append(video_name_at_download)
 
-    print(files_names)
     zip_file = zipfile.ZipFile(os.path.join(settings.MEDIA_ROOT, 'files', "SimuMole_output.zip"), "w")
     for file, file_name in zip(files, files_names):
         zip_file.write(file, file_name)
