@@ -25,21 +25,6 @@ def home(request):
     return render(request, 'home.html', some_dict)
 
 
-def news(request):
-    some_dict = {}
-    return render(request, 'news.html', some_dict)
-
-
-def contact(request):
-    some_dict = {}
-    return render(request, 'contact.html', some_dict)
-
-
-def about(request):
-    some_dict = {}
-    return render(request, 'about.html', some_dict)
-
-
 ################################
 #   Simulation Result
 ################################
@@ -291,7 +276,7 @@ def show_form1(wizard: CookieWizardView):
     if 'num_of_proteins'==1: return FALSE, and then navigate to step 2 (simulation parameters)
     else, if 'num_of_proteins'==2: return TRUE, and then navigate to step 1 (determine relative position)
     """
-    cleaned_data = wizard.get_cleaned_data_for_step('0') or {}
+    cleaned_data = wizard.get_form_initial('0') or {}
     return cleaned_data.get('num_of_proteins') == '2'
 
 
