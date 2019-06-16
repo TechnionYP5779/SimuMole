@@ -58,6 +58,7 @@ class Simulation:
 
             # save the DCD file using PyMOL
             self.cmd.reinitialize()
+            sleep(0.5)
             self.cmd.load(input_coor_name)
             self.cmd.load_traj(temp + 'trajectory.dcd')
 
@@ -78,9 +79,7 @@ class Simulation:
         # complete simulation:
         update_simulation_status('Done!')
 
-        # self.cmd.quit() # todo: need to close PyMol window
-
-    def clear_simulation(self):  # todo: complete this! delete all temporary files
+    def clear_simulation(self):  # todo: complete this, need to delete all temporary files
         # os.remove('path/to/files')
         return
 

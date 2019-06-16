@@ -12,7 +12,7 @@ from SimuMoleScripts.uploaded_simulation import pdb_and_dcd_match
 
 import os
 import pymol
-
+from time import sleep
 
 ################################
 #   Create Simulation
@@ -262,6 +262,7 @@ class SimulationForm1_DetermineRelativePosition(forms.Form):
         pymol.finish_launching(['pymol', '-q'])  # pymol: -q quiet launch, -c no gui, -e fullscreen
         cmd = pymol.cmd
         cmd.reinitialize()
+        sleep(0.5)
         cmd.load(temp + filename_1_movement + pdb)
         cmd.load(temp + filename_2_movement + pdb)
         cmd.zoom()

@@ -231,7 +231,7 @@ class SimulationWizard(CookieWizardView):
         return render(self.request, 'create_simulation_result.html',
                       {'form_data': form_dict, 'num_of_proteins': form_dict['num_of_proteins'],
                        'previous_page': 'create_simulation',
-                       'video_path': settings.MEDIA_URL + 'videos/'})  # todo: change "video_path"
+                       'video_path': settings.MEDIA_URL + 'videos/'})
 
     def get_form_initial(self, step):
         """
@@ -299,7 +299,7 @@ def upload_files(request):
                 f.write("")
 
             return render(request, 'create_simulation_result.html',
-                          {'video_path': settings.MEDIA_URL + 'videos/',  # todo: change "video_path"
+                          {'video_path': settings.MEDIA_URL + 'videos/',
                            'previous_page': "upload_files",
                            'num_of_proteins': 0})  # num_of_proteins is irrelevant
     else:
