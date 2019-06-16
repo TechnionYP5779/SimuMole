@@ -25,21 +25,6 @@ def home(request):
     return render(request, 'home.html', some_dict)
 
 
-def news(request):
-    some_dict = {}
-    return render(request, 'news.html', some_dict)
-
-
-def contact(request):
-    some_dict = {}
-    return render(request, 'contact.html', some_dict)
-
-
-def about(request):
-    some_dict = {}
-    return render(request, 'about.html', some_dict)
-
-
 ################################
 #   Simulation Result
 ################################
@@ -69,9 +54,9 @@ def download__create_zip(num_of_proteins, include_pdb_file, include_dcd_file, in
         if previous_page == 'create_simulation':
             file_name = ''
             if num_of_proteins == '1':
-                file_name = '_1___movement.pdb'
+                file_name = '_1_.pdb'
             if num_of_proteins == '2':
-                file_name = 'both___1___movement__2___movement.pdb'
+                file_name = 'both_1_2.pdb'
             files.append(os.path.join(settings.MEDIA_ROOT, 'files', file_name))
         if previous_page == 'upload_files':
             files.append(os.path.join(settings.MEDIA_ROOT, 'files', 'file_upload_pdb.pdb'))
@@ -95,7 +80,6 @@ def download__create_zip(num_of_proteins, include_pdb_file, include_dcd_file, in
             video_name_at_download = 'video_{}__X{}_Y{}_Z{}.mp4'.format(str(i), str(x), str(y), str(z))
             files_names.append(video_name_at_download)
 
-    print(files_names)
     zip_file = zipfile.ZipFile(os.path.join(settings.MEDIA_ROOT, 'files', "SimuMole_output.zip"), "w")
     for file, file_name in zip(files, files_names):
         zip_file.write(file, file_name)
@@ -247,7 +231,7 @@ class SimulationWizard(CookieWizardView):
         return render(self.request, 'create_simulation_result.html',
                       {'form_data': form_dict, 'num_of_proteins': form_dict['num_of_proteins'],
                        'previous_page': 'create_simulation',
-                       'video_path': settings.MEDIA_URL + 'videos/'})  # todo: change "video_path"
+                       'video_path': settings.MEDIA_URL + 'videos/'})
 
     def get_form_initial(self, step):
         """
@@ -291,7 +275,7 @@ def show_form1(wizard: CookieWizardView):
     if 'num_of_proteins'==1: return FALSE, and then navigate to step 2 (simulation parameters)
     else, if 'num_of_proteins'==2: return TRUE, and then navigate to step 1 (determine relative position)
     """
-    cleaned_data = wizard.get_cleaned_data_for_step('0') or {}
+    cleaned_data = wizard.get_form_initial('0') or {}
     return cleaned_data.get('num_of_proteins') == '2'
 
 
@@ -315,7 +299,7 @@ def upload_files(request):
                 f.write("")
 
             return render(request, 'create_simulation_result.html',
-                          {'video_path': settings.MEDIA_URL + 'videos/',  # todo: change "video_path"
+                          {'video_path': settings.MEDIA_URL + 'videos/',
                            'previous_page': "upload_files",
                            'num_of_proteins': 0})  # num_of_proteins is irrelevant
     else:
