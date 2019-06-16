@@ -127,7 +127,15 @@
         <!-- loading spinner -->
         <div id="loading_spinner">
             <div class="spinner" id="spinner-image"></div>
-            <div id="spinner-text"><p>Loading...</p></div>
+            <div id="spinner-text">
+                {% if  wizard.steps.current  == '0' %}
+                    <p>Checks that the PDB is valid (ID exist / file format is correct), and supported by OpenMM</p>
+                {% elif  wizard.steps.current == '1' %}
+                    <p>Checks that the position is legal (the proteins do not collide with each other)</p>
+                {% elif  wizard.steps.current == '2' %}
+                    <p>Validates your request</p>
+                {% endif %}
+            </div>
         </div>
 
     </form>
@@ -289,7 +297,7 @@
         function hide_errorlist() {
             let errors = document.getElementsByClassName("errorlist");
             for (let l = 0; l < errors.length; l++) {
-                errors[l].style.display = 'none';
+                {#errors[l].style.display = 'none';#}
             }
         }
 

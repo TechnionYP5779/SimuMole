@@ -1,1 +1,0 @@
-This file is intended to initialize the "files" folder (git does not upload empty folders)

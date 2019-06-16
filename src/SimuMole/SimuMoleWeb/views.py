@@ -25,43 +25,29 @@ def home(request):
     return render(request, 'home.html', some_dict)
 
 
-def news(request):
-    some_dict = {}
-    return render(request, 'news.html', some_dict)
-
-
-def contact(request):
-    some_dict = {}
-    return render(request, 'contact.html', some_dict)
-
-
-def about(request):
-    some_dict = {}
-    return render(request, 'about.html', some_dict)
-
-
 ################################
 #   Simulation Result
 ################################
 
 def update_simulation_status(request):
-    f = open(os.path.join(settings.MEDIA_ROOT, 'files', 'simulation_status.txt'), 'r')
+    user_rand = request.GET.get('user_rand')
+    f = open(os.path.join(settings.MEDIA_ROOT, 'files' ,user_rand , 'simulation_status.txt'), 'r')
     simulation_status = f.read()
     f.close()
 
-    f = open(os.path.join(settings.MEDIA_ROOT, 'files', 'simulation_status_during_run.txt'), 'r')
+    f = open(os.path.join(settings.MEDIA_ROOT, 'files',user_rand, 'simulation_status_during_run.txt'), 'r')
     simulation_status_during_run_lines = f.readlines()
     simulation_status_during_run = '' if len(simulation_status_during_run_lines) == 0 \
         else simulation_status_during_run_lines[-1]
     f.close()
 
-    video_url = settings.MEDIA_URL + 'videos/'
+    video_url = settings.MEDIA_URL + 'videos/' + user_rand + '/'
     context = {'simulation_status': simulation_status, 'simulation_status_during_run': simulation_status_during_run,
                'video_path': video_url}
     return JsonResponse(context)
 
 
-def download__create_zip(num_of_proteins, include_pdb_file, include_dcd_file, include_animations_files, previous_page):
+def download__create_zip(num_of_proteins, include_pdb_file, include_dcd_file, include_animations_files, previous_page, user_rand):
     files = []
     files_names = []
 
@@ -69,19 +55,19 @@ def download__create_zip(num_of_proteins, include_pdb_file, include_dcd_file, in
         if previous_page == 'create_simulation':
             file_name = ''
             if num_of_proteins == '1':
-                file_name = '_1___movement.pdb'
+                file_name = '_1_.pdb'
             if num_of_proteins == '2':
-                file_name = 'both___1___movement__2___movement.pdb'
-            files.append(os.path.join(settings.MEDIA_ROOT, 'files', file_name))
+                file_name = 'both_1_2.pdb'
+            files.append(os.path.join(settings.MEDIA_ROOT, 'files', user_rand, file_name))
         if previous_page == 'upload_files':
-            files.append(os.path.join(settings.MEDIA_ROOT, 'files', 'file_upload_pdb.pdb'))
+            files.append(os.path.join(settings.MEDIA_ROOT, 'files', user_rand, 'file_upload_pdb.pdb'))
         files_names.append('pdb.pdb')
 
     if include_dcd_file:
         if previous_page == 'create_simulation':
-            files.append(os.path.join(settings.MEDIA_ROOT, 'files', 'trajectory.dcd'))
+            files.append(os.path.join(settings.MEDIA_ROOT, 'files',user_rand, 'trajectory.dcd'))
         if previous_page == 'upload_files':
-            files.append(os.path.join(settings.MEDIA_ROOT, 'files', 'file_upload_dcd.dcd'))
+            files.append(os.path.join(settings.MEDIA_ROOT, 'files',user_rand, 'file_upload_dcd.dcd'))
         files_names.append('dcd.dcd')
 
     if include_animations_files:
@@ -91,30 +77,31 @@ def download__create_zip(num_of_proteins, include_pdb_file, include_dcd_file, in
                   (0, 0, 90), (0, 0, 180), (0, 0, 270), ]  # Z axis
         for i, (x, y, z) in zip(range(0, 10), angels):
             video_name = 'video_{}.mp4'.format(str(i))
-            files.append(os.path.join(settings.MEDIA_ROOT, 'videos', video_name))
+            files.append(os.path.join(settings.MEDIA_ROOT, 'videos', user_rand, video_name))
             video_name_at_download = 'video_{}__X{}_Y{}_Z{}.mp4'.format(str(i), str(x), str(y), str(z))
             files_names.append(video_name_at_download)
 
-    print(files_names)
-    zip_file = zipfile.ZipFile(os.path.join(settings.MEDIA_ROOT, 'files', "SimuMole_output.zip"), "w")
+    zip_file = zipfile.ZipFile(os.path.join(settings.MEDIA_ROOT, 'files',user_rand, "SimuMole_output.zip"), "w")
     for file, file_name in zip(files, files_names):
         zip_file.write(file, file_name)
     zip_file.close()
 
 
 def download__zip(request):
+    user_rand = request.GET.get('user_rand')
     num_of_proteins = request.GET.get('num_of_proteins')
     include_pdb_file = (request.GET.get('pdb_file') == 'true')
     include_dcd_file = (request.GET.get('dcd_file') == 'true')
     include_animations_files = (request.GET.get('animation_files') == 'true')
     previous_page = request.GET.get('previous_page')
 
-    download__create_zip(num_of_proteins, include_pdb_file, include_dcd_file, include_animations_files, previous_page)
+    download__create_zip(num_of_proteins, include_pdb_file, include_dcd_file, include_animations_files, previous_page, user_rand)
 
     return JsonResponse({})
 
 
 def download__email(request):
+    user_rand = request.GET.get('user_rand')
     num_of_proteins = request.GET.get('num_of_proteins')
     include_pdb_file = (request.GET.get('pdb_file') == 'true')
     include_dcd_file = (request.GET.get('dcd_file') == 'true')
@@ -126,8 +113,8 @@ def download__email(request):
     response = {'email_success': 'true'}
     try:
         download__create_zip(num_of_proteins, include_pdb_file, include_dcd_file, include_animations_files,
-                             previous_page)
-        send_email(email, "SimuMole_output.zip")
+                             previous_page, user_rand)
+        send_email(email, "SimuMole_output.zip", user_rand)
     except Exception:
         response = {'email_success': 'false'}
 
@@ -161,7 +148,7 @@ class SimulationWizard(CookieWizardView):
         degXY_1, degYZ_1, degXY_2, degYZ_2 = '0', '0', '0', '0'
 
         num_of_proteins = dict_.get('num_of_proteins')
-
+        user_rand = dict_.get('user_rand')
         first_pdb_type = dict_.get('first_pdb_type')
         if first_pdb_type == 'by_id':
             first_pdb_id = dict_.get('first_pdb_id')
@@ -187,7 +174,8 @@ class SimulationWizard(CookieWizardView):
         temperature_scale = dict_.get('temperature_scale', '')
         temperature = dict_.get('temperature', '')
         time_step_number = dict_.get('time_step_number', '')
-
+		
+        clean_dict['user_rand'] = user_rand
         clean_dict['num_of_proteins'] = num_of_proteins
         clean_dict['first_pdb_type'] = first_pdb_type
         clean_dict['first_pdb_id'] = first_pdb_id
@@ -220,7 +208,7 @@ class SimulationWizard(CookieWizardView):
                        form_dict['degXY_1'], form_dict['degYZ_1'],
                        form_dict['degXY_2'], form_dict['degYZ_2'],
                        form_dict['temperature_scale'], form_dict['temperature'],
-                       form_dict['time_step_number'])
+                       form_dict['time_step_number'], form_dict['user_rand'])
         s.create_simulation()
 
     def done(self, form_list, **kwargs):
@@ -238,16 +226,16 @@ class SimulationWizard(CookieWizardView):
         t.start()
 
         # Initialize the status file:
-        with open(os.path.join(settings.MEDIA_ROOT, 'files', 'simulation_status.txt'), "w+") as f:
+        with open(os.path.join(settings.MEDIA_ROOT, 'files' , form_dict['user_rand'] , 'simulation_status.txt'), "w+") as f:
             f.write("Processing your parameters...")
-        with open(os.path.join(settings.MEDIA_ROOT, 'files', 'simulation_status_during_run.txt'), "w+") as f:
+        with open(os.path.join(settings.MEDIA_ROOT, 'files', form_dict['user_rand'], 'simulation_status_during_run.txt'), "w+") as f:
             f.write("")
 
         # Render 'create_simulation_result.html' without waiting until the simulation is complete:
         return render(self.request, 'create_simulation_result.html',
                       {'form_data': form_dict, 'num_of_proteins': form_dict['num_of_proteins'],
                        'previous_page': 'create_simulation',
-                       'video_path': settings.MEDIA_URL + 'videos/'})  # todo: change "video_path"
+                       'video_path': settings.MEDIA_URL + 'videos/' + form_dict['user_rand'] + '/', 'user_rand':form_dict['user_rand']})
 
     def get_form_initial(self, step):
         """
@@ -264,8 +252,8 @@ class SimulationWizard(CookieWizardView):
                   'first_pdb_file': step_0_prev_data.get('0-first_pdb_file'),
                   'second_pdb_type': step_0_prev_data.get('0-second_pdb_type'),
                   'second_pdb_id': step_0_prev_data.get('0-second_pdb_id'),
-                  'second_pdb_file': step_0_prev_data.get('0-second_pdb_file'), }
-
+                  'second_pdb_file': step_0_prev_data.get('0-second_pdb_file'), 
+				  'user_rand': step_0_prev_data.get('0-user_rand'),}
         # SimulationForm1_DetermineRelativePosition
         step_1_prev_data = self.storage.get_step_data('1')
         step_1_prev_data = {} if step_1_prev_data is None \
@@ -291,7 +279,7 @@ def show_form1(wizard: CookieWizardView):
     if 'num_of_proteins'==1: return FALSE, and then navigate to step 2 (simulation parameters)
     else, if 'num_of_proteins'==2: return TRUE, and then navigate to step 1 (determine relative position)
     """
-    cleaned_data = wizard.get_cleaned_data_for_step('0') or {}
+    cleaned_data = wizard.get_form_initial('0') or {}
     return cleaned_data.get('num_of_proteins') == '2'
 
 
@@ -315,7 +303,7 @@ def upload_files(request):
                 f.write("")
 
             return render(request, 'create_simulation_result.html',
-                          {'video_path': settings.MEDIA_URL + 'videos/',  # todo: change "video_path"
+                          {'video_path': settings.MEDIA_URL + 'videos/',
                            'previous_page': "upload_files",
                            'num_of_proteins': 0})  # num_of_proteins is irrelevant
     else:

@@ -1,11 +1,10 @@
 from time import sleep
-import pymol
+import pymol2
+import os
 
 from .fix_pdb import fix_pdb
 from .basicTrajectoryBuilder import scr, update_simulation_status
-from .transformations import translate_pdb
 
-temp = 'media/files/'  # path to temp folder
 pdb = '.pdb'  # pdb suffix
 
 
@@ -13,10 +12,11 @@ class Simulation:
 
     def __init__(self, num_of_proteins, first_pdb_type, first_pdb_id, second_pdb_type, second_pdb_id,
                  x1, y1, z1, x2, y2, z2, degXY_1, degYZ_1, degXY_2, degYZ_2, temperature_scale, temperature,
-                 time_step_number):
+                 time_step_number, user_rand):
 
         self.cmd = None
-
+        self.user_rand = user_rand
+        self.temp =  'media/files/' + self.user_rand + '/'
         self.num_of_proteins = num_of_proteins
 
         self.first_pdb_type = first_pdb_type
@@ -41,104 +41,59 @@ class Simulation:
         self.time_step_number = (int(time_step_number) - 1) * 1000
 
     def create_simulation(self):
-        pymol.finish_launching(['pymol', '-q'])  # pymol: -q quiet launch, -c no gui, -e fullscreen
-        self.cmd = pymol.cmd
-        filename_1 = '_1_'
-        filename_2 = '_2_'
+
+        #pymol.finish_launching(['pymol', '-q'])  # pymol: -q quiet launch, -c no gui, -e fullscreen
+        #self.cmd = pymol.cmd
+        p1 = pymol2.PyMOL()
+        p1.start()
+        self.cmd = p1.cmd
+
+        # define input files to 'create_simulation_pdb':
         if self.num_of_proteins == '2':
-            # STEP 1: load input pdb
-            if self.first_pdb_type == 'by_id':
-                self.save_pdb_by_id(self.first_pdb_id, filename_1 + pdb)
-            if self.second_pdb_type == 'by_id':
-                self.save_pdb_by_id(self.second_pdb_id, filename_2 + pdb)
-
-            # STEP 2: fix positions
-            filename_1_movement = filename_1 + '__movement'
-            filename_2_movement = filename_2 + '__movement'
-            translate_pdb(temp + filename_1 + pdb, temp + filename_1_movement + pdb, self.x1, self.y1, self.z1,
-                          self.degXY_1, self.degYZ_1)
-            translate_pdb(temp + filename_2 + pdb, temp + filename_2_movement + pdb, self.x2, self.y2, self.z2,
-                          self.degXY_2, self.degYZ_2)
-
-            # STEP 2.5: fix pdb
-            fix_pdb(temp + filename_1_movement + pdb)
-            fix_pdb(temp + filename_2_movement + pdb)
-
-            # STEP 3: merge to single pdb file
-            self.save_pdbs_in_one_pdb(filename_1_movement, filename_2_movement)
-
-            # STEP 3.5: fix pdb
-            fix_pdb(temp + "both__" + filename_1_movement + '_' + filename_2_movement + pdb)
-
-            # STEP 4: use OpenMM
-            input_coor_name = temp + "both__" + filename_1_movement + '_' + filename_2_movement + pdb
-            scr(input_coor_name, self.temperature, self.time_step_number)
-
+            input_coor_name = 'both_1_2'
         else:
-            # STEP 1: load input pdb
-            if self.first_pdb_type == 'by_id':
-                self.save_pdb_by_id(self.first_pdb_id, filename_1 + pdb)
+            input_coor_name = '_1_'
 
-            # STEP 2: fix positions
-            filename_1_movement = filename_1 + '__movement'
-            translate_pdb(temp + filename_1 + pdb, temp + filename_1_movement + pdb, self.x1, self.y1, self.z1,
-                          self.degXY_1, self.degYZ_1)
-
-            # STEP 2.5: fix pdb
-            fix_pdb(temp + filename_1_movement + pdb)
-
-            # STEP 3: use OpenMM
-            input_coor_name = temp + filename_1_movement + pdb
-            try:
-                scr(input_coor_name, self.temperature, self.time_step_number)
-            except:
-                update_simulation_status('An error occurred while creating the simulation. Please try again later.')
-                return
-
-        # save the DCD file using PyMOL
         try:
+            # run OpenMM:
+            input_coor_name = self.temp + input_coor_name + pdb
+            fix_pdb(input_coor_name)
+            scr(input_coor_name, self.temperature, self.time_step_number, self.user_rand)
+
+            # save the DCD file using PyMOL
             self.cmd.reinitialize()
+            sleep(0.5)
             self.cmd.load(input_coor_name)
-            self.cmd.load_traj(temp + 'trajectory.dcd')
-        except:  # mainly for "pymol.CmdException"
-            update_simulation_status('An error occurred while creating the simulation. Please try again later.')
+            self.cmd.load_traj(self.temp + 'trajectory.dcd')
+
+        except Exception as e:  # mainly for "pymol.CmdException"
+            print(str(e))
+            update_simulation_status('An error occurred while creating the simulation. Please try again later.', self.user_rand)
             return
 
-        # create the animations:
-        update_simulation_status('Creates the animations')
-        create_movies_from_different_angles(self.cmd)  # create movies in media/movies folder
+        try:
+            # create the animations:
+            update_simulation_status('Creates the animations', self.user_rand)
+            create_movies_from_different_angles(self.cmd, self.user_rand)  # create movies in media/movies folder
+        except Exception as e:  # mainly for "pymol.CmdException"
+            print(str(e))
+            update_simulation_status('An error occurred while creating the animations. Please try again later.', self.user_rand)
+            return
 
         # complete simulation:
-        update_simulation_status('Done!')
-        # self.cmd.quit() # todo: need to close PyMol window
+        update_simulation_status('Done!', self.user_rand)
 
-    def clear_simulation(self):  # todo: complete this! delete all temporary files
+    def clear_simulation(self):  # todo: complete this, need to delete all temporary files
         # os.remove('path/to/files')
         return
 
-    def save_pdb_by_id(self, pdb_id, name_of_file):
-        self.cmd.reinitialize()
-        sleep(0.5)
-
-        self.cmd.load("https://files.rcsb.org/download/" + pdb_id + pdb)
-        self.cmd.zoom()
-        self.cmd.save(temp + name_of_file)
-
-    def save_pdbs_in_one_pdb(self, filename_1, filename_2):
-        self.cmd.reinitialize()
-        sleep(0.5)
-
-        self.cmd.load(temp + filename_1 + pdb)
-        self.cmd.load(temp + filename_2 + pdb)
-        self.cmd.zoom()
-        self.cmd.save(temp + "both__" + filename_1 + '_' + filename_2 + pdb)
-
     @staticmethod
+	#not used
     def merge_pdbs_by_copy(filename_1, filename_2, do_fix=True):
-        merged_pdb = temp + "both__" + filename_1 + "_" + filename_2 + pdb
+        merged_pdb = self.temp + "both__" + filename_1 + "_" + filename_2 + pdb
         merged_file = open(merged_pdb, 'w')
-        file1 = open(temp + filename_1 + pdb)
-        file2 = open(temp + filename_2 + pdb)
+        file1 = open(self.temp + filename_1 + pdb)
+        file2 = open(self.temp + filename_2 + pdb)
         for line in file1:
             if not (line.startswith('MASTER') or line.startswith('END')):
                 merged_file.write(line)
@@ -154,7 +109,8 @@ class Simulation:
 
 # FUNCTION IS ASSUMING TRAJECTORY AND PDB FILES ARE LOADED
 # output: 3*3 + 1 auto generated movies from different angles
-def create_movies_from_different_angles(cmd):
+def create_movies_from_different_angles(cmd, user_rand):
+    os.mkdir("media/videos/" + user_rand)
     sleep(0.5)
     cmd.do("run SimuMoleScripts/axes.py")
     cmd.do("orient")
@@ -173,7 +129,7 @@ def create_movies_from_different_angles(cmd):
               (0, 0, 90), (0, 0, 180), (0, 0, 270),  # Z axis
               ]
     for x, y, z in angels:
-        update_simulation_status('Creates the animations ({} of {})'.format(i + 1, len(angels)))
+        update_simulation_status('Creates the animations ({} of {})'.format(i + 1, len(angels)), user_rand)
         x, y, z = str(x), str(y), str(z)
         cmd.sync()
         cmd.do("turn x, " + x)
@@ -184,7 +140,7 @@ def create_movies_from_different_angles(cmd):
         cmd.sync()
         cmd.do("zoom complete = 1")
         cmd.sync()
-        cmd.do("movie.produce media/videos/video_" + str(i) + ".mp4, quality = 90,preserve=0")
+        cmd.do("movie.produce media/videos/" + user_rand + "/" + "video_" + str(i) + ".mp4, quality = 90,preserve=0")
         cmd.sync()
         sleep(3)  # Sleep might not be a solution, but without it the commands run too fast and make errors.
         #           Attempting to use the sync command on 'produce' doesnt seem to work.
@@ -195,3 +151,5 @@ def create_movies_from_different_angles(cmd):
         cmd.do("turn x, " + "-" + x)
         cmd.sync()
         i = i + 1
+
+    cmd.do("reinitialize")
