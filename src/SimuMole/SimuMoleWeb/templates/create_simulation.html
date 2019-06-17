@@ -149,7 +149,12 @@
         let user_rand_field = document.getElementById('id_0-user_rand');
         if (user_rand_field) {
             let user_rand_val = Math.floor(Math.random() * 1000);
+
             user_rand_field.value = user_rand_val.toString();
+            user_rand_field.style.visibility = 'hidden';
+            user_rand_field.style.display = 'none';
+
+            console.log("user_rand=" + user_rand_val.toString())
         }
 
         // show/hide the loading spinner:
