@@ -126,22 +126,25 @@ class SimulationForm0_LoadPdb(forms.Form):
         # check that the input PDBs structure is valid
         # ("Invalid PDB id" / "Protein not supported by OpenMM" errors)
         # ....................................................................#
+        if not os.path.exists("media/files/" + user_rand):
+            os.mkdir("media/files/" + user_rand)
+
         if first_id_exist:
-            pdb_validation_result = self.pdb_id_validation(first_pdb_id, "_1_.pdb")
+            pdb_validation_result = self.pdb_id_validation(first_pdb_id, "_1_.pdb", user_rand)
             if pdb_validation_result is not None:
                 errors.append(forms.ValidationError("First protein: " + pdb_validation_result))
         if first_file_exist:
             self.save_file(first_pdb_file, "_1_.pdb")
-            pdb_validation_result = self.pdb_file_validation("media/files/" + "_1_.pdb")
+            pdb_validation_result = self.pdb_file_validation("media/files/" + user_rand + '/' + "_1_.pdb", user_rand)
             if pdb_validation_result is not None:
                 errors.append(forms.ValidationError("First protein: " + pdb_validation_result))
         if second_id_exist:
-            pdb_validation_result = self.pdb_id_validation(second_pdb_id, "_2_.pdb")
+            pdb_validation_result = self.pdb_id_validation(second_pdb_id, "_2_.pdb", user_rand)
             if pdb_validation_result is not None:
                 errors.append(forms.ValidationError("Second protein: " + pdb_validation_result))
         if second_file_exist:
             self.save_file(second_pdb_file, "_2_.pdb")
-            pdb_validation_result = self.pdb_file_validation("media/files/" + "_2_.pdb")
+            pdb_validation_result = self.pdb_file_validation("media/files/" + user_rand + '/' + "_2_.pdb", user_rand)
             if pdb_validation_result is not None:
                 errors.append(forms.ValidationError("Second protein: " + pdb_validation_result))
 
