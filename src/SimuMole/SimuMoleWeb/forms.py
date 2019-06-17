@@ -47,8 +47,7 @@ class SimulationForm0_LoadPdb(forms.Form):
     second_pdb_id = forms.CharField(required=False, label='Enter your second pdb ID', max_length=10)
     second_pdb_file = forms.FileField(required=False, label='Upload your second pdb file')
 
-    user_rand = forms.CharField(required=False, label='', initial=''.join(
-        random.choice(string.ascii_uppercase + string.digits) for _ in range(8)))
+    user_rand = forms.CharField(required=False, label='')
 
     @staticmethod
     def save_file(file: UploadedFile, filename: str):
