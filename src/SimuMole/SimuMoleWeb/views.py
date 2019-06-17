@@ -298,21 +298,25 @@ def upload_files(request):
     if request.method == 'POST':
         form = UploadFiles(request.POST, request.FILES)
         if form.is_valid():
+            user_rand = form.cleaned_data['user_rand']
+
             # Create a new thread responsible for creating the animations:
-            t = threading.Thread(target=create_animations, args=())
+            t = threading.Thread(target=create_animations, args=(user_rand,))
             t.setDaemon(True)
             t.start()
 
             # Initialize the status file:
-            with open(os.path.join(settings.MEDIA_ROOT, 'files', 'simulation_status.txt'), "w+") as f:
+            with open(os.path.join(settings.MEDIA_ROOT, 'files', user_rand, 'simulation_status.txt'), "w+") as f:
                 f.write("Processing your parameters...")
-            with open(os.path.join(settings.MEDIA_ROOT, 'files', 'simulation_status_during_run.txt'), "w+") as f:
+            with open(os.path.join(settings.MEDIA_ROOT, 'files', user_rand, 'simulation_status_during_run.txt'),
+                      "w+") as f:
                 f.write("")
 
             return render(request, 'create_simulation_result.html',
-                          {'video_path': settings.MEDIA_URL + 'videos/',
+                          {'video_path': settings.MEDIA_URL + 'videos/' + user_rand + "/",
                            'previous_page': "upload_files",
-                           'num_of_proteins': 0})  # num_of_proteins is irrelevant
+                           'num_of_proteins': 0,
+                           'user_rand': user_rand})  # num_of_proteins is irrelevant
     else:
         form = UploadFiles()
     return render(request, 'file_upload.html', {'form': form})

@@ -26,3 +26,21 @@
     </form>
 
 {% endblock %}
+
+{% block extra_js %}
+    <script type="text/javascript">
+
+        // init user_rand:
+        let user_rand_field = document.getElementById('id_user_rand');
+        if (user_rand_field) {
+            let user_rand_val = Math.floor(Math.random() * 1000);
+
+            user_rand_field.value = user_rand_val.toString();
+            user_rand_field.style.visibility = 'hidden';
+            user_rand_field.style.display = 'none';
+
+            console.log("user_rand=" + user_rand_val.toString()) // todo: delete
+        }
+
+    </script>
+{% endblock extra_js %}

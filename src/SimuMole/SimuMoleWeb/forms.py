@@ -361,6 +361,7 @@ class SimulationForm2_SimulationParameters(forms.Form):
 class UploadFiles(forms.Form):
     pdb_file = forms.FileField(required=True, label='Upload a PDB file')
     dcd_file = forms.FileField(required=True, label='Upload a DCD file')
+    user_rand = forms.CharField(required=False, label='')
 
     def clean(self):
         errors = []
@@ -381,16 +382,19 @@ class UploadFiles(forms.Form):
             raise forms.ValidationError(errors)
 
         # save files (only after checking that their format is correct)
-        self.save_file(pdb_file, "file_upload_pdb.pdb")
-        self.save_file(dcd_file, "file_upload_dcd.dcd")
+        user_rand = self.cleaned_data['user_rand']
+        if not os.path.exists("media/files/" + user_rand):
+            os.mkdir("media/files/" + user_rand)
+        self.save_file(pdb_file, "file_upload_pdb.pdb", user_rand)
+        self.save_file(dcd_file, "file_upload_dcd.dcd", user_rand)
 
         # check match between the files
-        if not pdb_and_dcd_match("file_upload_pdb.pdb", "file_upload_dcd.dcd"):
+        if not pdb_and_dcd_match("file_upload_pdb.pdb", "file_upload_dcd.dcd", user_rand):
             raise forms.ValidationError("The PDB file does not match the DCD file (the number of atoms is different)")
 
     @staticmethod
-    def save_file(file: UploadedFile, filename: str):
-        path = os.path.join(settings.MEDIA_ROOT, 'files')
+    def save_file(file: UploadedFile, filename: str, user_rand):
+        path = os.path.join(settings.MEDIA_ROOT, 'files', user_rand)
         file_storage = FileSystemStorage(location=path)
 
         file_storage.delete(filename)  # delete existing file with same name
