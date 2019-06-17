@@ -12,10 +12,14 @@
 
     <style>
 
+        {#.......... errors ..........#}
+
         .error input, .error select, .errorlist {
             color: red;
             padding-bottom: 30px;
         }
+
+        {#.......... buttons ..........#}
 
         #gray-button {
             background-color: #e7e7e7;
@@ -28,6 +32,8 @@
             color: black;
             margin-bottom: 20px;
         }
+
+        {#.......... spinner ..........#}
 
         @keyframes spinner {
             to {
@@ -160,7 +166,7 @@
 
         // show/hide the loading spinner:
 
-        hide_loading_spinner(); // hide spinner as default#
+        hide_loading_spinner(); // hide spinner as default
 
         function show_loading_spinner(next = true) {
             let need_to_show_loading_spinner = false;
