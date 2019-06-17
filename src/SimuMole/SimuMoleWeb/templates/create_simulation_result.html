@@ -348,6 +348,9 @@
             $.ajax({
                 url: '{% url 'update_simulation_status' %}',
                 type: "get",
+                data: {
+                    'user_rand': "{{user_rand}}",
+                },
                 dataType: 'json',
                 success: function (data) {
 
@@ -425,10 +428,11 @@
                     'dcd_file': dcd_file,
                     'animation_files': animations_files,
                     'previous_page': "{{ previous_page }}",
+                    'user_rand': "{{user_rand}}",
                 },
                 dataType: 'json',
                 success: function () {
-                    location.href = "/media/files/SimuMole_output.zip"
+                    location.href = "/media/files/" + "{{user_rand}}" + "/SimuMole_output.zip"
                 }
             });
         }
@@ -459,6 +463,7 @@
                     'animation_files': animations_files,
                     'email': email,
                     'previous_page': "{{ previous_page }}",
+                    'user_rand': "{{user_rand}}",
                 },
                 dataType: 'json',
                 success:

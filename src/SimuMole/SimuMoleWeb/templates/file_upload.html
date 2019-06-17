@@ -4,10 +4,14 @@
 
     <style>
 
+        {#.......... errors ..........#}
+
         .error input, .error select, .errorlist {
             color: red;
             padding-bottom: 30px;
         }
+
+        {#.......... buttons ..........#}
 
         #blue-button {
             background-color: #5e88e7;
@@ -15,14 +19,108 @@
             margin-bottom: 20px;
         }
 
+        #id_1-z1, #id_1-z2, #id_1-degYZ_1, #id_2-temperature {
+            margin-bottom: 20px;
+        }
+
+        {#.......... spinner ..........#}
+
+        @keyframes spinner {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .spinner:before {
+            content: '';
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid #e7e7e7;
+            border-top-color: #07d;
+            border-bottom-color: #07d;
+            animation: spinner .8s ease infinite;
+            display: inline-block;
+        }
+
+        #spinner-image {
+            display: inline-block;
+            margin-right: 5px;
+        }
+
+        #spinner-text {
+            display: inline-block;
+        }
+
     </style>
 
     <h1><strong>Upload PDB and DCD files</strong></h1><br>
 
     <form action="" method="post" enctype="multipart/form-data"> {% csrf_token %}
+        <!-- form -->
         {{ form.as_p }}
         <br>
-        <input id="blue-button" type="submit" value="Upload" class="btn btn-primary"/>
+
+        <!-- "Submit" button -->
+        <input id="blue-button" type="submit" value="Upload" class="btn btn-primary" onclick="show_loading_spinner()"/>
+
+        <!-- loading spinner -->
+        <div id="loading_spinner">
+            <div class="spinner" id="spinner-image"></div>
+            <div id="spinner-text">
+                <p>Validates your request</p>
+            </div>
+        </div>
     </form>
 
 {% endblock %}
+
+{% block extra_js %}
+    <script type="text/javascript">
+
+        // init user_rand:
+        let user_rand_field = document.getElementById('id_user_rand');
+        if (user_rand_field) {
+            let user_rand_val = Math.floor(Math.random() * 1000);
+
+            user_rand_field.value = user_rand_val.toString();
+            user_rand_field.style.visibility = 'hidden';
+            user_rand_field.style.display = 'none';
+
+            
+        }
+
+        // show/hide the loading spinner:
+
+        hide_loading_spinner(); // hide spinner as default
+
+        function show_loading_spinner() {
+            change_visibility_of_element("loading_spinner", '', '');
+        }
+
+        function hide_loading_spinner() {
+            change_visibility_of_element("loading_spinner", 'hidden', 'none');
+        }
+
+        // change_visibility_of_element functions:
+
+        function change_visibility_of_element(element_id, visibility = '', display = '') {
+            let element = document.getElementById(element_id);
+            element.style.visibility = visibility;      // visibility = 'hidden' or ''
+            element.style.display = display;            // display = 'none' or ''
+            change_visibility_of_label(element_id, visibility, display);
+        }
+
+        function change_visibility_of_label(for_input, visibility, display = '') {
+            let totalLabel = document.getElementsByTagName('label');
+            for (let l = 0; l < totalLabel.length; l++) {
+                let lbb = totalLabel[l].getAttribute('for');
+                if (lbb === for_input) {
+                    totalLabel[l].style.visibility = visibility;
+                    totalLabel[l].style.display = display;
+                }
+            }
+        }
+
+    </script>
+{% endblock extra_js %}
