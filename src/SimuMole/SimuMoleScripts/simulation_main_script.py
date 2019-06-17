@@ -74,7 +74,7 @@ class Simulation:
         try:
             # create the animations:
             update_simulation_status('Creates the animations', self.user_rand)
-            create_movies_from_different_angles(self.cmd, self.user_rand)  # create movies in media/movies folder
+            create_movies_from_different_angles(self.cmd, self.user_rand, input_coor_name, self.temp + 'trajectory.dcd')  # create movies in media/movies folder
         except Exception as e:  # mainly for "pymol.CmdException"
             print(str(e))
             update_simulation_status('An error occurred while creating the animations. Please try again later.',
@@ -110,17 +110,17 @@ class Simulation:
 
 # FUNCTION IS ASSUMING TRAJECTORY AND PDB FILES ARE LOADED
 # output: 3*3 + 1 auto generated movies from different angles
-def create_movies_from_different_angles(cmd, user_rand):
+def create_movies_from_different_angles(cmd, user_rand, pdb_loc, dcd_loc):
     os.mkdir("media/videos/" + user_rand)
     sleep(0.5)
-    cmd.do("run SimuMoleScripts/axes.py")
+    #cmd.do("run SimuMoleScripts/axes.py")
     cmd.do("orient")
     cmd.do("zoom complete = 1")
     cmd.do("as cartoon")
     cmd.do("spectrum")
     cmd.do("smooth")
-    cmd.do("set max_threads, 1")
-    cmd.do("axes")
+    #cmd.do("set max_threads, 1")
+    #cmd.do("axes")
     cmd.do("reset")
 
     i = 0
@@ -131,26 +131,44 @@ def create_movies_from_different_angles(cmd, user_rand):
               ]
     for x, y, z in angels:
         update_simulation_status('Creates the animations ({} of {})'.format(i + 1, len(angels)), user_rand)
-        x, y, z = str(x), str(y), str(z)
-        cmd.sync()
-        cmd.do("turn x, " + x)
-        cmd.sync()
-        cmd.do("turn y, " + y)
-        cmd.sync()
-        cmd.do("turn z, " + z)
-        cmd.sync()
-        cmd.do("zoom complete = 1")
-        cmd.sync()
-        cmd.do("movie.produce media/videos/" + user_rand + "/" + "video_" + str(i) + ".mp4, quality = 90,preserve=0")
-        cmd.sync()
-        sleep(3)  # Sleep might not be a solution, but without it the commands run too fast and make errors.
-        #           Attempting to use the sync command on 'produce' doesnt seem to work.
-        cmd.do("turn z, " + "-" + z)  # resets the turns
-        cmd.sync()
-        cmd.do("turn y, " + "-" + y)
-        cmd.sync()
-        cmd.do("turn x, " + "-" + x)
-        cmd.sync()
+        while(not os.path.isfile("media/videos/" + user_rand + "/" + "video_" + str(i) + ".mp4")):
+            p1 = pymol2.PyMOL()
+            p1.start()
+            cmd = p1.cmd
+            cmd.do("orient")
+            cmd.do("zoom complete = 1")
+            cmd.do("as cartoon")
+            cmd.do("spectrum")
+            cmd.do("smooth")
+            #cmd.do("set max_threads, 1")
+            #cmd.do("axes")
+            cmd.do("reset")
+            cmd.reinitialize()
+            sleep(0.5)
+            cmd.load(pdb_loc)
+            cmd.load_traj(dcd_loc)
+            print(cmd.get_object_list('all'))
+            cmd.get_object_list('all')
+            x, y, z = str(x), str(y), str(z)
+            cmd.sync()
+            cmd.do("turn x, " + x)
+            cmd.sync()
+            cmd.do("turn y, " + y)
+            cmd.sync()
+            cmd.do("turn z, " + z)
+            cmd.sync()
+            cmd.do("zoom complete = 1")
+            cmd.sync()
+            cmd.do("movie.produce media/videos/" + user_rand + "/" + "video_" + str(i) + ".mp4, quality = 90,preserve=0")
+            cmd.sync()
+            sleep(3)  # Sleep might not be a solution, but without it the commands run too fast and make errors.
+            #           Attempting to use the sync command on 'produce' doesnt seem to work.
+            cmd.do("turn z, " + "-" + z)  # resets the turns
+            cmd.sync()
+            cmd.do("turn y, " + "-" + y)
+            cmd.sync()
+            cmd.do("turn x, " + "-" + x)
+            cmd.sync()
+            
         i = i + 1
-
     cmd.do("reinitialize")

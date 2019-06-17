@@ -272,16 +272,17 @@ class SimulationForm1_DetermineRelativePosition(forms.Form):
         # merge to single pdb file
         # pymol.finish_launching(['pymol', '-q'])  # pymol: -q quiet launch, -c no gui, -e fullscreen
         # cmd = pymol.cmd
-        p1 = pymol2.PyMOL()
-        p1.start()
-        cmd = p1.cmd
+        while(not (os.path.isfile(temp + "both_1_2" + pdb))):
+            p1 = pymol2.PyMOL()
+            p1.start()
+            cmd = p1.cmd
 
-        cmd.reinitialize()
-        sleep(0.5)
-        cmd.load(temp + filename_1_movement + pdb)
-        cmd.load(temp + filename_2_movement + pdb)
-        cmd.zoom()
-        cmd.save(temp + "both_1_2" + pdb)
+            cmd.reinitialize()
+            sleep(0.5)
+            cmd.load(temp + filename_1_movement + pdb)
+            cmd.load(temp + filename_2_movement + pdb)
+            cmd.zoom()
+            cmd.save(temp + "both_1_2" + pdb)
 
     @staticmethod
     def position_is_valid(x1, y1, z1, x2, y2, z2, degXY_1, degYZ_1, degXY_2, degYZ_2, user_rand):

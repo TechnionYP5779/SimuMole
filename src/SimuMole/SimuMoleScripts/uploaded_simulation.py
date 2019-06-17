@@ -40,7 +40,7 @@ def create_animations(user_rand):
 
         # create the animations:
         update_simulation_status('Creates the animations', user_rand)
-        create_movies_from_different_angles(cmd, user_rand)  # create movies in media/movies folder
+        create_movies_from_different_angles(cmd, user_rand, temp + user_rand + "/file_upload_pdb.pdb", temp + user_rand + "/file_upload_dcd.dcd")  # create movies in media/movies folder
 
         # complete simulation:
         update_simulation_status('Done!', user_rand)
