@@ -24,7 +24,7 @@ SECRET_KEY = '4$f(_tlc7ts+f1l63nj)bl%lws&lyx2#e4_hav-lrs_2449(u9'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['marinemr135.quickbox.io', '176.9.8.180']
 
 # Application definition
 
