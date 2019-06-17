@@ -3,27 +3,24 @@ from simtk.openmm import app
 import simtk.openmm as mm
 from simtk import unit
 
-dir_path = 'media/files/'
-simulation_status_path = dir_path + 'simulation_status.txt'
-simulation_status_during_run_path = dir_path + 'simulation_status_during_run.txt'
-trajectory_path = dir_path
-traj_dcd = 'trajectory.dcd'
-
 
 def scr(input_coor_name, temperature, time_step_number, user_rand):
     dir_path = 'media/files/' + user_rand + '/'
     simulation_status_path = dir_path + 'simulation_status.txt'
     simulation_status_during_run_path = dir_path + 'simulation_status_during_run.txt'
     trajectory_path = dir_path
+    traj_dcd = 'trajectory.dcd'
+
     pdb = app.PDBFile(input_coor_name)
     forcefield = app.ForceField('amber99sbildn.xml', 'tip3p.xml')
+
     system = forcefield.createSystem(pdb.topology, nonbondedMethod=app.NoCutoff, constraints=app.HBonds,
                                      rigidWater=True)
     integrator = mm.LangevinIntegrator(temperature * unit.kelvin, 1.0 / unit.picoseconds, 2.0 * unit.femtoseconds)
     integrator.setConstraintTolerance(0.00001)
 
     platform = mm.Platform.getPlatformByName('CPU')
-    
+
     simulation = app.Simulation(pdb.topology, system, integrator, platform)
     simulation.context.setPositions(pdb.positions)
 
@@ -47,9 +44,7 @@ def scr(input_coor_name, temperature, time_step_number, user_rand):
 def update_simulation_status(status, user_rand):
     dir_path = 'media/files/' + user_rand + '/'
     simulation_status_path = dir_path + 'simulation_status.txt'
-    simulation_status_during_run_path = dir_path + 'simulation_status_during_run.txt'
-    trajectory_path = dir_path
-	
+
     with open(simulation_status_path, "w+") as f:
         f.write(status)
 
@@ -67,7 +62,7 @@ def scr_for_checks(input_coor_name, user_rand, full_check=False):
         integrator.setConstraintTolerance(0.00001)
 
         platform = mm.Platform.getPlatformByName('CPU')
-        
+
         simulation = app.Simulation(pdb.topology, system, integrator, platform)
         simulation.context.setPositions(pdb.positions)
 

@@ -16,7 +16,7 @@ class Simulation:
 
         self.cmd = None
         self.user_rand = user_rand
-        self.temp =  'media/files/' + self.user_rand + '/'
+        self.temp = 'media/files/' + self.user_rand + '/'
         self.num_of_proteins = num_of_proteins
 
         self.first_pdb_type = first_pdb_type
@@ -41,9 +41,8 @@ class Simulation:
         self.time_step_number = (int(time_step_number) - 1) * 1000
 
     def create_simulation(self):
-
-        #pymol.finish_launching(['pymol', '-q'])  # pymol: -q quiet launch, -c no gui, -e fullscreen
-        #self.cmd = pymol.cmd
+        # pymol.finish_launching(['pymol', '-q'])  # pymol: -q quiet launch, -c no gui, -e fullscreen
+        # self.cmd = pymol.cmd
         p1 = pymol2.PyMOL()
         p1.start()
         self.cmd = p1.cmd
@@ -68,7 +67,8 @@ class Simulation:
 
         except Exception as e:  # mainly for "pymol.CmdException"
             print(str(e))
-            update_simulation_status('An error occurred while creating the simulation. Please try again later.', self.user_rand)
+            update_simulation_status('An error occurred while creating the simulation. Please try again later.',
+                                     self.user_rand)
             return
 
         try:
@@ -77,7 +77,8 @@ class Simulation:
             create_movies_from_different_angles(self.cmd, self.user_rand)  # create movies in media/movies folder
         except Exception as e:  # mainly for "pymol.CmdException"
             print(str(e))
-            update_simulation_status('An error occurred while creating the animations. Please try again later.', self.user_rand)
+            update_simulation_status('An error occurred while creating the animations. Please try again later.',
+                                     self.user_rand)
             return
 
         # complete simulation:
@@ -87,24 +88,24 @@ class Simulation:
         # os.remove('path/to/files')
         return
 
-    @staticmethod
-	#not used
-    def merge_pdbs_by_copy(filename_1, filename_2, do_fix=True):
-        merged_pdb = self.temp + "both__" + filename_1 + "_" + filename_2 + pdb
-        merged_file = open(merged_pdb, 'w')
-        file1 = open(self.temp + filename_1 + pdb)
-        file2 = open(self.temp + filename_2 + pdb)
-        for line in file1:
-            if not (line.startswith('MASTER') or line.startswith('END')):
-                merged_file.write(line)
-        for line in file2:
-            if not (line.startswith('HEADER')):
-                merged_file.write(line)
-        file1.close()
-        file2.close()
-        merged_file.close()
-        if do_fix:
-            fix_pdb(merged_pdb)
+    # **not used**
+    # @staticmethod
+    # def merge_pdbs_by_copy(filename_1, filename_2, do_fix=True):
+    #     merged_pdb = self.temp + "both__" + filename_1 + "_" + filename_2 + pdb
+    #     merged_file = open(merged_pdb, 'w')
+    #     file1 = open(self.temp + filename_1 + pdb)
+    #     file2 = open(self.temp + filename_2 + pdb)
+    #     for line in file1:
+    #         if not (line.startswith('MASTER') or line.startswith('END')):
+    #             merged_file.write(line)
+    #     for line in file2:
+    #         if not (line.startswith('HEADER')):
+    #             merged_file.write(line)
+    #     file1.close()
+    #     file2.close()
+    #     merged_file.close()
+    #     if do_fix:
+    #         fix_pdb(merged_pdb)
 
 
 # FUNCTION IS ASSUMING TRAJECTORY AND PDB FILES ARE LOADED
@@ -116,7 +117,7 @@ def create_movies_from_different_angles(cmd, user_rand):
     cmd.do("orient")
     cmd.do("zoom complete = 1")
     cmd.do("as cartoon")
-    cmd.do("preset.pretty(selection='all')")
+    cmd.do("spectrum")
     cmd.do("smooth")
     cmd.do("set max_threads, 1")
     cmd.do("axes")

@@ -12,10 +12,14 @@
 
     <style>
 
+        {#.......... errors ..........#}
+
         .error input, .error select, .errorlist {
             color: red;
             padding-bottom: 30px;
         }
+
+        {#.......... buttons ..........#}
 
         #gray-button {
             background-color: #e7e7e7;
@@ -28,6 +32,8 @@
             color: black;
             margin-bottom: 20px;
         }
+
+        {#.......... spinner ..........#}
 
         @keyframes spinner {
             to {
@@ -111,12 +117,12 @@
 
         <!-- "Return To Start" and "Previous" buttons -->
         {% if wizard.steps.prev %}
-            <button onclick="show_loading_spinner()" formnovalidate="formnovalidate" id="gray-button"
+            <button onclick="show_loading_spinner(false)" formnovalidate="formnovalidate" id="gray-button"
                     name="wizard_goto_step" type="submit"
                     value="{{ wizard.steps.prev }}" class="btn">
                 {% trans "Previous" %}
             </button>
-            <button onclick="show_loading_spinner()" formnovalidate="formnovalidate" id="gray-button"
+            <button onclick="show_loading_spinner(false)" formnovalidate="formnovalidate" id="gray-button"
                     name="wizard_goto_step" type="submit"
                     value="{{ wizard.steps.first }}" class="btn">
                 {% trans "Return To Start" %}
@@ -127,7 +133,7 @@
         <!-- loading spinner -->
         <div id="loading_spinner">
             <div class="spinner" id="spinner-image"></div>
-            <div id="spinner-text">
+            <div id="spinner-text-next">
                 {% if  wizard.steps.current  == '0' %}
                     <p>Checks that the PDB is valid (ID exist / file format is correct), and supported by OpenMM</p>
                 {% elif  wizard.steps.current == '1' %}
@@ -136,6 +142,7 @@
                     <p>Validates your request</p>
                 {% endif %}
             </div>
+            <p id="spinner-text-prev">Loading</p>
         </div>
 
     </form>
@@ -145,18 +152,46 @@
 {% block extra_js %}
     <script type="text/javascript">
 
+        // init user_rand:
+        let user_rand_field = document.getElementById('id_0-user_rand');
+        if (user_rand_field) {
+            let user_rand_val = Math.floor(Math.random() * 1000);
+
+            user_rand_field.value = user_rand_val.toString();
+            user_rand_field.style.visibility = 'hidden';
+            user_rand_field.style.display = 'none';
+
+            console.log("user_rand=" + user_rand_val.toString()) // todo: delete
+        }
+
         // show/hide the loading spinner:
 
-        hide_loading_spinner(); // hide spinner as default#
+        hide_loading_spinner(); // hide spinner as default
 
-        function show_loading_spinner() {
+        function show_loading_spinner(next = true) {
+            let need_to_show_loading_spinner = false;
+
             let num_of_proteins_1 = document.getElementById('id_0-num_of_proteins_0');
             let num_of_proteins_2 = document.getElementById('id_0-num_of_proteins_1');
             if (num_of_proteins_1 && num_of_proteins_2) { // the user is currently filling form 0
                 if (num_of_proteins_1.checked || num_of_proteins_2.checked)
-                    change_visibility_of_element("loading_spinner", '', '');
+                    need_to_show_loading_spinner = true;
             } else
+                need_to_show_loading_spinner = true;
+
+            if (need_to_show_loading_spinner === true) {
                 change_visibility_of_element("loading_spinner", '', '');
+                let spinner_text_next = document.getElementById('spinner-text-next');
+                let spinner_text_prev = document.getElementById('spinner-text-prev');
+                if (next) { // "Next" and "Submit" buttons
+                    spinner_text_prev.style.visibility = 'hidden';
+                    spinner_text_prev.style.display = 'none';
+                }
+                else { // "Return To Start" and "Previous" buttons
+                    spinner_text_next.style.visibility = 'hidden';
+                    spinner_text_next.style.display = 'none';
+                }
+            }
         }
 
         function hide_loading_spinner() {

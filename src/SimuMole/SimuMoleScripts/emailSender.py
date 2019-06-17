@@ -26,7 +26,7 @@ size_limit = 10 * megabyte
 
 
 def send_email(receiver, file_name, user_rand):
-    file_name = "./media/files/" + user_rand + '/' +  file_name
+    file_name = "./media/files/" + user_rand + '/' + file_name
     size = os.stat(file_name).st_size
     if size < size_limit:
         send_file_attached(receiver, file_name)

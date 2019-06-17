@@ -12,8 +12,10 @@ from SimuMoleScripts.uploaded_simulation import pdb_and_dcd_match
 import random
 import string
 import os
+# import pymol
 import pymol2
 from time import sleep
+
 
 ################################
 #   Create Simulation
@@ -44,12 +46,12 @@ class SimulationForm0_LoadPdb(forms.Form):
         widget=forms.RadioSelect)
     second_pdb_id = forms.CharField(required=False, label='Enter your second pdb ID', max_length=10)
     second_pdb_file = forms.FileField(required=False, label='Upload your second pdb file')
-    
-    user_rand = forms.CharField(required=False, label='', initial = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(8)))
-    
+
+    user_rand = forms.CharField(required=False, label='')
+
     @staticmethod
-    def save_file(file: UploadedFile, filename: str):
-        file_storage = FileSystemStorage(location=os.path.join(settings.MEDIA_ROOT, 'files'))
+    def save_file(file: UploadedFile, filename: str, user_rand):
+        file_storage = FileSystemStorage(location=os.path.join(settings.MEDIA_ROOT, 'files', user_rand))
         file_storage.delete(filename)  # delete existing file with same name (due to clean_my_file previous calls)
         file_storage.save(filename, file)  # save existing file
 
@@ -70,7 +72,8 @@ class SimulationForm0_LoadPdb(forms.Form):
         first_pdb_id, first_pdb_file = data.get('first_pdb_id', None), data.get('first_pdb_file', None)
         second_pdb_type = data.get('second_pdb_type', None)
         second_pdb_id, second_pdb_file = data.get('second_pdb_id', None), data.get('second_pdb_file', None)
-        user_rand =  data.get('user_rand', None)
+        user_rand = data.get('user_rand', None)
+
         # clean_first_pdb_type
         if num_of_proteins == '1' or num_of_proteins == '2':
             if (first_pdb_type is None) or (first_pdb_type == ''):
@@ -122,15 +125,15 @@ class SimulationForm0_LoadPdb(forms.Form):
         # check that the input PDBs structure is valid
         # ("Invalid PDB id" / "Protein not supported by OpenMM" errors)
         # ....................................................................#
-        if (not os.path.exists("media/files/" + user_rand)):
+        if not os.path.exists("media/files/" + user_rand):
             os.mkdir("media/files/" + user_rand)
-        
+
         if first_id_exist:
             pdb_validation_result = self.pdb_id_validation(first_pdb_id, "_1_.pdb", user_rand)
             if pdb_validation_result is not None:
                 errors.append(forms.ValidationError("First protein: " + pdb_validation_result))
         if first_file_exist:
-            self.save_file(first_pdb_file, "_1_.pdb")
+            self.save_file(first_pdb_file, "_1_.pdb", user_rand)
             pdb_validation_result = self.pdb_file_validation("media/files/" + user_rand + '/' + "_1_.pdb", user_rand)
             if pdb_validation_result is not None:
                 errors.append(forms.ValidationError("First protein: " + pdb_validation_result))
@@ -139,15 +142,14 @@ class SimulationForm0_LoadPdb(forms.Form):
             if pdb_validation_result is not None:
                 errors.append(forms.ValidationError("Second protein: " + pdb_validation_result))
         if second_file_exist:
-            self.save_file(second_pdb_file, "_2_.pdb")
-            pdb_validation_result = self.pdb_file_validation("media/files/"  + user_rand + '/' +  "_2_.pdb", user_rand)
+            self.save_file(second_pdb_file, "_2_.pdb", user_rand)
+            pdb_validation_result = self.pdb_file_validation("media/files/" + user_rand + '/' + "_2_.pdb", user_rand)
             if pdb_validation_result is not None:
                 errors.append(forms.ValidationError("Second protein: " + pdb_validation_result))
 
         if len(errors) != 0:
             raise forms.ValidationError(errors)
-        
-        #cleaned_data['user_rand'] = user_rand
+
         return cleaned_data
 
     def pdb_id_validation(self, pdb_id, filename, user_rand):
@@ -242,11 +244,13 @@ class SimulationForm1_DetermineRelativePosition(forms.Form):
                 raise forms.ValidationError("All fields are required.")
 
         if not self.position_is_valid(data['x1'], data['y1'], data['z1'], data['x2'], data['y2'], data['z2'],
-                                      data['degXY_1'], data['degYZ_1'], data['degXY_2'], data['degYZ_2'], data['user_rand']):
+                                      data['degXY_1'], data['degYZ_1'], data['degXY_2'], data['degYZ_2'],
+                                      data['user_rand']):
             raise forms.ValidationError("Positions are not possible: The proteins collide with each other")
 
         self.change_relative_position(data['x1'], data['y1'], data['z1'], data['x2'], data['y2'], data['z2'],
-                                      data['degXY_1'], data['degYZ_1'], data['degXY_2'], data['degYZ_2'], data['user_rand'])
+                                      data['degXY_1'], data['degYZ_1'], data['degXY_2'], data['degYZ_2'],
+                                      data['user_rand'])
 
         return cleaned_data
 
@@ -266,11 +270,12 @@ class SimulationForm1_DetermineRelativePosition(forms.Form):
         fix_pdb(temp + filename_2_movement + pdb)
 
         # merge to single pdb file
-        #pymol.finish_launching(['pymol', '-q'])  # pymol: -q quiet launch, -c no gui, -e fullscreen
-        #cmd = pymol.cmd
+        # pymol.finish_launching(['pymol', '-q'])  # pymol: -q quiet launch, -c no gui, -e fullscreen
+        # cmd = pymol.cmd
         p1 = pymol2.PyMOL()
         p1.start()
         cmd = p1.cmd
+
         cmd.reinitialize()
         sleep(0.5)
         cmd.load(temp + filename_1_movement + pdb)
@@ -356,6 +361,7 @@ class SimulationForm2_SimulationParameters(forms.Form):
 class UploadFiles(forms.Form):
     pdb_file = forms.FileField(required=True, label='Upload a PDB file')
     dcd_file = forms.FileField(required=True, label='Upload a DCD file')
+    user_rand = forms.CharField(required=False, label='')
 
     def clean(self):
         errors = []
@@ -376,16 +382,19 @@ class UploadFiles(forms.Form):
             raise forms.ValidationError(errors)
 
         # save files (only after checking that their format is correct)
-        self.save_file(pdb_file, "file_upload_pdb.pdb")
-        self.save_file(dcd_file, "file_upload_dcd.dcd")
+        user_rand = self.cleaned_data['user_rand']
+        if not os.path.exists("media/files/" + user_rand):
+            os.mkdir("media/files/" + user_rand)
+        self.save_file(pdb_file, "file_upload_pdb.pdb", user_rand)
+        self.save_file(dcd_file, "file_upload_dcd.dcd", user_rand)
 
         # check match between the files
-        if not pdb_and_dcd_match("file_upload_pdb.pdb", "file_upload_dcd.dcd"):
+        if not pdb_and_dcd_match("file_upload_pdb.pdb", "file_upload_dcd.dcd", user_rand):
             raise forms.ValidationError("The PDB file does not match the DCD file (the number of atoms is different)")
 
     @staticmethod
-    def save_file(file: UploadedFile, filename: str):
-        path = os.path.join(settings.MEDIA_ROOT, 'files')
+    def save_file(file: UploadedFile, filename: str, user_rand):
+        path = os.path.join(settings.MEDIA_ROOT, 'files', user_rand)
         file_storage = FileSystemStorage(location=path)
 
         file_storage.delete(filename)  # delete existing file with same name
