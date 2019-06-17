@@ -50,8 +50,8 @@ class SimulationForm0_LoadPdb(forms.Form):
     user_rand = forms.CharField(required=False, label='')
 
     @staticmethod
-    def save_file(file: UploadedFile, filename: str):
-        file_storage = FileSystemStorage(location=os.path.join(settings.MEDIA_ROOT, 'files'))
+    def save_file(file: UploadedFile, filename: str, user_rand):
+        file_storage = FileSystemStorage(location=os.path.join(settings.MEDIA_ROOT, 'files', user_rand))
         file_storage.delete(filename)  # delete existing file with same name (due to clean_my_file previous calls)
         file_storage.save(filename, file)  # save existing file
 
@@ -133,7 +133,7 @@ class SimulationForm0_LoadPdb(forms.Form):
             if pdb_validation_result is not None:
                 errors.append(forms.ValidationError("First protein: " + pdb_validation_result))
         if first_file_exist:
-            self.save_file(first_pdb_file, "_1_.pdb")
+            self.save_file(first_pdb_file, "_1_.pdb", user_rand)
             pdb_validation_result = self.pdb_file_validation("media/files/" + user_rand + '/' + "_1_.pdb", user_rand)
             if pdb_validation_result is not None:
                 errors.append(forms.ValidationError("First protein: " + pdb_validation_result))
@@ -142,7 +142,7 @@ class SimulationForm0_LoadPdb(forms.Form):
             if pdb_validation_result is not None:
                 errors.append(forms.ValidationError("Second protein: " + pdb_validation_result))
         if second_file_exist:
-            self.save_file(second_pdb_file, "_2_.pdb")
+            self.save_file(second_pdb_file, "_2_.pdb", user_rand)
             pdb_validation_result = self.pdb_file_validation("media/files/" + user_rand + '/' + "_2_.pdb", user_rand)
             if pdb_validation_result is not None:
                 errors.append(forms.ValidationError("Second protein: " + pdb_validation_result))
