@@ -117,7 +117,7 @@ def create_movies_from_different_angles(cmd, user_rand):
     cmd.do("orient")
     cmd.do("zoom complete = 1")
     cmd.do("as cartoon")
-    cmd.do("preset.pretty(selection='all')")
+    cmd.do("spectrum")
     cmd.do("smooth")
     cmd.do("set max_threads, 1")
     cmd.do("axes")
