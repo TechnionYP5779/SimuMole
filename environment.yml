@@ -6,7 +6,6 @@ channels:
   - defaults
 dependencies:
   - pdbfixer=1.5=py37_0
-  - pip=19.1.1=py37_0
   - pymol=2.3.2=py37h75f9260_0
   - pip:
     - django==2.2.2
