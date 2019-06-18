@@ -40,6 +40,35 @@
             margin-right: 10px;
         }
 
+        {#.......... spinner ..........#}
+
+        @keyframes spinner {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .spinner:before {
+            content: '';
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid #e7e7e7;
+            border-top-color: #07d;
+            border-bottom-color: #07d;
+            animation: spinner .8s ease infinite;
+            display: inline-block;
+        }
+
+        #spinner-image-1, #spinner-image-2 {
+            display: inline-block;
+            margin-right: 5px;
+        }
+
+        #spinner-text-1, spinner-text-2 {
+            display: inline-block;
+        }
+
         {################################################################}
         {# watch the animations                                         #}
         {################################################################}
@@ -290,6 +319,13 @@
             <button type="button" id="download__zip_id" onclick="download__zip_event()">
                 Download as zip
             </button>
+            <!-- email loading spinner -->
+            <div id="zip_loading_spinner">
+                <div class="spinner" id="spinner-image-1"></div>
+                <div id="spinner-text-1">
+                    <p>Loading...</p>
+                </div>
+            </div>
             <br>
 
             <button type="button" id="download__email_id" onclick="download__email_event()">
@@ -306,6 +342,13 @@
             <p class="success_message" id="download__successful_sending">
                 The email was sent successfully. Please check your inbox
             </p>
+            <!-- email loading spinner -->
+            <div id="email_loading_spinner">
+                <div class="spinner" id="spinner-image-2"></div>
+                <div id="spinner-text-2">
+                    <p>Loading...</p>
+                </div>
+            </div>
             <br>
 
         </form>
@@ -408,6 +451,25 @@
         hide_element("download__empty_email_error", 'none');
         hide_element("download__illegal_email_error", 'none');
         hide_element("download__successful_sending", 'none');
+        hide_email_loading_spinner(); // hide email spinner as default
+        hide_zip_loading_spinner(); // hide zip spinner as default
+
+        function show_email_loading_spinner() {
+            change_visibility_of_element("email_loading_spinner", '', 'inline-flex');
+        }
+
+        function hide_email_loading_spinner() {
+            change_visibility_of_element("email_loading_spinner", 'hidden', 'none');
+        }
+
+        function show_zip_loading_spinner() {
+            change_visibility_of_element("zip_loading_spinner", '', 'inline-flex');
+        }
+
+        function hide_zip_loading_spinner() {
+            change_visibility_of_element("zip_loading_spinner", 'hidden', 'none');
+        }
+
 
         function download__zip_event() {
             num_of_proteins = {{ num_of_proteins }};
@@ -419,6 +481,8 @@
                 show_element("download__select_error");
                 return
             }
+
+            show_zip_loading_spinner();
 
             $.ajax({
                 url: '{% url 'download__zip' %}',
@@ -432,12 +496,15 @@
                 },
                 dataType: 'json',
                 success: function () {
+                    hide_zip_loading_spinner();
                     location.href = "/media/files/" + "{{user_rand}}" + "/SimuMole_output.zip"
                 }
             });
         }
 
         function download__email_event() {
+            download__hide_empty_email_error(true);
+
             num_of_proteins = {{ num_of_proteins }};
             const pdb_file = document.getElementById("pdb_file").checked;
             const dcd_file = document.getElementById("dcd_file").checked;
@@ -454,6 +521,8 @@
                 return
             }
 
+            show_email_loading_spinner();
+
             $.ajax({
                 url: '{% url 'download__email' %}',
                 data: {
@@ -468,6 +537,7 @@
                 dataType: 'json',
                 success:
                     function (response) {
+                        hide_email_loading_spinner();
                         let email_success = response['email_success'];
                         if (email_success === 'true') {
                             show_element("download__successful_sending", 'inline');
@@ -491,24 +561,24 @@
             }
         }
 
-        function download__hide_empty_email_error() {
+        function download__hide_empty_email_error(force_hiding = false) {
             const email = document.getElementById("download__empty_email_error").value;
 
             const empty_email_error = document.getElementById("download__empty_email_error");
             const empty_email_error_visibility = empty_email_error.style.visibility;
-            if (email !== '' && empty_email_error_visibility === '') {
+            if ((email !== '' && empty_email_error_visibility === '') || (force_hiding)) {
                 hide_element("download__empty_email_error", 'none')
             }
 
             const illegal_email_error = document.getElementById("download__illegal_email_error");
             const illegal_email_error_visibility = illegal_email_error.style.visibility;
-            if (email !== '' && illegal_email_error_visibility === '') {
+            if ((email !== '' && illegal_email_error_visibility === '') || (force_hiding)) {
                 hide_element("download__illegal_email_error", 'none')
             }
 
             const successful_sending = document.getElementById("download__successful_sending");
             const successful_sending_visibility = successful_sending.style.visibility;
-            if (email !== '' && successful_sending_visibility === '') {
+            if ((email !== '' && successful_sending_visibility === '') || (force_hiding)) {
                 hide_element("download__successful_sending", 'none')
             }
         }
