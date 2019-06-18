@@ -7,22 +7,22 @@ from django.core.files.storage import FileSystemStorage
 from django.conf import settings
 from SimuMoleScripts.basicTrajectoryBuilder import scr_for_checks
 from SimuMoleScripts.fix_pdb import fix_pdb
-from SimuMoleScripts.transformations import get_atoms, get_atoms_string, translate_vecs, rotate_molecular
+from SimuMoleScripts.transformations import get_atoms, get_atoms_string, translate_vecs, rotate_molecular, translate_pdb
 from SimuMoleScripts.uploaded_simulation import pdb_and_dcd_match
-
+import random
+import string
 import os
+# import pymol
+import pymol2
+from time import sleep
+
 
 ################################
 #   Create Simulation
 ################################
 
-do_checks_cnt = 0
-
 
 class SimulationForm0_LoadPdb(forms.Form):
-    global do_checks
-    do_checks = True
-
     num_of_proteins = forms.ChoiceField(
         required=True,
         label='Choose whether to load one or two proteins',
@@ -47,123 +47,122 @@ class SimulationForm0_LoadPdb(forms.Form):
     second_pdb_id = forms.CharField(required=False, label='Enter your second pdb ID', max_length=10)
     second_pdb_file = forms.FileField(required=False, label='Upload your second pdb file')
 
+    user_rand = forms.CharField(required=False, label='')
+
     @staticmethod
-    def save_file(file: UploadedFile, filename: str):
-        file_storage = FileSystemStorage(location=os.path.join(settings.MEDIA_ROOT, 'files'))
+    def save_file(file: UploadedFile, filename: str, user_rand):
+        file_storage = FileSystemStorage(location=os.path.join(settings.MEDIA_ROOT, 'files', user_rand))
         file_storage.delete(filename)  # delete existing file with same name (due to clean_my_file previous calls)
         file_storage.save(filename, file)  # save existing file
 
-    @staticmethod
-    def update_cnt():
-        global do_checks_cnt
-        loop_amount = 9
-
-        if do_checks_cnt < loop_amount - 1:
-            do_checks_cnt += 1
-        else:
-            do_checks_cnt = 0
-
     def clean(self):
         cleaned_data = super(SimulationForm0_LoadPdb, self).clean()
-        # data = {**self.initial, **cleaned_data}  # self.initial->from previous steps, cleaned_data->from current step
-        SimulationForm0_LoadPdb.update_cnt()
-        return cleaned_data
+        data = {**self.initial, **cleaned_data}  # self.initial->from previous steps, cleaned_data->from current step
 
-    # first pdb validation:
+        errors = []
+        first_id_exist, first_file_exist, second_id_exist, second_file_exist = False, False, False, False
 
-    def clean_first_pdb_type(self):
-        num_of_proteins = self.cleaned_data['num_of_proteins']
-        first_pdb_type = self.cleaned_data['first_pdb_type']
+        # ....................................................................#
+        # check that the form structure is valid
+        # ("field is required" errors)
+        # ....................................................................#
+
+        num_of_proteins = data.get('num_of_proteins', None)
+        first_pdb_type = data.get('first_pdb_type', None)
+        first_pdb_id, first_pdb_file = data.get('first_pdb_id', None), data.get('first_pdb_file', None)
+        second_pdb_type = data.get('second_pdb_type', None)
+        second_pdb_id, second_pdb_file = data.get('second_pdb_id', None), data.get('second_pdb_file', None)
+        user_rand = data.get('user_rand', None)
+
+        # clean_first_pdb_type
         if num_of_proteins == '1' or num_of_proteins == '2':
-            if first_pdb_type == '':
-                raise forms.ValidationError("This field is required.")
-        return first_pdb_type
+            if (first_pdb_type is None) or (first_pdb_type == ''):
+                errors.append(forms.ValidationError("First protein: The 'PDB type' field is required."))
 
-    def clean_first_pdb_id(self):
-        num_of_proteins = self.cleaned_data['num_of_proteins']
-        if self.cleaned_data.get('first_pdb_type') is not None:
-            first_pdb_type = self.cleaned_data['first_pdb_type']
-            first_pdb_id = self.cleaned_data['first_pdb_id']
+        # clean_first_pdb_id
+        if first_pdb_type is not None:
             if (num_of_proteins == '1' or num_of_proteins == '2') and first_pdb_type == 'by_id':
-                if first_pdb_id == '':
-                    raise forms.ValidationError("This field is required.")
+                if (first_pdb_id is None) or (first_pdb_id == ''):
+                    errors.append(forms.ValidationError("First protein: The 'by id' field is required."))
                 else:
-                    self.pdb_id_validation(first_pdb_id)
-            return first_pdb_id
+                    first_id_exist = True
 
-    def clean_first_pdb_file(self):
-        num_of_proteins = self.cleaned_data['num_of_proteins']
-        if self.cleaned_data.get('first_pdb_type') is not None:
-            first_pdb_type = self.cleaned_data['first_pdb_type']
+        # clean_first_pdb_file
+        if first_pdb_type is not None:
             first_pdb_file: UploadedFile = self.cleaned_data['first_pdb_file']
             if (num_of_proteins == '1' or num_of_proteins == '2') and first_pdb_type == 'by_file':
-                if first_pdb_file == '':
-                    raise forms.ValidationError("This field is required.")
+                if (first_pdb_file is None) or (first_pdb_file == ''):
+                    errors.append(forms.ValidationError("First protein: The 'by file' field is required."))
                 else:
-                    pass
-                    # self.pdb_file_validation(first_pdb_file)
-                    # TODO: fix
-                self.save_file(first_pdb_file, "_1_.pdb")
-            return first_pdb_file
+                    first_file_exist = True
 
-    # second pdb validation:
-
-    def clean_second_pdb_type(self):
-        num_of_proteins = self.cleaned_data['num_of_proteins']
-        second_pdb_type = self.cleaned_data['second_pdb_type']
+        # clean_second_pdb_type
         if num_of_proteins == '2':
-            if second_pdb_type == '':
-                raise forms.ValidationError("This field is required.")
-        return second_pdb_type
+            if (second_pdb_type is None) or (second_pdb_type == ''):
+                errors.append(forms.ValidationError("Second protein: The 'PDB type' field is required."))
 
-    def clean_second_pdb_id(self):
-        num_of_proteins = self.cleaned_data['num_of_proteins']
-        if self.cleaned_data.get('second_pdb_type') is not None:
-            second_pdb_type = self.cleaned_data['second_pdb_type']
-            second_pdb_id = self.cleaned_data['second_pdb_id']
+        # clean_second_pdb_id
+        if second_pdb_type is not None:
             if (num_of_proteins == '2') and second_pdb_type == 'by_id':
-                if second_pdb_id == '':
-                    raise forms.ValidationError("This field is required.")
+                if (second_pdb_id is None) or (second_pdb_id == ''):
+                    errors.append(forms.ValidationError("Second protein: The 'by id' field is required."))
                 else:
-                    self.pdb_id_validation(second_pdb_id)
-            return second_pdb_id
+                    second_id_exist = True
 
-    def clean_second_pdb_file(self):
-        num_of_proteins = self.cleaned_data['num_of_proteins']
-        if self.cleaned_data.get('second_pdb_type') is not None:
-            second_pdb_type = self.cleaned_data['second_pdb_type']
+        # clean_second_pdb_file
+        if second_pdb_type is not None:
             second_pdb_file: UploadedFile = self.cleaned_data['second_pdb_file']
             if (num_of_proteins == '2') and second_pdb_type == 'by_file':
-                if second_pdb_file == '':
-                    raise forms.ValidationError("This field is required.")
+                if (second_pdb_file is None) or (second_pdb_file == ''):
+                    errors.append(forms.ValidationError("Second protein: The 'by file' field is required."))
                 else:
-                    pass
-                    # self.pdb_file_validation(second_pdb_file)
-                    # TODO: fix
-                self.save_file(second_pdb_file, "_2_.pdb")
-            return second_pdb_file
+                    second_file_exist = True
 
-    # pdb validation checks:
+        if len(errors) != 0:
+            raise forms.ValidationError(errors)
 
-    def pdb_id_validation(self, pdb_id):
-        global do_checks_cnt
-        if do_checks_cnt != 0:
-            return
+        # ....................................................................#
+        # check that the input PDBs structure is valid
+        # ("Invalid PDB id" / "Protein not supported by OpenMM" errors)
+        # ....................................................................#
+        if not os.path.exists("media/files/" + user_rand):
+            os.mkdir("media/files/" + user_rand)
 
+        if first_id_exist:
+            pdb_validation_result = self.pdb_id_validation(first_pdb_id, "_1_.pdb", user_rand)
+            if pdb_validation_result is not None:
+                errors.append(forms.ValidationError("First protein: " + pdb_validation_result))
+        if first_file_exist:
+            self.save_file(first_pdb_file, "_1_.pdb", user_rand)
+            pdb_validation_result = self.pdb_file_validation("media/files/" + user_rand + '/' + "_1_.pdb", user_rand)
+            if pdb_validation_result is not None:
+                errors.append(forms.ValidationError("First protein: " + pdb_validation_result))
+        if second_id_exist:
+            pdb_validation_result = self.pdb_id_validation(second_pdb_id, "_2_.pdb", user_rand)
+            if pdb_validation_result is not None:
+                errors.append(forms.ValidationError("Second protein: " + pdb_validation_result))
+        if second_file_exist:
+            self.save_file(second_pdb_file, "_2_.pdb", user_rand)
+            pdb_validation_result = self.pdb_file_validation("media/files/" + user_rand + '/' + "_2_.pdb", user_rand)
+            if pdb_validation_result is not None:
+                errors.append(forms.ValidationError("Second protein: " + pdb_validation_result))
+
+        if len(errors) != 0:
+            raise forms.ValidationError(errors)
+
+        return cleaned_data
+
+    def pdb_id_validation(self, pdb_id, filename, user_rand):
         if not self.pdb_id_exists(pdb_id):
-            raise forms.ValidationError("invalid PDB id")
+            return "Invalid PDB id"
+        if not self.pdb_id_valid(pdb_id, filename, user_rand):
+            return "Protein not supported by OpenMM"
+        return None
 
-        # if not self.pdb_id_valid(pdb_id):
-        #     raise forms.ValidationError("Protein not supported by OpenMM")
-        # TODO: fix
-
-    def pdb_file_validation(self, pdb_id):
-        global do_checks_cnt
-        if do_checks_cnt != 0:
-            return
-
-        if not self.pdb_file_valid(pdb_id):
-            raise forms.ValidationError("Protein not supported by OpenMM")
+    def pdb_file_validation(self, pdb_id, user_rand):
+        if not self.pdb_file_valid(pdb_id, user_rand):
+            return "Protein not supported by OpenMM"
+        return None
 
     @staticmethod
     def pdb_id_exists(pdb_id):
@@ -173,39 +172,39 @@ class SimulationForm0_LoadPdb(forms.Form):
         return True
 
     @staticmethod
-    def download_pdb(pdb_id):
+    def download_pdb(pdb_id, filename, user_rand):
         response = requests.get("https://files.rcsb.org/view/" + pdb_id + ".pdb")
-        pdb_file_name = "media/files/" + pdb_id + ".pdb"
+        pdb_file_name = "media/files/" + user_rand + '/' + filename
         pdb_file = open(pdb_file_name, 'w')
         pdb_file.write(response.text)
         pdb_file.close()
         response.close()
         return pdb_file_name
 
-    '''
-    Checks whether a pdb id can be used in an openMM simulation by downloading the relevant file and testing it.
-    This function assumes the id is valid.
-    '''
+    @staticmethod
+    def pdb_id_valid(pdb_id, filename, user_rand):
+        """
+        Checks whether a pdb id can be used in an openMM simulation by downloading the relevant file and testing it.
+        This function assumes the id is valid.
+        """
+        pdb_file_name = SimulationForm0_LoadPdb.download_pdb(pdb_id, filename, user_rand)
+        return SimulationForm0_LoadPdb.pdb_file_valid(pdb_file_name, user_rand)
 
     @staticmethod
-    def pdb_id_valid(pdb_id):
-        pdb_file_name = SimulationForm0_LoadPdb.download_pdb(pdb_id)
-        return SimulationForm0_LoadPdb.pdb_file_valid(pdb_file_name)
+    def pdb_file_valid(pdb_file_name, user_rand):
+        """
+        Checks if the given file can be used in an openMM simulation.
+        If it can run without fixing then it returns true.
+        If it can run with fixing it will return true AND fix the file.
+        Otherwise it returns false.
+        """
+        dcd_file = "media/files/" + user_rand + '/' + "scr_for_checks.dcd"
 
-    '''
-    Checks if the given file can be used in an openMM simulation.
-    If it can run without fixing then it returns true.
-    If it can run with fixing it will return true AND fix the file.
-    Otherwise it returns false.
-    '''
-
-    @staticmethod
-    def pdb_file_valid(pdb_file):
-        dcd_file = "media/files/very_good.dcd"
         fix_not_needed = True
         try:
-            scr_for_checks(pdb_file)
-        except Exception:
+            scr_for_checks(pdb_file_name, user_rand)
+        except Exception as e:
+            # print(str(e))
             fix_not_needed = False
         finally:
             if os.path.exists(dcd_file):
@@ -215,13 +214,12 @@ class SimulationForm0_LoadPdb(forms.Form):
             return True
 
         try:
-            fix_pdb(pdb_file)
-            scr_for_checks(pdb_file)
-        except Exception:
+            fix_pdb(pdb_file_name)
+            scr_for_checks(pdb_file_name, user_rand)
+        except Exception as e:
+            print(str(e))
             return False
-        finally:
-            if os.path.exists(dcd_file):
-                os.remove(dcd_file)
+
         return True
 
 
@@ -245,20 +243,52 @@ class SimulationForm1_DetermineRelativePosition(forms.Form):
             if data[field] == '' or data[field] is None:
                 raise forms.ValidationError("All fields are required.")
 
-        if not self.position_is_valid(data['x1'], data['y1'], data['z1'],
-                                      data['x2'], data['y2'], data['z2'],
+        if not self.position_is_valid(data['x1'], data['y1'], data['z1'], data['x2'], data['y2'], data['z2'],
                                       data['degXY_1'], data['degYZ_1'], data['degXY_2'], data['degYZ_2'],
-                                      data['first_pdb_id'], data['second_pdb_id'], data['first_pdb_type'],
-                                      data['second_pdb_type'], data['first_pdb_file'], data['second_pdb_file']):
+                                      data['user_rand']):
             raise forms.ValidationError("Positions are not possible: The proteins collide with each other")
+
+        self.change_relative_position(data['x1'], data['y1'], data['z1'], data['x2'], data['y2'], data['z2'],
+                                      data['degXY_1'], data['degYZ_1'], data['degXY_2'], data['degYZ_2'],
+                                      data['user_rand'])
 
         return cleaned_data
 
     @staticmethod
-    def position_is_valid(x1, y1, z1, x2, y2, z2, degXY_1, degYZ_1, degXY_2, degYZ_2,
-                          first_pdb_id, second_pdb_id, first_pdb_type, second_pdb_type,
-                          first_pdb_file, second_pdb_file):
-        # DONE 6: check with PyMol that the proteins do not collide with each other (need to add the pdbs parameters)
+    def change_relative_position(x1, y1, z1, x2, y2, z2, degXY_1, degYZ_1, degXY_2, degYZ_2, user_rand):
+        """
+        Save PDB file that represents the 2 PDB files after you change the positions and running pdb_fixer
+        """
+        # change positions
+        filename_1, filename_2, pdb, temp = '_1_', '_2_', '.pdb', 'media/files/' + user_rand + '/'
+        filename_1_movement, filename_2_movement = filename_1 + '__movement', filename_2 + '__movement'
+        translate_pdb(temp + filename_1 + pdb, temp + filename_1_movement + pdb, x1, y1, z1, degXY_1, degYZ_1)
+        translate_pdb(temp + filename_2 + pdb, temp + filename_2_movement + pdb, x2, y2, z2, degXY_2, degYZ_2)
+
+        # fix pdb
+        fix_pdb(temp + filename_1_movement + pdb)
+        fix_pdb(temp + filename_2_movement + pdb)
+
+        # merge to single pdb file
+        # pymol.finish_launching(['pymol', '-q'])  # pymol: -q quiet launch, -c no gui, -e fullscreen
+        # cmd = pymol.cmd
+        while(not (os.path.isfile(temp + "both_1_2" + pdb))):
+            p1 = pymol2.PyMOL()
+            p1.start()
+            cmd = p1.cmd
+
+            cmd.reinitialize()
+            sleep(0.5)
+            cmd.load(temp + filename_1_movement + pdb)
+            cmd.load(temp + filename_2_movement + pdb)
+            cmd.zoom()
+            cmd.save(temp + "both_1_2" + pdb)
+
+    @staticmethod
+    def position_is_valid(x1, y1, z1, x2, y2, z2, degXY_1, degYZ_1, degXY_2, degYZ_2, user_rand):
+        """
+        check with PyMol that the proteins do not collide with each other
+        """
 
         # return max X,Y,Z locations from all the atoms in vecs
         def get_max_XYZ(vecs):
@@ -269,18 +299,12 @@ class SimulationForm1_DetermineRelativePosition(forms.Form):
             return min(vecs, key=lambda v: v[0])[0], min(vecs, key=lambda v: v[1])[1], min(vecs, key=lambda v: v[2])[2]
 
         # get the atoms of the first protein after moving it in x1,y1,z1
-        if first_pdb_type == 'by_id':
-            vecs1 = get_atoms_string(requests.get('https://files.rcsb.org/view/' + first_pdb_id + '.pdb').text)
-        else:
-            vecs1 = get_atoms('media/files/_1_.pdb')
+        vecs1 = get_atoms('media/files/' + user_rand + '/' + '_1_.pdb')
         translate_vecs(x1, y1, z1, vecs1)
         rotate_molecular(x1, y1, z1, degXY_1, degYZ_1, vecs1)
 
         # get the atoms of the second protein after moving it in x2,y2,z2
-        if second_pdb_type == 'by_id':
-            vecs2 = get_atoms_string(requests.get("https://files.rcsb.org/view/" + second_pdb_id + ".pdb").text)
-        else:
-            vecs2 = get_atoms('media/files/_2_.pdb')
+        vecs2 = get_atoms('media/files/' + user_rand + '/' + '_2_.pdb')
         translate_vecs(x2, y2, z2, vecs2)
         rotate_molecular(x2, y2, z2, degXY_2, degYZ_2, vecs2)
 
@@ -311,9 +335,6 @@ class SimulationForm2_SimulationParameters(forms.Form):
         widget=forms.RadioSelect, initial='celsius')
     temperature = forms.FloatField(required=False, label='Enter temperature', initial=30)
 
-    # time_step_duration = forms.FloatField(required=False,
-    #                                       label='Enter the duration of the time step (in fs/femto-second)',
-    #                                       initial=2.0) // todo: check if we can add this field
     time_step_number = forms.IntegerField(required=False, label='Enter the number of time steps (frames)', initial=5)
 
     def clean(self):
@@ -341,6 +362,7 @@ class SimulationForm2_SimulationParameters(forms.Form):
 class UploadFiles(forms.Form):
     pdb_file = forms.FileField(required=True, label='Upload a PDB file')
     dcd_file = forms.FileField(required=True, label='Upload a DCD file')
+    user_rand = forms.CharField(required=False, label='')
 
     def clean(self):
         errors = []
@@ -361,16 +383,19 @@ class UploadFiles(forms.Form):
             raise forms.ValidationError(errors)
 
         # save files (only after checking that their format is correct)
-        self.save_file(pdb_file, "file_upload_pdb.pdb")
-        self.save_file(dcd_file, "file_upload_dcd.dcd")
+        user_rand = self.cleaned_data['user_rand']
+        if not os.path.exists("media/files/" + user_rand):
+            os.mkdir("media/files/" + user_rand)
+        self.save_file(pdb_file, "file_upload_pdb.pdb", user_rand)
+        self.save_file(dcd_file, "file_upload_dcd.dcd", user_rand)
 
         # check match between the files
-        if not pdb_and_dcd_match("file_upload_pdb.pdb", "file_upload_dcd.dcd"):
+        if not pdb_and_dcd_match("file_upload_pdb.pdb", "file_upload_dcd.dcd", user_rand):
             raise forms.ValidationError("The PDB file does not match the DCD file (the number of atoms is different)")
 
     @staticmethod
-    def save_file(file: UploadedFile, filename: str):
-        path = os.path.join(settings.MEDIA_ROOT, 'files')
+    def save_file(file: UploadedFile, filename: str, user_rand):
+        path = os.path.join(settings.MEDIA_ROOT, 'files', user_rand)
         file_storage = FileSystemStorage(location=path)
 
         file_storage.delete(filename)  # delete existing file with same name
