@@ -12,6 +12,9 @@ from django.conf import settings
 import os
 import threading
 import zipfile
+import datetime
+import shutil
+from datetime import datetime
 
 temp = 'media/files/'  # path to temp folder
 
@@ -213,6 +216,29 @@ class SimulationWizard(CookieWizardView):
                        form_dict['time_step_number'], form_dict['user_rand'])
         s.create_simulation()
 
+    def delete_temp_files_thread(self, ):
+        today = datetime.now()  # .strftime('%Y-%m-%d %H:%M:%S')
+        print("time={}".format(today))
+
+        path_list = ['files', 'videos']
+        for path in path_list:
+            path = os.path.join(settings.MEDIA_ROOT, path)
+
+            list_of_files_in_dir = os.listdir(path)
+            for dir in list_of_files_in_dir:
+                dir_path = os.path.join(settings.MEDIA_ROOT, path, dir)
+
+                # print(dir)
+                time = os.path.getmtime(dir_path)
+                time = datetime.fromtimestamp(time)  # .strftime('%Y-%m-%d %H:%M:%S')
+                # print("\t time={}".format(time))
+
+                diff = today - time
+                # print("\t diff={}".format(diff))
+
+                if "day" in str(diff) and (dir != "_init_folder_file.txt"):
+                    shutil.rmtree(dir_path)  # recursive
+
     def done(self, form_list, **kwargs):
         """
         override "done": this function is called when the form is submitted
@@ -221,6 +247,11 @@ class SimulationWizard(CookieWizardView):
         form_data = [form.cleaned_data for form in form_list]
         form_dict = {k: v for d in form_data for k, v in d.items()}  # convert list of dictionaries to one dictionary
         form_dict = self.clean_form_dict(form_dict)
+
+        # Create a new thread responsible for deleting old files:
+        t_delete_files = threading.Thread(target=self.delete_temp_files_thread(), args=())
+        t_delete_files.setDaemon(True)
+        t_delete_files.start()
 
         # Create a new thread responsible for creating the simulation:
         t = threading.Thread(target=self.create_simulation_thread, args=(form_dict,))
