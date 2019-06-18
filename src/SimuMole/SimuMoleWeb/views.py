@@ -320,3 +320,6 @@ def upload_files(request):
     else:
         form = UploadFiles()
     return render(request, 'file_upload.html', {'form': form})
+
+def help_page(request):
+    return render(request, 'help.html')
