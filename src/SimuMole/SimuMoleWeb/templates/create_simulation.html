@@ -180,7 +180,7 @@
                 need_to_show_loading_spinner = true;
 
             if (need_to_show_loading_spinner === true) {
-                change_visibility_of_element("loading_spinner", '', '');
+                change_visibility_of_element("loading_spinner", '', '-webkit-box');
                 let spinner_text_next = document.getElementById('spinner-text-next');
                 let spinner_text_prev = document.getElementById('spinner-text-prev');
                 if (next) { // "Next" and "Submit" buttons

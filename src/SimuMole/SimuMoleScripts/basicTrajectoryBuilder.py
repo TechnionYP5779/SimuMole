@@ -19,9 +19,14 @@ def scr(input_coor_name, temperature, time_step_number, user_rand):
     integrator = mm.LangevinIntegrator(temperature * unit.kelvin, 1.0 / unit.picoseconds, 2.0 * unit.femtoseconds)
     integrator.setConstraintTolerance(0.00001)
 
-    platform = mm.Platform.getPlatformByName('CPU')
+    # platform = mm.Platform.getPlatformByName('CPU')
 
-    simulation = app.Simulation(pdb.topology, system, integrator, platform)
+    # simulation = app.Simulation(pdb.topology, system, integrator, platform)
+    platform = mm.Platform.getPlatformByName('OpenCL')
+    properties = {'OpenCLPrecision': 'mixed'}
+
+    simulation = app.Simulation(pdb.topology, system, integrator, platform, properties)
+
     simulation.context.setPositions(pdb.positions)
 
     update_simulation_status('Minimizing energy...', user_rand)
@@ -61,9 +66,13 @@ def scr_for_checks(input_coor_name, user_rand, full_check=False):
         integrator = mm.LangevinIntegrator(300 * unit.kelvin, 1.0 / unit.picoseconds, 2.0 * unit.femtoseconds)
         integrator.setConstraintTolerance(0.00001)
 
-        platform = mm.Platform.getPlatformByName('CPU')
+        # platform = mm.Platform.getPlatformByName('CPU')
 
-        simulation = app.Simulation(pdb.topology, system, integrator, platform)
+        # simulation = app.Simulation(pdb.topology, system, integrator, platform)
+        platform = mm.Platform.getPlatformByName('OpenCL')
+        properties = {'OpenCLPrecision': 'mixed'}
+
+        simulation = app.Simulation(pdb.topology, system, integrator, platform, properties)
         simulation.context.setPositions(pdb.positions)
 
         # Minimizing
